@@ -1,0 +1,16 @@
+﻿{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$input | Add-Content -Path 'C:\\Users\\filip\\Documents\\TVZ\\Razvoj web aplikacija u ASP.NET MVC tehnologiji\\Labosi kod\\ASP.NET-MVC-Labosi\\lab-1\\agent_log.txt'\""
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$input | Add-Content -Path 'C:\\Users\\filip\\Documents\\TVZ\\Razvoj web aplikacija u ASP.NET MVC tehnologiji\\Labosi kod\\ASP.NET-MVC-Labosi\\lab-1\\agent_log.txt'\""
+      }
+    ]
+  }
+}
