@@ -1,6 +1,6 @@
 # Logs one completed turn: latest user message + latest agent response.
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$logDir = Join-Path $repoRoot "lab-1"
+$logDir = Join-Path $repoRoot "lab-2"
 $logFile = Join-Path $logDir "agent_log.txt"
 $debugFile = Join-Path $logDir "agent_log_debug.txt"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null

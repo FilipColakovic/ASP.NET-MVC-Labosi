@@ -7,7 +7,7 @@ param(
     [int]$SleepSeconds = 1
 )
 
-$logDir = Join-Path $RepoRoot "lab-1"
+$logDir = Join-Path $RepoRoot "lab-2"
 $logFile = Join-Path $logDir "agent_log.txt"
 $debugFile = Join-Path $logDir "agent_log_debug.txt"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null

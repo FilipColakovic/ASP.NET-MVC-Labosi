@@ -1,0 +1,27 @@
+﻿Timestamp: 2026-04-13T00:56:57
+Status: final
+User Input: log zapisi u folder lab-2
+Agent output: Logovi su preusmjereni u folder [lab-2](lab-2).
+
+Promijenio sam:
+1. [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L3) â†’ `$logDir` sada koristi `"lab-2"`.
+2. [`.github/hooks/write-agent-log-finalize.ps1`](.github/hooks/write-agent-log-finalize.ps1#L10) â†’ `$logDir` sada koristi `"lab-2"`.
+
+Provjera je proÅ¡la: u hook skriptama viÅ¡e nema reference na `lab-1`.
+
+Timestamp: 2026-04-14T22:52:36
+Status: final
+User Input: what are your capabilities
+Agent output: I can help end-to-end inside your VS Code workspace, including:
+
+1. Read and understand your codebase quickly.
+2. Edit existing files and create new ones.
+3. Run terminal commands, build, test, and troubleshoot errors.
+4. Refactor code, add features, and fix bugs.
+5. Review code for defects, regressions, and missing tests.
+6. Work with ASP.NET MVC, Razor views, C#, JavaScript, CSS, and common tooling.
+7. Design and implement modern UI updates (responsive and accessible).
+8. Summarize findings clearly and suggest next steps.
+
+Iâ€™m using GPT-5.3-Codex.
+
