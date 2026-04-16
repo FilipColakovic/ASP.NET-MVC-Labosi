@@ -3,7 +3,7 @@
 @{
     var delayedCount = Model.Deliveries.Count(d => d.IsDelayed);
 }
-
+@*
 <div id="insights" class="grid grid-cols-1 md:grid-cols-3 gap-6 rise-in" style="animation-delay: 260ms;">
     <div class="bg-surface-container-high rounded-xl p-6 relative overflow-hidden group">
         <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
@@ -12,7 +12,7 @@
         <p class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant mt-2">Registered couriers in network</p>
     </div>
 
-    <div class="bg-surface-container-high rounded-xl p-6 relative overflow-hidden group">
+     <div class="bg-surface-container-high rounded-xl p-6 relative overflow-hidden group">
         <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
         <h3 class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Transit Bottlenecks</h3>
         <div class="flex items-center space-x-3 mt-4">
@@ -22,7 +22,7 @@
                 <p class="text-[10px] font-label text-on-surface-variant uppercase">@delayedCount currently delayed</p>
             </div>
         </div>
-    </div>
+    </div> 
 
     <div class="bg-surface-container-high rounded-xl p-6 relative overflow-hidden group">
         <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
@@ -35,4 +35,4 @@
         </div>
     </div>
 </div>
-
+*@

@@ -5,6 +5,7 @@
     var selectedType = (ViewData["SelectedType"]?.ToString() ?? "package").ToLowerInvariant();
     var inTransitCount = Model.Packages.Count(p => p.Status == PackageStatus.InTransit || p.Status == PackageStatus.OutForDelivery);
     var deliveredTodayCount = Model.Packages.Count(p => p.DeliveredAt.HasValue && p.DeliveredAt.Value.Date == DateTime.UtcNow.Date);
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
 <div class="grid grid-cols-12 gap-6 items-end rise-in">
@@ -100,7 +101,7 @@
 
                         <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
                             <td class="px-6 py-5">
-                                <a asp-action="Details" asp-route-type="Package" asp-route-id="@package.Id" class="flex items-center space-x-3">
+                                <a asp-action="Details" asp-route-type="Package" asp-route-id="@package.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">inventory_2</span>
                                     <span class="font-label font-bold text-primary">@package.TrackingNumber</span>
                                 </a>
@@ -166,7 +167,7 @@
                     {
                         <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
                             <td class="px-6 py-5">
-                                <a asp-action="Details" asp-route-type="Courier" asp-route-id="@courier.Id" class="flex items-center space-x-3">
+                                <a asp-action="Details" asp-route-type="Courier" asp-route-id="@courier.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">local_shipping</span>
                                     <span class="font-label font-bold text-primary">#CR-@courier.Id</span>
                                 </a>
@@ -184,7 +185,7 @@
                     {
                         <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
                             <td class="px-6 py-5">
-                                <a asp-action="Details" asp-route-type="Warehouse" asp-route-id="@warehouse.Id" class="flex items-center space-x-3">
+                                <a asp-action="Details" asp-route-type="Warehouse" asp-route-id="@warehouse.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">warehouse</span>
                                     <span class="font-label font-bold text-primary">#WH-@warehouse.Id</span>
                                 </a>
@@ -202,7 +203,7 @@
                     {
                         <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
                             <td class="px-6 py-5">
-                                <a asp-action="Details" asp-route-type="User" asp-route-id="@user.Id" class="flex items-center space-x-3">
+                                <a asp-action="Details" asp-route-type="User" asp-route-id="@user.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">group</span>
                                     <span class="font-label font-bold text-primary">#US-@user.Id</span>
                                 </a>
@@ -220,7 +221,7 @@
                     {
                         <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
                             <td class="px-6 py-5">
-                                <a asp-action="Details" asp-route-type="Delivery" asp-route-id="@delivery.Id" class="flex items-center space-x-3">
+                                <a asp-action="Details" asp-route-type="Delivery" asp-route-id="@delivery.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">receipt_long</span>
                                     <span class="font-label font-bold text-primary">#DL-@delivery.Id</span>
                                 </a>

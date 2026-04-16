@@ -7,6 +7,11 @@
     var normalizedType = (Model.ObjectType ?? string.Empty).Trim();
     var referenceCode = $"{normalizedType.ToUpperInvariant()}-{Model.ObjectId:00000}";
     var selectedTypeForBack = string.IsNullOrWhiteSpace(normalizedType) ? "package" : normalizedType.ToLowerInvariant();
+    var fallbackUrl = Url.Action("Index", "Home", new { selectedType = selectedTypeForBack }) ?? "/";
+    var requestedReturnUrl = Context.Request.Query["returnUrl"].ToString();
+    var backUrl = !string.IsNullOrWhiteSpace(requestedReturnUrl) && Url.IsLocalUrl(requestedReturnUrl)
+        ? requestedReturnUrl
+        : fallbackUrl;
 
     string FindValue(params string[] keys)
     {
@@ -112,6 +117,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&family=Work+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </head>
 <body class="bg-surface font-body text-on-surface flex min-h-screen">
     <partial name="Partials/_AnalogSidebar" model="@(null as Vjezba.Model.Models.ObjectOverviewViewModel)" />
@@ -119,10 +125,16 @@
     <main class="index-canvas-bg flex-1 flex flex-col min-w-0 bg-surface">
         <header class="w-full top-0 sticky z-20 flex justify-between items-center px-6 py-4 bg-[#fdf9f6] border-b border-[#d4c4b7]/30">
             <div class="flex items-center gap-4">
-                <a asp-action="Index" class="flex items-center gap-2 text-primary hover:text-[#653d1e] transition-colors">
+                <a href="@backUrl" class="flex items-center gap-2 text-primary hover:text-[#653d1e] transition-colors">
                     <span class="material-symbols-outlined">arrow_back</span>
-                    <span class="font-headline font-bold text-lg uppercase tracking-widest">@referenceCode</span>
+                    <span class="font-label text-xs uppercase tracking-widest">Back</span>
                 </a>
+                <nav class="hidden sm:flex items-center gap-2 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
+                    <a href="@backUrl" class="hover:text-primary transition-colors">Previous</a>
+                    <span>/</span>
+                    <span class="text-on-surface">@referenceCode</span>
+                </nav>
+                <span class="sm:hidden font-headline font-bold text-lg uppercase tracking-widest text-on-surface">@referenceCode</span>
             </div>
             <div class="flex items-center gap-4">
                 <button class="p-2 text-[#7d5231] hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
@@ -137,6 +149,7 @@
 
         <div class="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto w-full">
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            @*
                 <div class="lg:col-span-2 bg-surface-container rounded-xl p-8 relative overflow-hidden min-h-[280px]">
                     <div class="absolute inset-0 paper-grain pointer-events-none"></div>
                     <div class="relative z-10">
@@ -170,7 +183,7 @@
                         </div>
                     </div>
                 </div>
-
+                *@  
                 <div class="bg-surface-container-highest rounded-xl p-6 flex flex-col gap-4">
                     <p class="font-label text-xs text-primary uppercase tracking-[0.2em]">Quick Highlights</p>
                     <div class="space-y-3 pt-1">
@@ -183,8 +196,8 @@
                         }
                     </div>
 
-                    <a asp-action="Index" asp-route-selectedType="@selectedTypeForBack" class="w-full mt-auto py-3 bg-surface-container-low text-primary font-label text-xs uppercase tracking-widest font-bold rounded-md hover:bg-surface-container transition-colors text-center">
-                        Back To @Model.ObjectType List
+                    <a href="@backUrl" class="w-full mt-auto py-3 bg-surface-container-low text-primary font-label text-xs uppercase tracking-widest font-bold rounded-md hover:bg-surface-container transition-colors text-center">
+                        Back To Previous Page
                     </a>
                 </div>
             </section>
