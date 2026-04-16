@@ -1,0 +1,325 @@
+@model Vjezba.Model.Models.ObjectDetailsViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "The Analog Log | Object Details";
+
+    var normalizedType = (Model.ObjectType ?? string.Empty).Trim();
+    var referenceCode = $"{normalizedType.ToUpperInvariant()}-{Model.ObjectId:00000}";
+    var selectedTypeForBack = string.IsNullOrWhiteSpace(normalizedType) ? "package" : normalizedType.ToLowerInvariant();
+
+    string FindValue(params string[] keys)
+    {
+        foreach (var key in keys)
+        {
+            if (Model.Values.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+        }
+
+        return "N/A";
+    }
+
+    string GetGroupKey(string key)
+    {
+        var dotIndex = key.IndexOf('.');
+        var bracketIndex = key.IndexOf('[');
+
+        var cutIndex = -1;
+        if (dotIndex >= 0 && bracketIndex >= 0)
+        {
+            cutIndex = Math.Min(dotIndex, bracketIndex);
+        }
+        else if (dotIndex >= 0)
+        {
+            cutIndex = dotIndex;
+        }
+        else if (bracketIndex >= 0)
+        {
+            cutIndex = bracketIndex;
+        }
+
+        if (cutIndex > 0)
+        {
+            return key.Substring(0, cutIndex);
+        }
+
+        return "General";
+    }
+
+    string PrettyLabel(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return "General";
+        }
+
+        if (raw == "General")
+        {
+            return raw;
+        }
+
+        var chars = new List<char>();
+        for (var i = 0; i < raw.Length; i++)
+        {
+            if (i > 0 && char.IsUpper(raw[i]) && raw[i - 1] != ' ')
+            {
+                chars.Add(' ');
+            }
+
+            chars.Add(raw[i]);
+        }
+
+        return new string(chars.ToArray());
+    }
+
+    var allValues = Model.Values.OrderBy(v => v.Key).ToList();
+    var statusValue = FindValue("Status", "IsDelayed", "DeliveryPriority", "Package.Status");
+    var primaryTitle = FindValue("Name", "TrackingNumber", "Description", "Email", "CurrentLocation", "Street");
+    if (primaryTitle == "N/A")
+    {
+        primaryTitle = $"{Model.ObjectType} #{Model.ObjectId}";
+    }
+
+    var secondaryTitle = FindValue("City", "Country", "VehicleType", "PhoneNumber", "RegistrationDate", "CreatedAt");
+    var simpleCount = allValues.Count(v => !v.Key.Contains('.') && !v.Key.Contains('['));
+    var nestedCount = allValues.Count - simpleCount;
+    var nonNullCount = allValues.Count(v => !string.Equals(v.Value, "null", StringComparison.OrdinalIgnoreCase));
+
+    var groupedValues = allValues
+        .GroupBy(v => GetGroupKey(v.Key))
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    var statusTone = statusValue.ToLowerInvariant() switch
+    {
+        "delivered" or "true" => "bg-primary/10 text-primary border border-primary/20",
+        "intransit" or "outfordelivery" => "bg-tertiary/10 text-tertiary border border-tertiary/20",
+        "deliveryfailed" or "returnedtosender" or "cancelled" or "false" => "bg-error/10 text-error border border-error/20",
+        _ => "bg-on-tertiary-fixed-variant/10 text-on-tertiary-fixed-variant border border-on-tertiary-fixed-variant/20"
+    };
+}
+
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&family=Work+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
+</head>
+<body class="bg-surface font-body text-on-surface flex min-h-screen">
+    <partial name="Partials/_AnalogSidebar" model="@(null as Vjezba.Model.Models.ObjectOverviewViewModel)" />
+
+    <main class="index-canvas-bg flex-1 flex flex-col min-w-0 bg-surface">
+        <header class="w-full top-0 sticky z-20 flex justify-between items-center px-6 py-4 bg-[#fdf9f6] border-b border-[#d4c4b7]/30">
+            <div class="flex items-center gap-4">
+                <a asp-action="Index" class="flex items-center gap-2 text-primary hover:text-[#653d1e] transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    <span class="font-headline font-bold text-lg uppercase tracking-widest">@referenceCode</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-[#7d5231] hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="p-2 text-[#7d5231] hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <div class="w-8 h-8 rounded-full border border-outline-variant/20 bg-primary-container"></div>
+            </div>
+        </header>
+
+        <div class="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto w-full">
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-surface-container rounded-xl p-8 relative overflow-hidden min-h-[280px]">
+                    <div class="absolute inset-0 paper-grain pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <div class="flex flex-wrap justify-between items-start mb-6 gap-4">
+                            <div class="max-w-3xl">
+                                <p class="font-label text-xs text-primary uppercase tracking-[0.2em] mb-1">Object Classification</p>
+                                <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">@primaryTitle</h2>
+                                <p class="font-label text-[11px] uppercase tracking-wider text-on-surface-variant mt-2">@Model.ObjectType #@Model.ObjectId</p>
+                                <p class="font-label text-xs text-on-surface-variant mt-1">@secondaryTitle</p>
+                            </div>
+                            <div class="px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-widest stamp-effect @statusTone">@statusValue</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                            <div class="bg-surface-container-low p-4 rounded-lg">
+                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Top-Level Fields</p>
+                                <p class="font-label font-bold text-lg">@simpleCount</p>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-lg">
+                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Nested Fields</p>
+                                <p class="font-label font-bold text-lg">@nestedCount</p>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-lg">
+                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Data Groups</p>
+                                <p class="font-label font-bold text-lg">@groupedValues.Count</p>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-lg">
+                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Non-Null Values</p>
+                                <p class="font-label font-bold text-lg">@nonNullCount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-highest rounded-xl p-6 flex flex-col gap-4">
+                    <p class="font-label text-xs text-primary uppercase tracking-[0.2em]">Quick Highlights</p>
+                    <div class="space-y-3 pt-1">
+                        @foreach (var item in allValues.Take(8))
+                        {
+                            <div class="flex items-center justify-between gap-4 py-2 border-b border-outline-variant/20">
+                                <span class="font-label text-[10px] uppercase text-stone-500 truncate">@item.Key</span>
+                                <span class="font-label text-xs font-bold text-right break-all">@item.Value</span>
+                            </div>
+                        }
+                    </div>
+
+                    <a asp-action="Index" asp-route-selectedType="@selectedTypeForBack" class="w-full mt-auto py-3 bg-surface-container-low text-primary font-label text-xs uppercase tracking-widest font-bold rounded-md hover:bg-surface-container transition-colors text-center">
+                        Back To @Model.ObjectType List
+                    </a>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div class="lg:col-span-2 bg-surface-container-low rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-headline text-xl font-bold">Grouped Data</h3>
+                        <span class="material-symbols-outlined text-stone-400">dataset</span>
+                    </div>
+
+                    <div class="space-y-4 max-h-[38rem] overflow-y-auto pr-1">
+                        @foreach (var group in groupedValues)
+                        {
+                            <div class="bg-surface-container-high rounded-lg p-4">
+                                <p class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">@PrettyLabel(group.Key)</p>
+                                <p class="font-label text-xs text-on-surface-variant">@group.Count() values</p>
+
+                                <div class="mt-3 space-y-2">
+                                    @foreach (var row in group.Take(4))
+                                    {
+                                        <div class="text-xs">
+                                            <span class="font-label uppercase text-stone-500">@row.Key</span>
+                                            <p class="font-body break-all">@row.Value</p>
+                                        </div>
+                                    }
+
+                                    @if (group.Count() > 4)
+                                    {
+                                        <p class="font-label text-[10px] uppercase text-on-surface-variant">+@(group.Count() - 4) more</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 space-y-6">
+                    <div class="bg-surface-container rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-headline text-2xl font-bold">All Properties</h4>
+                            <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@allValues.Count total</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[720px]">
+                                <thead>
+                                    <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                                        <th class="px-4 py-3 font-bold">Property</th>
+                                        <th class="px-4 py-3 font-bold">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+                                    @foreach (var row in allValues)
+                                    {
+                                        <tr class="hover:bg-surface-container-low transition-colors">
+                                            <td class="px-4 py-3 align-top font-label text-[11px] uppercase tracking-wider text-on-surface-variant">@row.Key</td>
+                                            <td class="px-4 py-3 break-all">@row.Value</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-surface-container-high rounded-xl p-6">
+                            <p class="font-label text-xs text-stone-500 uppercase tracking-widest mb-4">Frequently Useful Fields</p>
+                            <div class="space-y-4">
+                                @foreach (var row in allValues
+                                   .Where(v => v.Key.Contains("Name", StringComparison.OrdinalIgnoreCase)
+                                            || v.Key.Contains("Email", StringComparison.OrdinalIgnoreCase)
+                                            || v.Key.Contains("Phone", StringComparison.OrdinalIgnoreCase)
+                                            || v.Key.Contains("Status", StringComparison.OrdinalIgnoreCase)
+                                            || v.Key.Contains("City", StringComparison.OrdinalIgnoreCase)
+                                            || v.Key.Contains("Date", StringComparison.OrdinalIgnoreCase))
+                                   .Take(6))
+                                {
+                                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-2">
+                                        <span class="font-label text-[10px] uppercase text-stone-400">@row.Key</span>
+                                        <span class="font-label text-xs font-bold text-on-surface">@row.Value</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="bg-surface-container-high rounded-xl p-6">
+                            <p class="font-label text-xs text-stone-500 uppercase tracking-widest mb-4">Data Quality</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20">
+                                    <span class="font-label text-xs uppercase text-stone-500">Total Fields</span>
+                                    <span class="font-label text-xs font-bold">@allValues.Count</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20">
+                                    <span class="font-label text-xs uppercase text-stone-500">Groups</span>
+                                    <span class="font-label text-xs font-bold">@groupedValues.Count</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20">
+                                    <span class="font-label text-xs uppercase text-stone-500">Null-like Values</span>
+                                    <span class="font-label text-xs font-bold">@(allValues.Count - nonNullCount)</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="font-label text-xs uppercase text-stone-500">Completeness</span>
+                                    <span class="font-label text-xs font-bold text-primary">@((allValues.Count == 0 ? 0 : (nonNullCount * 100 / allValues.Count)))%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <nav class="md:hidden sticky bottom-0 w-full bg-surface-bright/90 backdrop-blur-xl flex justify-around items-center py-4 px-6 z-30">
+            <a class="flex flex-col items-center gap-1 text-[#7d5231]" asp-action="Index">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">package_2</span>
+                <span class="text-[10px] font-label uppercase font-bold">Items</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-stone-400" href="#">
+                <span class="material-symbols-outlined">local_shipping</span>
+                <span class="text-[10px] font-label uppercase">Fleet</span>
+            </a>
+            <div class="relative -top-6">
+                <button class="w-14 h-14 bg-secondary-container text-on-secondary-container rounded-full shadow-lg flex items-center justify-center" type="button">
+                    <span class="material-symbols-outlined">qr_code_scanner</span>
+                </button>
+            </div>
+            <a class="flex flex-col items-center gap-1 text-stone-400" href="#">
+                <span class="material-symbols-outlined">warehouse</span>
+                <span class="text-[10px] font-label uppercase">Hubs</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-stone-400" href="#">
+                <span class="material-symbols-outlined">group</span>
+                <span class="text-[10px] font-label uppercase">Staff</span>
+            </a>
+        </nav>
+    </main>
+</body>
+</html>

@@ -1,0 +1,56 @@
+@model Vjezba.Model.Models.ObjectOverviewViewModel?
+
+@{
+    var selectedType = (ViewData["SelectedType"]?.ToString() ?? "package").ToLowerInvariant();
+}
+
+<aside class="hidden lg:flex sticky top-0 h-screen w-64 bg-[#f1edea] flex-col p-4 space-y-2 shrink-0">
+    <div class="mb-8 px-2 pt-4">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container">
+                <span class="material-symbols-outlined">package_2</span>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold font-headline text-[#7d5231]">The Analog Log</h1>
+                <p class="font-label text-[10px] uppercase tracking-wider text-stone-600">Technical Operations</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="flex-1 space-y-1">
+        <a class="flex items-center space-x-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "package" ? "text-[#7d5231] font-bold bg-[#e5e2df]" : "text-stone-600 hover:text-[#7d5231] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="package">
+            <span class="material-symbols-outlined">package_2</span>
+            <span>Packages</span>
+        </a>
+        <a class="flex items-center space-x-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "courier" ? "text-[#7d5231] font-bold bg-[#e5e2df]" : "text-stone-600 hover:text-[#7d5231] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="courier">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span>Couriers</span>
+        </a>
+        <a class="flex items-center space-x-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "warehouse" ? "text-[#7d5231] font-bold bg-[#e5e2df]" : "text-stone-600 hover:text-[#7d5231] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="warehouse">
+            <span class="material-symbols-outlined">warehouse</span>
+            <span>Warehouses</span>
+        </a>
+        <a class="flex items-center space-x-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "user" ? "text-[#7d5231] font-bold bg-[#e5e2df]" : "text-stone-600 hover:text-[#7d5231] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="user">
+            <span class="material-symbols-outlined">group</span>
+            <span>Users</span>
+        </a>
+        <a class="flex items-center space-x-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "delivery" ? "text-[#7d5231] font-bold bg-[#e5e2df]" : "text-stone-600 hover:text-[#7d5231] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="delivery">
+            <span class="material-symbols-outlined">receipt_long</span>
+            <span>Status Logs</span>
+        </a>
+    </nav>
+
+    <div class="mt-auto space-y-1">
+        <button class="w-full bg-secondary-container text-on-secondary-container py-3 rounded-md font-label text-xs font-bold uppercase tracking-widest transition-transform hover:scale-[1.01] active:scale-95 mb-4">
+            Track Package
+        </button>
+        <a class="flex items-center space-x-3 px-4 py-3 text-stone-600 hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" href="#">
+            <span class="material-symbols-outlined">help</span>
+            <span>Support</span>
+        </a>
+        <a class="flex items-center space-x-3 px-4 py-3 text-stone-600 hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" asp-action="Privacy" asp-controller="Home">
+            <span class="material-symbols-outlined">logout</span>
+            <span>Privacy</span>
+        </a>
+    </div>
+</aside>

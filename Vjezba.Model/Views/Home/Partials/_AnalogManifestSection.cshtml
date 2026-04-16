@@ -1,0 +1,247 @@
+@model Vjezba.Model.Models.ObjectOverviewViewModel
+@using Vjezba.Model.Enums
+
+@{
+    var selectedType = (ViewData["SelectedType"]?.ToString() ?? "package").ToLowerInvariant();
+    var inTransitCount = Model.Packages.Count(p => p.Status == PackageStatus.InTransit || p.Status == PackageStatus.OutForDelivery);
+    var deliveredTodayCount = Model.Packages.Count(p => p.DeliveredAt.HasValue && p.DeliveredAt.Value.Date == DateTime.UtcNow.Date);
+}
+
+<div class="grid grid-cols-12 gap-6 items-end rise-in">
+    <div class="col-span-12 md:col-span-7">
+        <h2 class="font-headline font-extrabold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Live Manifest Index</h2>
+        <p class="font-label text-sm text-on-surface-variant uppercase tracking-widest opacity-70">Region: Sector 4A &amp; Global Nodes</p>
+    </div>
+    <div class="col-span-12 md:col-span-5 flex md:justify-end flex-wrap gap-4">
+        <div class="bg-surface-container-high index-stat-card-bg p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+            <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Active Parcels</span>
+            <span class="font-headline font-bold text-2xl text-primary">@Model.Packages.Count</span>
+        </div>
+        <div class="bg-surface-container-high index-stat-card-bg p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+            <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">In Transit</span>
+            <span class="font-headline font-bold text-2xl text-secondary">@inTransitCount</span>
+        </div>
+        <div class="bg-surface-container-high index-stat-card-bg p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+            <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Delivered Today</span>
+            <span class="font-headline font-bold text-2xl text-tertiary">@deliveredTodayCount</span>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-wrap items-center gap-2 pb-2 rise-in" style="animation-delay: 120ms;">
+    <a asp-action="Index" asp-route-selectedType="package" class="@(selectedType == "package" ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-highest") px-4 py-2 rounded-md font-label text-xs uppercase tracking-widest transition-colors">Packages</a>
+    <a asp-action="Index" asp-route-selectedType="courier" class="@(selectedType == "courier" ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-highest") px-4 py-2 rounded-md font-label text-xs uppercase tracking-widest transition-colors">Couriers</a>
+    <a asp-action="Index" asp-route-selectedType="warehouse" class="@(selectedType == "warehouse" ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-highest") px-4 py-2 rounded-md font-label text-xs uppercase tracking-widest transition-colors">Warehouses</a>
+    <a asp-action="Index" asp-route-selectedType="user" class="@(selectedType == "user" ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-highest") px-4 py-2 rounded-md font-label text-xs uppercase tracking-widest transition-colors">Users</a>
+    <a asp-action="Index" asp-route-selectedType="delivery" class="@(selectedType == "delivery" ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-highest") px-4 py-2 rounded-md font-label text-xs uppercase tracking-widest transition-colors">Deliveries</a>
+</div>
+
+<div id="manifest" class="bg-surface-container manifest-shell-bg p-1 rounded-xl rise-in" style="animation-delay: 180ms;">
+    <div class="bg-surface-container-lowest manifest-table-bg rounded-lg overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[780px]">
+            <thead>
+                @if (selectedType == "package")
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Destination</th>
+                        <th class="px-6 py-4 font-bold">Status</th>
+                        <th class="px-6 py-4 font-bold">Timestamp</th>
+                        <th class="px-6 py-4 font-bold text-right">Priority</th>
+                    </tr>
+                }
+                else if (selectedType == "courier")
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Name</th>
+                        <th class="px-6 py-4 font-bold">Email</th>
+                        <th class="px-6 py-4 font-bold">Phone</th>
+                        <th class="px-6 py-4 font-bold text-right">Vehicle</th>
+                    </tr>
+                }
+                else if (selectedType == "warehouse")
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Name</th>
+                        <th class="px-6 py-4 font-bold">City</th>
+                        <th class="px-6 py-4 font-bold">Capacity</th>
+                        <th class="px-6 py-4 font-bold text-right">Stored</th>
+                    </tr>
+                }
+                else if (selectedType == "user")
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Name</th>
+                        <th class="px-6 py-4 font-bold">Email</th>
+                        <th class="px-6 py-4 font-bold">Phone</th>
+                        <th class="px-6 py-4 font-bold text-right">Registered</th>
+                    </tr>
+                }
+                else
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Courier</th>
+                        <th class="px-6 py-4 font-bold">Current Location</th>
+                        <th class="px-6 py-4 font-bold">Departure</th>
+                        <th class="px-6 py-4 font-bold text-right">Delayed</th>
+                    </tr>
+                }
+            </thead>
+            <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+                @if (selectedType == "package")
+                {
+                    @foreach (var package in Model.Packages.OrderByDescending(p => p.CreatedAt))
+                    {
+                        var destination = package.RecipientAddress;
+
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="Package" asp-route-id="@package.Id" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">inventory_2</span>
+                                    <span class="font-label font-bold text-primary">@package.TrackingNumber</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-on-surface">@destination.City, @destination.Country</span>
+                                    <span class="text-xs text-on-surface-variant/70 uppercase font-label">@destination.Street</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                @switch (package.Status)
+                                {
+                                    case PackageStatus.Delivered:
+                                        <div class="inline-flex items-center px-2 py-1 rounded font-label text-[10px] font-bold uppercase tracking-tighter bg-primary/10 text-primary">
+                                            <span class="material-symbols-outlined text-[12px] mr-1">check_circle</span>
+                                            @package.Status
+                                        </div>
+                                        break;
+                                    case PackageStatus.InTransit:
+                                    case PackageStatus.OutForDelivery:
+                                        <div class="inline-flex items-center px-2 py-1 rounded font-label text-[10px] font-bold uppercase tracking-tighter bg-tertiary/10 text-tertiary">
+                                            <span class="material-symbols-outlined text-[12px] mr-1">local_shipping</span>
+                                            @package.Status
+                                        </div>
+                                        break;
+                                    case PackageStatus.DeliveryFailed:
+                                    case PackageStatus.ReturnedToSender:
+                                    case PackageStatus.Cancelled:
+                                        <div class="inline-flex items-center px-2 py-1 rounded font-label text-[10px] font-bold uppercase tracking-tighter bg-error/10 text-error">
+                                            <span class="material-symbols-outlined text-[12px] mr-1">warning</span>
+                                            @package.Status
+                                        </div>
+                                        break;
+                                    default:
+                                        <div class="inline-flex items-center px-2 py-1 rounded font-label text-[10px] font-bold uppercase tracking-tighter bg-on-tertiary-fixed-variant/10 text-on-tertiary-fixed-variant">
+                                            <span class="material-symbols-outlined text-[12px] mr-1">inventory_2</span>
+                                            @package.Status
+                                        </div>
+                                        break;
+                                }
+                            </td>
+                            <td class="px-6 py-5 font-label text-on-surface-variant text-xs">
+                                @package.CreatedAt.ToString("yyyy.MM.dd - HH:mm:ss")
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                @if (package.DeliveryPriority >= DeliveryPriority.High)
+                                {
+                                    <span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+                                }
+                                else
+                                {
+                                    <span class="w-2 h-2 rounded-full bg-outline-variant inline-block"></span>
+                                }
+                                <span class="font-label text-[10px] uppercase ml-1">@package.DeliveryPriority</span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else if (selectedType == "courier")
+                {
+                    @foreach (var courier in Model.Couriers.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
+                    {
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="Courier" asp-route-id="@courier.Id" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">local_shipping</span>
+                                    <span class="font-label font-bold text-primary">#CR-@courier.Id</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">@courier.FirstName @courier.LastName</td>
+                            <td class="px-6 py-5">@courier.Email</td>
+                            <td class="px-6 py-5">@courier.PhoneNumber</td>
+                            <td class="px-6 py-5 text-right text-on-surface-variant">@courier.VehicleType</td>
+                        </tr>
+                    }
+                }
+                else if (selectedType == "warehouse")
+                {
+                    @foreach (var warehouse in Model.Warehouses.OrderBy(w => w.Name))
+                    {
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="Warehouse" asp-route-id="@warehouse.Id" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">warehouse</span>
+                                    <span class="font-label font-bold text-primary">#WH-@warehouse.Id</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">@warehouse.Name</td>
+                            <td class="px-6 py-5">@warehouse.Address.City</td>
+                            <td class="px-6 py-5">@warehouse.Capacity</td>
+                            <td class="px-6 py-5 text-right">@warehouse.StoredPackages.Count</td>
+                        </tr>
+                    }
+                }
+                else if (selectedType == "user")
+                {
+                    @foreach (var user in Model.Users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName))
+                    {
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="User" asp-route-id="@user.Id" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">group</span>
+                                    <span class="font-label font-bold text-primary">#US-@user.Id</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">@user.FirstName @user.LastName</td>
+                            <td class="px-6 py-5">@user.Email</td>
+                            <td class="px-6 py-5">@user.PhoneNumber</td>
+                            <td class="px-6 py-5 text-right">@user.RegistrationDate.ToString("yyyy.MM.dd")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    @foreach (var delivery in Model.Deliveries.OrderByDescending(d => d.DepartureDate))
+                    {
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="Delivery" asp-route-id="@delivery.Id" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">receipt_long</span>
+                                    <span class="font-label font-bold text-primary">#DL-@delivery.Id</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">@delivery.Courier.FirstName @delivery.Courier.LastName</td>
+                            <td class="px-6 py-5">@delivery.CurrentLocation</td>
+                            <td class="px-6 py-5 text-on-surface-variant">@delivery.DepartureDate.ToString("yyyy.MM.dd HH:mm")</td>
+                            <td class="px-6 py-5 text-right">
+                                @if (delivery.IsDelayed)
+                                {
+                                    <span class="inline-flex items-center px-2 py-1 rounded font-label text-[10px] font-bold uppercase tracking-tighter bg-error/10 text-error">Delayed</span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center px-2 py-1 rounded font-label text-[10px] font-bold uppercase tracking-tighter bg-primary/10 text-primary">On Time</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
