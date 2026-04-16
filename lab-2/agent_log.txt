@@ -1566,3 +1566,49 @@ Validation:
 - Diagnostics: no errors in changed files.
 - Build: successful after stopping the running app process that had locked the DLL.
 
+Timestamp: 2026-04-16T17:25:09
+Status: final
+User Input: chenge this so it diisplays the name of the current object
+Agent output: Updated. The title now shows the current objectâ€™s name instead of â€œAll Propertiesâ€.
+
+Changed in:
+- [Vjezba.Model/Views/Home/Details.cshtml](Vjezba.Model/Views/Home/Details.cshtml)
+
+How it now picks the name:
+1. First tries a person-style full name (`FirstName + LastName`, including nested variants).
+2. Then falls back to common identity fields (`Name`, `TrackingNumber`, `Description`, `Email`, `CurrentLocation`, `Street`).
+3. If none exist, uses `ObjectType #ObjectId`.
+
+No Razor errors after the change.
+
+Timestamp: 2026-04-16T17:26:04
+Status: final
+User Input: chenge this so it diisplays the name of the current class
+Agent output: Updated. The heading now shows the current class/type name dynamically.
+
+Changed:
+- [Vjezba.Model/Views/Home/Details.cshtml](Vjezba.Model/Views/Home/Details.cshtml#L63)
+
+It now renders:
+- `@Model.ObjectType Details`
+
+Razor diagnostics for the file are clean (no errors).
+
+Timestamp: 2026-04-16T17:28:13
+Status: final
+User Input: build not working
+Agent output: Build is working now.
+
+Cause:
+- The output executable was locked by a running process: Vjezba.Model (PID 21592).
+- That prevented MSBuild from copying apphost.exe to Vjezba.Model.exe, which caused MSB3027/MSB3021.
+
+What I did:
+- Stopped PID 21592.
+- Ran dotnet build again in the Vjezba.Model project.
+- Result: build succeeded.
+
+If this happens again:
+1. Stop the running app/debug session first (or kill the locking PID).
+2. Re-run dotnet build.
+
