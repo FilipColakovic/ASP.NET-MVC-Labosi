@@ -1522,3 +1522,47 @@ Validation:
 - Razor diagnostics: no errors in changed views.
 - Build: successful after stopping the running app process that had locked the DLL.
 
+Timestamp: 2026-04-16T17:13:20
+Status: final
+User Input: for the details page use onlz one table that has all the data
+Agent output: Done. The Details page now uses only one table with all data.
+
+Updated file:
+- [Vjezba.Model/Views/Home/Details.cshtml](Vjezba.Model/Views/Home/Details.cshtml)
+
+What I changed:
+- Removed the extra sections (quick highlights, grouped data, frequent fields, data quality, and the previously commented hero block).
+- Kept a single All Properties table that renders every key/value from `allValues`.
+- Cleaned up unused Razor helper methods/variables that were only needed by the removed sections.
+- Kept your breadcrumb/back behavior in the header.
+
+Validation:
+- Razor errors: none.
+- Build: succeeded.
+- One non-blocking warning remains about a locked `.exe` file (`MSB3061`), but the project compiles successfully.
+
+Timestamp: 2026-04-16T17:19:37
+Status: final
+User Input: aslo dont show all the information of the objects insite the object just make a sub object name and a link to that objects detais page
+Agent output: Implemented. Nested object data is no longer expanded into all internal fields; it now shows a sub-object label with a link to that objectâ€™s Details page.
+
+What changed:
+- Added link metadata to the details view model:
+[Models/ObjectDetailsViewModel.cs](Vjezba.Model/Models/ObjectDetailsViewModel.cs)
+
+- Reworked details extraction logic to produce references for complex nested objects instead of recursive full flattening:
+[Controllers/HomeController.cs](Vjezba.Model/Controllers/HomeController.cs)
+
+- Updated the single Details table to render clickable links when a row represents a sub-object reference:
+[Views/Home/Details.cshtml](Vjezba.Model/Views/Home/Details.cshtml)
+
+Behavior now:
+- Simple fields still render as plain text.
+- Nested object fields render as short labels (for example courier name, warehouse name, package tracking number, address label) and are clickable.
+- Collections render item-by-item as references where possible, instead of dumping each nested property tree.
+- Back/breadcrumb flow still works, including from nested linked detail pages.
+
+Validation:
+- Diagnostics: no errors in changed files.
+- Build: successful after stopping the running app process that had locked the DLL.
+

@@ -12,98 +12,8 @@
     var backUrl = !string.IsNullOrWhiteSpace(requestedReturnUrl) && Url.IsLocalUrl(requestedReturnUrl)
         ? requestedReturnUrl
         : fallbackUrl;
-
-    string FindValue(params string[] keys)
-    {
-        foreach (var key in keys)
-        {
-            if (Model.Values.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-        }
-
-        return "N/A";
-    }
-
-    string GetGroupKey(string key)
-    {
-        var dotIndex = key.IndexOf('.');
-        var bracketIndex = key.IndexOf('[');
-
-        var cutIndex = -1;
-        if (dotIndex >= 0 && bracketIndex >= 0)
-        {
-            cutIndex = Math.Min(dotIndex, bracketIndex);
-        }
-        else if (dotIndex >= 0)
-        {
-            cutIndex = dotIndex;
-        }
-        else if (bracketIndex >= 0)
-        {
-            cutIndex = bracketIndex;
-        }
-
-        if (cutIndex > 0)
-        {
-            return key.Substring(0, cutIndex);
-        }
-
-        return "General";
-    }
-
-    string PrettyLabel(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return "General";
-        }
-
-        if (raw == "General")
-        {
-            return raw;
-        }
-
-        var chars = new List<char>();
-        for (var i = 0; i < raw.Length; i++)
-        {
-            if (i > 0 && char.IsUpper(raw[i]) && raw[i - 1] != ' ')
-            {
-                chars.Add(' ');
-            }
-
-            chars.Add(raw[i]);
-        }
-
-        return new string(chars.ToArray());
-    }
-
+    var nestedReturnUrl = Context.Request.Path + Context.Request.QueryString;
     var allValues = Model.Values.OrderBy(v => v.Key).ToList();
-    var statusValue = FindValue("Status", "IsDelayed", "DeliveryPriority", "Package.Status");
-    var primaryTitle = FindValue("Name", "TrackingNumber", "Description", "Email", "CurrentLocation", "Street");
-    if (primaryTitle == "N/A")
-    {
-        primaryTitle = $"{Model.ObjectType} #{Model.ObjectId}";
-    }
-
-    var secondaryTitle = FindValue("City", "Country", "VehicleType", "PhoneNumber", "RegistrationDate", "CreatedAt");
-    var simpleCount = allValues.Count(v => !v.Key.Contains('.') && !v.Key.Contains('['));
-    var nestedCount = allValues.Count - simpleCount;
-    var nonNullCount = allValues.Count(v => !string.Equals(v.Value, "null", StringComparison.OrdinalIgnoreCase));
-
-    var groupedValues = allValues
-        .GroupBy(v => GetGroupKey(v.Key))
-        .OrderBy(g => g.Key)
-        .ToList();
-
-    var statusTone = statusValue.ToLowerInvariant() switch
-    {
-        "delivered" or "true" => "bg-primary/10 text-primary border border-primary/20",
-        "intransit" or "outfordelivery" => "bg-tertiary/10 text-tertiary border border-tertiary/20",
-        "deliveryfailed" or "returnedtosender" or "cancelled" or "false" => "bg-error/10 text-error border border-error/20",
-        _ => "bg-on-tertiary-fixed-variant/10 text-on-tertiary-fixed-variant border border-on-tertiary-fixed-variant/20"
-    };
 }
 
 <!DOCTYPE html>
@@ -147,165 +57,40 @@
             </div>
         </header>
 
-        <div class="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto w-full">
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            @*
-                <div class="lg:col-span-2 bg-surface-container rounded-xl p-8 relative overflow-hidden min-h-[280px]">
-                    <div class="absolute inset-0 paper-grain pointer-events-none"></div>
-                    <div class="relative z-10">
-                        <div class="flex flex-wrap justify-between items-start mb-6 gap-4">
-                            <div class="max-w-3xl">
-                                <p class="font-label text-xs text-primary uppercase tracking-[0.2em] mb-1">Object Classification</p>
-                                <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">@primaryTitle</h2>
-                                <p class="font-label text-[11px] uppercase tracking-wider text-on-surface-variant mt-2">@Model.ObjectType #@Model.ObjectId</p>
-                                <p class="font-label text-xs text-on-surface-variant mt-1">@secondaryTitle</p>
-                            </div>
-                            <div class="px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-widest stamp-effect @statusTone">@statusValue</div>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                            <div class="bg-surface-container-low p-4 rounded-lg">
-                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Top-Level Fields</p>
-                                <p class="font-label font-bold text-lg">@simpleCount</p>
-                            </div>
-                            <div class="bg-surface-container-low p-4 rounded-lg">
-                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Nested Fields</p>
-                                <p class="font-label font-bold text-lg">@nestedCount</p>
-                            </div>
-                            <div class="bg-surface-container-low p-4 rounded-lg">
-                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Data Groups</p>
-                                <p class="font-label font-bold text-lg">@groupedValues.Count</p>
-                            </div>
-                            <div class="bg-surface-container-low p-4 rounded-lg">
-                                <p class="font-label text-[10px] uppercase text-stone-500 mb-1">Non-Null Values</p>
-                                <p class="font-label font-bold text-lg">@nonNullCount</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                *@  
-                <div class="bg-surface-container-highest rounded-xl p-6 flex flex-col gap-4">
-                    <p class="font-label text-xs text-primary uppercase tracking-[0.2em]">Quick Highlights</p>
-                    <div class="space-y-3 pt-1">
-                        @foreach (var item in allValues.Take(8))
-                        {
-                            <div class="flex items-center justify-between gap-4 py-2 border-b border-outline-variant/20">
-                                <span class="font-label text-[10px] uppercase text-stone-500 truncate">@item.Key</span>
-                                <span class="font-label text-xs font-bold text-right break-all">@item.Value</span>
-                            </div>
-                        }
-                    </div>
-
-                    <a href="@backUrl" class="w-full mt-auto py-3 bg-surface-container-low text-primary font-label text-xs uppercase tracking-widest font-bold rounded-md hover:bg-surface-container transition-colors text-center">
-                        Back To Previous Page
-                    </a>
-                </div>
-            </section>
-
-            <section class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div class="lg:col-span-2 bg-surface-container-low rounded-xl p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-headline text-xl font-bold">Grouped Data</h3>
-                        <span class="material-symbols-outlined text-stone-400">dataset</span>
-                    </div>
-
-                    <div class="space-y-4 max-h-[38rem] overflow-y-auto pr-1">
-                        @foreach (var group in groupedValues)
-                        {
-                            <div class="bg-surface-container-high rounded-lg p-4">
-                                <p class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">@PrettyLabel(group.Key)</p>
-                                <p class="font-label text-xs text-on-surface-variant">@group.Count() values</p>
-
-                                <div class="mt-3 space-y-2">
-                                    @foreach (var row in group.Take(4))
-                                    {
-                                        <div class="text-xs">
-                                            <span class="font-label uppercase text-stone-500">@row.Key</span>
-                                            <p class="font-body break-all">@row.Value</p>
-                                        </div>
-                                    }
-
-                                    @if (group.Count() > 4)
-                                    {
-                                        <p class="font-label text-[10px] uppercase text-on-surface-variant">+@(group.Count() - 4) more</p>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
+        <div class="p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            <section class="bg-surface-container rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-headline text-2xl font-bold">All Properties</h4>
+                    <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@allValues.Count total</span>
                 </div>
 
-                <div class="lg:col-span-3 space-y-6">
-                    <div class="bg-surface-container rounded-xl p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="font-headline text-2xl font-bold">All Properties</h4>
-                            <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@allValues.Count total</span>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[720px]">
-                                <thead>
-                                    <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
-                                        <th class="px-4 py-3 font-bold">Property</th>
-                                        <th class="px-4 py-3 font-bold">Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
-                                    @foreach (var row in allValues)
-                                    {
-                                        <tr class="hover:bg-surface-container-low transition-colors">
-                                            <td class="px-4 py-3 align-top font-label text-[11px] uppercase tracking-wider text-on-surface-variant">@row.Key</td>
-                                            <td class="px-4 py-3 break-all">@row.Value</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-surface-container-high rounded-xl p-6">
-                            <p class="font-label text-xs text-stone-500 uppercase tracking-widest mb-4">Frequently Useful Fields</p>
-                            <div class="space-y-4">
-                                @foreach (var row in allValues
-                                   .Where(v => v.Key.Contains("Name", StringComparison.OrdinalIgnoreCase)
-                                            || v.Key.Contains("Email", StringComparison.OrdinalIgnoreCase)
-                                            || v.Key.Contains("Phone", StringComparison.OrdinalIgnoreCase)
-                                            || v.Key.Contains("Status", StringComparison.OrdinalIgnoreCase)
-                                            || v.Key.Contains("City", StringComparison.OrdinalIgnoreCase)
-                                            || v.Key.Contains("Date", StringComparison.OrdinalIgnoreCase))
-                                   .Take(6))
-                                {
-                                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-2">
-                                        <span class="font-label text-[10px] uppercase text-stone-400">@row.Key</span>
-                                        <span class="font-label text-xs font-bold text-on-surface">@row.Value</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="bg-surface-container-high rounded-xl p-6">
-                            <p class="font-label text-xs text-stone-500 uppercase tracking-widest mb-4">Data Quality</p>
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20">
-                                    <span class="font-label text-xs uppercase text-stone-500">Total Fields</span>
-                                    <span class="font-label text-xs font-bold">@allValues.Count</span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20">
-                                    <span class="font-label text-xs uppercase text-stone-500">Groups</span>
-                                    <span class="font-label text-xs font-bold">@groupedValues.Count</span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20">
-                                    <span class="font-label text-xs uppercase text-stone-500">Null-like Values</span>
-                                    <span class="font-label text-xs font-bold">@(allValues.Count - nonNullCount)</span>
-                                </div>
-                                <div class="flex items-center justify-between py-2">
-                                    <span class="font-label text-xs uppercase text-stone-500">Completeness</span>
-                                    <span class="font-label text-xs font-bold text-primary">@((allValues.Count == 0 ? 0 : (nonNullCount * 100 / allValues.Count)))%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[720px]">
+                        <thead>
+                            <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                                <th class="px-4 py-3 font-bold">Property</th>
+                                <th class="px-4 py-3 font-bold">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+                            @foreach (var row in allValues)
+                            {
+                                <tr class="hover:bg-surface-container-low transition-colors">
+                                    <td class="px-4 py-3 align-top font-label text-[11px] uppercase tracking-wider text-on-surface-variant">@row.Key</td>
+                                    <td class="px-4 py-3 break-all">
+                                        @if (Model.Links.TryGetValue(row.Key, out var link))
+                                        {
+                                            <a asp-action="Details" asp-route-type="@link.Type" asp-route-id="@link.Id" asp-route-returnUrl="@nestedReturnUrl" class="text-primary hover:text-[#653d1e] underline underline-offset-2 transition-colors">@row.Value</a>
+                                        }
+                                        else
+                                        {
+                                            @row.Value
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </div>
