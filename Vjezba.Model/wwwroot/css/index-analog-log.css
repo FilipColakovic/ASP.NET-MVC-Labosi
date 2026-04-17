@@ -4,8 +4,9 @@
 
 .grain-overlay {
     background-image: radial-gradient(circle at 15% 20%, rgba(125, 82, 49, 0.06) 0, transparent 25%),
-                      radial-gradient(circle at 80% 10%, rgba(113, 92, 0, 0.05) 0, transparent 30%);
-    opacity: 0.45;
+                      radial-gradient(circle at 80% 10%, rgba(113, 92, 0, 0.05) 0, transparent 30%),
+                      repeating-linear-gradient(120deg, rgba(0, 0, 0, 0.012) 0, rgba(0, 0, 0, 0.012) 1px, transparent 1px, transparent 6px);
+    opacity: 0.32;
     pointer-events: none;
 }
 
@@ -37,26 +38,85 @@
 }
 
 .index-canvas-bg {
-    background: radial-gradient(circle at 12% 8%, rgba(125, 82, 49, 0.1) 0, transparent 35%),
-                radial-gradient(circle at 92% 0%, rgba(113, 92, 0, 0.07) 0, transparent 30%),
-                #f7f3f0;
+    background:
+    radial-gradient(circle at 10% 10%, rgba(125, 82, 49, 0.09) 0, transparent 38%),
+    radial-gradient(circle at 92% 4%, rgba(113, 92, 0, 0.07) 0, transparent 34%),
+        linear-gradient(175deg, rgba(255, 255, 255, 0.45) 0, rgba(255, 255, 255, 0) 24%),
+    linear-gradient(180deg, #f6f2ee 0%, #f1ece7 100%);
+}
+
+.analog-shell-bg {
+    background:
+        radial-gradient(circle at 0% 0%, rgba(125, 82, 49, 0.07) 0, transparent 30%),
+        linear-gradient(180deg, #f4efeb 0%, #eee8e3 100%);
+}
+
+.analog-sidebar-surface {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0, rgba(255, 255, 255, 0) 18%),
+        linear-gradient(180deg, #ece6e1 0%, #e2dbd5 100%);
+    border-right: 1px solid rgba(125, 82, 49, 0.16);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.45);
+}
+
+.analog-topbar-surface {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.66) 0, rgba(255, 255, 255, 0.2) 100%),
+        #f4efeb;
+    border-bottom: 1px solid rgba(125, 82, 49, 0.18);
+}
+
+.analog-panel-surface {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0.15) 32%),
+        linear-gradient(180deg, #f0ebe7 0%, #ebe5e0 100%);
+    border: 1px solid rgba(125, 82, 49, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52), 0 1px 2px rgba(40, 25, 12, 0.03);
+}
+
+.analog-table-surface {
+    background: linear-gradient(180deg, #faf8f6 0%, #f5f1ed 100%);
+    border: 1px solid rgba(125, 82, 49, 0.08);
+}
+
+.details-content-shell {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.54) 0, rgba(255, 255, 255, 0.12) 45%),
+        linear-gradient(165deg, #f0ebe6 0%, #e9e3de 100%);
+    border: 1px solid rgba(125, 82, 49, 0.09);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .index-stat-card-bg {
-    background: linear-gradient(180deg, #f0ece8 0%, #e7e2dd 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    background: linear-gradient(180deg, #ece7e2 0%, #e3ddd8 100%);
+    border: 1px solid rgba(125, 82, 49, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
 }
 
 .manifest-shell-bg {
-    background: linear-gradient(180deg, #ebe6e1 0%, #e5dfda 100%);
+    background: linear-gradient(180deg, #e8e2dd 0%, #dfd8d2 100%);
+    border: 1px solid rgba(125, 82, 49, 0.11);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.44);
 }
 
 .manifest-table-bg {
-    background: #fdfbf9;
+    background: #f8f5f2;
+    border: 1px solid rgba(125, 82, 49, 0.06);
 }
 
 .manifest-head-bg {
-    background: #ece7e3;
+    background: #e6e0db;
+}
+
+.analog-search-shell {
+    background: linear-gradient(180deg, #ece7e2 0%, #e7e2dd 100%);
+    border: 1px solid rgba(125, 82, 49, 0.08);
+}
+
+@media (max-width: 640px) {
+    .grain-overlay {
+        opacity: 0.2;
+    }
 }
 
 .analog-sidebar {

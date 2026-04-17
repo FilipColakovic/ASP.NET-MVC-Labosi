@@ -14,15 +14,15 @@
         <p class="font-label text-sm text-on-surface-variant uppercase tracking-widest opacity-70">Region: Sector 4A &amp; Global Nodes</p>
     </div>
     <div class="col-span-12 md:col-span-5 flex md:justify-end flex-wrap gap-4">
-        <div class="bg-surface-container-high index-stat-card-bg p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Active Parcels</span>
             <span class="font-headline font-bold text-2xl text-primary">@Model.Packages.Count</span>
         </div>
-        <div class="bg-surface-container-high index-stat-card-bg p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">In Transit</span>
             <span class="font-headline font-bold text-2xl text-secondary">@inTransitCount</span>
         </div>
-        <div class="bg-surface-container-high index-stat-card-bg p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Delivered Today</span>
             <span class="font-headline font-bold text-2xl text-tertiary">@deliveredTodayCount</span>
         </div>
@@ -37,8 +37,8 @@
     <a asp-action="Index" asp-route-selectedType="delivery" class="@(selectedType == "delivery" ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-highest") px-4 py-2 rounded-md font-label text-xs uppercase tracking-widest transition-colors">Deliveries</a>
 </div>
 
-<div id="manifest" class="bg-surface-container manifest-shell-bg p-1 rounded-xl rise-in" style="animation-delay: 180ms;">
-    <div class="bg-surface-container-lowest manifest-table-bg rounded-lg overflow-x-auto">
+<div id="manifest" class="bg-surface-container manifest-shell-bg analog-panel-surface p-1 rounded-xl rise-in" style="animation-delay: 180ms;">
+    <div class="bg-surface-container-lowest manifest-table-bg analog-table-surface rounded-lg overflow-x-auto">
         <table class="w-full text-left border-collapse min-w-[780px]">
             <thead>
                 @if (selectedType == "package")
