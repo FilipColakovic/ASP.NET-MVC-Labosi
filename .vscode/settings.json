@@ -1,8 +1,80 @@
-{
-    "chat.tools.terminal.autoApprove": {
-        "dotnet build": true,
-        "Get-Command": true,
-        "ForEach-Object": true,
-        "dotnet run": true
-    }
+﻿{
+    "chat.tools.terminal.autoApprove":  {
+                                            "dotnet build":  true,
+                                            "Get-Command":  true,
+                                            "ForEach-Object":  true,
+                                            "dotnet run":  true
+                                        },
+    "files.associations":  {
+                               "*.log":  "log",
+                               "*.log.*":  "log"
+                           },
+    "logFileHighlighter.enableProgressIndicator":  true,
+    "logFileHighlighter.progressIndicatorUnderlineColor":  "#2d9cdb",
+    "logFileHighlighter.customPatterns":  [
+                                              {
+                                                  "pattern":  "^Timestamp:\\s.*$",
+                                                  "foreground":  "#6ad1ff",
+                                                  "fontWeight":  "bold"
+                                              },
+                                              {
+                                                  "pattern":  "^Agent:\\s.*$",
+                                                  "foreground":  "#ffd166",
+                                                  "fontWeight":  "bold"
+                                              },
+                                              {
+                                                  "pattern":  "^User Input:.*$",
+                                                  "foreground":  "#a0e7e5",
+                                                  "fontWeight":  "bold"
+                                              },
+                                              {
+                                                  "pattern":  "^User Input:[\\s\\S]*?(?=^Agent output:)",
+                                                  "patternFlags":  "sm",
+                                                  "foreground":  "#a0e7e5",
+                                                  "highlightEntireLine":  true
+                                              },
+                                              {
+                                                  "pattern":  "^Agent output:.*$",
+                                                  "foreground":  "#7bd389",
+                                                  "fontWeight":  "bold",
+                                                  "highlightEntireLine":  true
+                                              },
+                                              {
+                                                  "pattern":  "^Agent output:[\\s\\S]*?(?=^Timestamp:|$)",
+                                                  "patternFlags":  "sm",
+                                                  "foreground":  "#7bd389",
+                                                  "highlightEntireLine":  true
+                                              },
+                                              {
+                                                  "pattern":  "^Validation:\\s*$",
+                                                  "foreground":  "#f4a261",
+                                                  "fontWeight":  "bold"
+                                              },
+                                              {
+                                                  "pattern":  "^Current output path is:\\s*$",
+                                                  "foreground":  "#cdb4db",
+                                                  "fontWeight":  "bold"
+                                              },
+                                              {
+                                                  "pattern":  "^\\s*-\\s.*passed.*$",
+                                                  "patternFlags":  "i",
+                                                  "foreground":  "#7bd389"
+                                              },
+                                              {
+                                                  "pattern":  "^\\s*-\\s.*(fail|failed|error|exception).*$",
+                                                  "patternFlags":  "i",
+                                                  "foreground":  "#ffffff",
+                                                  "background":  "#c1121f",
+                                                  "highlightEntireLine":  true,
+                                                  "overviewColor":  "#c1121f",
+                                                  "overviewRulerLane":  "Right"
+                                              },
+                                              {
+                                                  "pattern":  "\\[[^\\]]+\\]\\([^\\)]+\\)",
+                                                  "foreground":  "#7bd389"
+                                              }
+                                          ],
+    "[log]":  {
+                  "editor.largeFileOptimizations":  false
+              }
 }

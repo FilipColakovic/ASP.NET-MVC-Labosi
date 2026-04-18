@@ -1,8 +1,7 @@
 # Logs one completed turn: latest user message + latest agent response.
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$logDir = Join-Path $repoRoot "lab-2"
-$logFile = Join-Path $logDir "agent_log.txt"
-$debugFile = Join-Path $logDir "agent_log_debug.txt"
+$logDir = Join-Path $repoRoot "lab-3"
+$logFile = Join-Path $logDir "agent_log.log"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 
 function Get-FirstNonEmpty {
@@ -156,6 +155,73 @@ function Get-LatestMessageTextByType {
     return $latest
 }
 
+function Get-LatestStringByPropertyNames {
+    param(
+        $Node,
+        [string[]]$PropertyNames
+    )
+
+    if ($null -eq $Node) { return $null }
+
+    $latest = $null
+
+    if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
+        foreach ($item in $Node) {
+            $candidate = Get-LatestStringByPropertyNames -Node $item -PropertyNames $PropertyNames
+            if (-not [string]::IsNullOrWhiteSpace($candidate)) {
+                $latest = $candidate
+            }
+        }
+        return $latest
+    }
+
+    if ($Node.PSObject -and $Node.PSObject.Properties) {
+        foreach ($prop in $Node.PSObject.Properties) {
+            if ($PropertyNames -contains $prop.Name) {
+                $candidate = $null
+                if ($prop.Value -is [string]) {
+                    $candidate = [string]$prop.Value
+                }
+                elseif ($null -ne $prop.Value -and $prop.Value.PSObject -and $prop.Value.PSObject.Properties) {
+                    $candidate = Get-FirstNonEmpty @(
+                        [string]$prop.Value.name,
+                        [string]$prop.Value.id,
+                        [string]$prop.Value.model,
+                        [string]$prop.Value.modelName
+                    )
+                }
+                if (-not [string]::IsNullOrWhiteSpace($candidate)) {
+                    $latest = $candidate
+                }
+            }
+
+            $candidate = Get-LatestStringByPropertyNames -Node $prop.Value -PropertyNames $PropertyNames
+            if (-not [string]::IsNullOrWhiteSpace($candidate)) {
+                $latest = $candidate
+            }
+        }
+    }
+
+    return $latest
+}
+
+function Normalize-AgentMode {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) { return $null }
+
+    $v = $Value.Trim().ToLowerInvariant()
+    if ($v -in @("agent", "ask", "plan")) { return $v }
+    if ($v -like "*custom*") { return "custom" }
+    if ($v -like "copilot-*") {
+        $suffix = $v.Substring(8)
+        if ($suffix -in @("agent", "ask", "plan")) { return $suffix }
+        if (-not [string]::IsNullOrWhiteSpace($suffix)) { return $suffix }
+    }
+
+    return $null
+}
+
 function Read-TranscriptWithRetry {
     param(
         [string]$InitialTranscriptPath,
@@ -187,12 +253,6 @@ function Read-TranscriptWithRetry {
             }
         }
 
-        @(
-            "Timestamp: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')"
-            "RetryRead: true attempt=$attempt rows=$($rows.Count) path=$pathUsed"
-            ""
-        ) | Add-Content -Path $debugFile -Encoding utf8
-
         if ($rows.Count -gt 0) {
             break
         }
@@ -216,6 +276,10 @@ $transcriptPath = $null
 $eventName = $null
 $userInput = $null
 $agentOutput = $null
+$agentName = $null
+$agentMode = $null
+$sessionProducer = $null
+$assistantUsedTools = $false
 $lastUserMessage = $null
 $lastAssistantMessage = $null
 try {
@@ -259,6 +323,28 @@ try {
         [string]$payload.hookSpecificOutput.output
     )
 
+    $agentName = Get-FirstNonEmpty @(
+        [string]$payload.agentName,
+        [string]$payload.agent,
+        [string]$payload.modelName,
+        [string]$payload.model,
+        [string]$payload.hookSpecificOutput.agentName,
+        [string]$payload.hookSpecificOutput.agent,
+        [string]$payload.hookSpecificOutput.modelName,
+        [string]$payload.hookSpecificOutput.model,
+        (Get-LatestStringByPropertyNames -Node $payload -PropertyNames @("agentName", "agent", "modelName", "model"))
+    )
+
+    $agentMode = Get-FirstNonEmpty @(
+        (Normalize-AgentMode ([string]$payload.mode)),
+        (Normalize-AgentMode ([string]$payload.chatMode)),
+        (Normalize-AgentMode ([string]$payload.agentMode)),
+        (Normalize-AgentMode ([string]$payload.hookSpecificOutput.mode)),
+        (Normalize-AgentMode ([string]$payload.hookSpecificOutput.chatMode)),
+        (Normalize-AgentMode ([string]$payload.hookSpecificOutput.agentMode)),
+        (Normalize-AgentMode (Get-LatestStringByPropertyNames -Node $payload -PropertyNames @("mode", "chatMode", "agentMode", "producer")))
+    )
+
     $payloadUserFromRows = Get-LatestMessageTextByType -Node $payload -WantedType "user.message"
     $payloadAssistantFromRows = Get-LatestMessageTextByType -Node $payload -WantedType "assistant.message"
     $userInput = Get-FirstNonEmpty @($userInput, $payloadUserFromRows)
@@ -287,12 +373,10 @@ catch {
 }
 
 if (-not [string]::IsNullOrWhiteSpace($transcriptPath) -and (Test-Path -LiteralPath $transcriptPath)) {
-    $debugRows = @()
     foreach ($line in Get-Content -LiteralPath $transcriptPath -ErrorAction SilentlyContinue) {
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
         try {
             $row = $line | ConvertFrom-Json
-            $debugRows += $row
             if ($row.type -eq "user.message") {
                 $userInput = Get-FirstNonEmpty @(
                     (Get-MessageText $row.data),
@@ -301,9 +385,30 @@ if (-not [string]::IsNullOrWhiteSpace($transcriptPath) -and (Test-Path -LiteralP
                 )
             }
             elseif (Is-AssistantRow $row) {
+                if ($row.PSObject.Properties.Name -contains "data" -and $null -ne $row.data) {
+                    if ($row.data.PSObject.Properties.Name -contains "toolRequests" -and $null -ne $row.data.toolRequests) {
+                        if (@($row.data.toolRequests).Count -gt 0) {
+                            $assistantUsedTools = $true
+                        }
+                    }
+                }
                 $agentOutput = Get-FirstNonEmpty @(
                     (Get-AssistantOutputFromRow $row),
                     $agentOutput
+                )
+                $agentName = Get-FirstNonEmpty @(
+                    $agentName,
+                    (Get-LatestStringByPropertyNames -Node $row -PropertyNames @("agentName", "agent", "modelName", "model"))
+                )
+                $agentMode = Get-FirstNonEmpty @(
+                    $agentMode,
+                    (Normalize-AgentMode (Get-LatestStringByPropertyNames -Node $row -PropertyNames @("mode", "chatMode", "agentMode", "producer")))
+                )
+            }
+            elseif ($row.type -eq "session.start") {
+                $sessionProducer = Get-FirstNonEmpty @(
+                    $sessionProducer,
+                    [string]$row.data.producer
                 )
             }
         }
@@ -311,28 +416,6 @@ if (-not [string]::IsNullOrWhiteSpace($transcriptPath) -and (Test-Path -LiteralP
             # Ignore malformed transcript lines.
         }
     }
-
-    # Temporary debug: capture the latest transcript row shapes.
-    $lastRows = @($debugRows | Select-Object -Last 10)
-    $debugLines = @(
-        "Timestamp: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')"
-        "TranscriptPath: $transcriptPath"
-        "RecentRows: $($lastRows.Count)"
-    )
-    foreach ($r in $lastRows) {
-        $typeVal = if ($r.PSObject.Properties.Name -contains 'type') { [string]$r.type } else { '' }
-        $roleVal = if ($r.PSObject.Properties.Name -contains 'role') { [string]$r.role } else { '' }
-        $msgRoleVal = ''
-        if ($r.PSObject.Properties.Name -contains 'message' -and $null -ne $r.message) {
-            if ($r.message.PSObject.Properties.Name -contains 'role') {
-                $msgRoleVal = [string]$r.message.role
-            }
-        }
-        $debugLines += "type=$typeVal role=$roleVal message.role=$msgRoleVal"
-        $debugLines += (($r | ConvertTo-Json -Depth 10 -Compress))
-    }
-    $debugLines += ""
-    $debugLines | Add-Content -Path $debugFile -Encoding utf8
 }
 
 if ([string]::IsNullOrWhiteSpace($eventName)) {
@@ -358,15 +441,24 @@ if (-not $agentOutput) {
     }
 }
 
+if (-not $agentName) {
+    $agentNameMatch = [regex]::Match($rawPayload, '"agentName"\s*:\s*"(?<v>(?:\\.|[^"])*)"|"modelName"\s*:\s*"(?<v2>(?:\\.|[^"])*)"|"model"\s*:\s*"(?<v3>(?:\\.|[^"])*)"')
+    if ($agentNameMatch.Success) {
+        $candidate = if ($agentNameMatch.Groups["v"].Success) { $agentNameMatch.Groups["v"].Value } elseif ($agentNameMatch.Groups["v2"].Success) { $agentNameMatch.Groups["v2"].Value } else { $agentNameMatch.Groups["v3"].Value }
+        if ($candidate) { $agentName = [regex]::Unescape($candidate) }
+    }
+}
+
+if (-not $agentMode) {
+    $agentModeMatch = [regex]::Match($rawPayload, '"mode"\s*:\s*"(?<v>(?:\\.|[^"])*)"|"chatMode"\s*:\s*"(?<v2>(?:\\.|[^"])*)"|"agentMode"\s*:\s*"(?<v3>(?:\\.|[^"])*)"|"producer"\s*:\s*"(?<v4>(?:\\.|[^"])*)"')
+    if ($agentModeMatch.Success) {
+        $candidate = if ($agentModeMatch.Groups["v"].Success) { $agentModeMatch.Groups["v"].Value } elseif ($agentModeMatch.Groups["v2"].Success) { $agentModeMatch.Groups["v2"].Value } elseif ($agentModeMatch.Groups["v3"].Success) { $agentModeMatch.Groups["v3"].Value } else { $agentModeMatch.Groups["v4"].Value }
+        if ($candidate) { $agentMode = Normalize-AgentMode ([regex]::Unescape($candidate)) }
+    }
+}
+
 $eventName = [string](Get-FirstNonEmpty @($eventName, "unknown"))
 $eventNameLower = $eventName.ToLowerInvariant()
-
-@(
-    "Timestamp: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')"
-    "HookEvent: $eventName"
-    "TranscriptPath: $transcriptPath"
-    ""
-) | Add-Content -Path $debugFile -Encoding utf8
 
 # On submit, do not write to main log (final-only policy).
 if ($eventNameLower -eq "userpromptsubmit") {
@@ -390,41 +482,59 @@ if ($debugRows.Count -gt 0) {
             )
         }
         elseif (Is-AssistantRow $row) {
+            if ($row.PSObject.Properties.Name -contains "data" -and $null -ne $row.data) {
+                if ($row.data.PSObject.Properties.Name -contains "toolRequests" -and $null -ne $row.data.toolRequests) {
+                    if (@($row.data.toolRequests).Count -gt 0) {
+                        $assistantUsedTools = $true
+                    }
+                }
+            }
             $agentOutput = Get-FirstNonEmpty @(
                 (Get-AssistantOutputFromRow $row),
                 $agentOutput
             )
+            $agentName = Get-FirstNonEmpty @(
+                $agentName,
+                (Get-LatestStringByPropertyNames -Node $row -PropertyNames @("agentName", "agent", "modelName", "model"))
+            )
+            $agentMode = Get-FirstNonEmpty @(
+                $agentMode,
+                (Normalize-AgentMode (Get-LatestStringByPropertyNames -Node $row -PropertyNames @("mode", "chatMode", "agentMode", "producer")))
+            )
+        }
+        elseif ($row.type -eq "session.start") {
+            $sessionProducer = Get-FirstNonEmpty @(
+                $sessionProducer,
+                [string]$row.data.producer
+            )
         }
     }
+}
 
-    # Temporary debug: capture latest transcript row shapes for completion read.
-    $lastRows = @($debugRows | Select-Object -Last 10)
-    $debugLines = @(
-        "Timestamp: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')"
-        "CompletionRead: true"
-        "TranscriptPath: $transcriptPath"
-        "Attempts: $($retryResult.Attempts)"
-        "RecentRows: $($lastRows.Count)"
-    )
-    foreach ($r in $lastRows) {
-        $typeVal = if ($r.PSObject.Properties.Name -contains 'type') { [string]$r.type } else { '' }
-        $roleVal = if ($r.PSObject.Properties.Name -contains 'role') { [string]$r.role } else { '' }
-        $msgRoleVal = ''
-        if ($r.PSObject.Properties.Name -contains 'message' -and $null -ne $r.message) {
-            if ($r.message.PSObject.Properties.Name -contains 'role') {
-                $msgRoleVal = [string]$r.message.role
-            }
+$agentMode = Get-FirstNonEmpty @(
+    $agentMode,
+    (Normalize-AgentMode $sessionProducer),
+    ($(if ($assistantUsedTools) { "agent" } else { $null })),
+    "unknown"
+)
+
+$agentLabel = "unknown"
+if (-not [string]::IsNullOrWhiteSpace($agentMode) -and $agentMode -ne "unknown") {
+    $agentLabel = $agentMode
+    if (-not [string]::IsNullOrWhiteSpace($agentName)) {
+        $agentNameLower = $agentName.Trim().ToLowerInvariant()
+        if ($agentNameLower -ne $agentMode) {
+            $agentLabel = "$agentMode ($agentName)"
         }
-        $debugLines += "type=$typeVal role=$roleVal message.role=$msgRoleVal"
-        $debugLines += (($r | ConvertTo-Json -Depth 10 -Compress))
     }
-    $debugLines += ""
-    $debugLines | Add-Content -Path $debugFile -Encoding utf8
+}
+elseif (-not [string]::IsNullOrWhiteSpace($agentName)) {
+    $agentLabel = $agentName
 }
 
 $entry = @(
-    "Timestamp: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')"
-    "Status: final"
+    "Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+    "Agent: $agentLabel"
     "User Input: $(Get-FirstNonEmpty @($userInput, '[not found]'))"
     "Agent output: $(Get-FirstNonEmpty @($agentOutput, '[not found]'))"
     ""

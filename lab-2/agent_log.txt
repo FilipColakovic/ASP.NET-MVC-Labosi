@@ -2226,3 +2226,57 @@ Validation:
 1. Checked edited files for errors.
 2. No errors found.
 
+Timestamp: 2026-04-18T22:58:42
+Status: final
+User Input: analiye this code and see if there are some extra unneeded code 
+Agent output: **Findings (Potentially Unneeded Code)**
+
+1. **High: Duplicate transcript parsing/extraction logic**
+- The script parses transcript rows once in [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L289) and then again after retry in [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L379).
+- Both blocks repeat:
+  - user/assistant extraction
+  - row iteration with `ConvertFrom-Json`
+  - debug row-shape dumping
+- If your goal is only final logging, the first pass is mostly redundant because the second pass is the one used right before writing final output.
+- Candidate removal: [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L289) to [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L336).
+
+2. **Medium: â€œTemporary debugâ€ blocks look like leftover diagnostics**
+- Two large debug sections are marked temporary and dump full recent rows:
+  - [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L315)
+  - [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L400)
+- This is high-volume logging and likely no longer needed in normal operation.
+- If stable now, remove or gate behind a debug flag.
+
+3. **Medium: Fixed pre-wait before retry is likely unnecessary**
+- You sleep before retry here: [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L377).
+- Then `Read-TranscriptWithRetry` already performs repeated attempts and sleeping at [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L170) and [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L200).
+- This causes avoidable delay for every completion hook.
+
+4. **Low: Unused intermediate variables can be simplified**
+- Declared here: [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L219) and [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L220).
+- Used only for one fallback read in [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L278) and [`.github/hooks/write-agent-log.ps1`](.github/hooks/write-agent-log.ps1#L281).
+- You can inline these and remove explicit variables to reduce noise.
+
+**Open Questions / Assumptions**
+1. If debug tracing is still actively used for transcript-shape investigation, keep one of the temporary debug blocks.
+2. If you need immediate partial extraction before completion (for troubleshooting), keep the first parse block; otherwise it is mostly duplicate.
+
+**Summary**
+The main cleanup opportunity is duplicated transcript handling plus temporary debug scaffolding. Removing those should cut complexity and runtime without changing the final logging behavior. If you want, I can apply a minimal refactor that keeps behavior the same while removing the redundant parts.
+
+Timestamp: 2026-04-18T23:00:54
+Status: final
+User Input: 1 debug not needen anzmore
+Agent output: Removed, debug code is no longer in the hook.
+
+What I changed:
+- Removed debug file path setup from [.github/hooks/write-agent-log.ps1](.github/hooks/write-agent-log.ps1).
+- Removed retry debug writes inside `Read-TranscriptWithRetry` in [.github/hooks/write-agent-log.ps1](.github/hooks/write-agent-log.ps1).
+- Removed both â€œTemporary debugâ€ transcript-dump blocks from [.github/hooks/write-agent-log.ps1](.github/hooks/write-agent-log.ps1).
+- Removed the per-event debug header write (`HookEvent`, `TranscriptPath`) from [.github/hooks/write-agent-log.ps1](.github/hooks/write-agent-log.ps1).
+
+Validation:
+- PowerShell parse check passed: script is syntactically valid.
+
+If you want, I can also do a second cleanup pass to remove other redundancy (duplicate transcript read before/after retry) to make it shorter and faster.
+
