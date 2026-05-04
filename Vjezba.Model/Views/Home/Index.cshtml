@@ -1,7 +1,7 @@
 ﻿@model Vjezba.Model.Models.ObjectOverviewViewModel
 @{
     Layout = null;
-    ViewData["Title"] = "The Analog Log - Management Console";
+    ViewData["Title"] = "Package Hub - Management Console";
 }
 
 <!DOCTYPE html>
@@ -10,6 +10,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <script>
+        (function () {
+            try {
+                if (window.localStorage.getItem("analogSidebarCollapsed") === "1") {
+                    document.documentElement.classList.add("analog-sidebar-collapsed");
+                }
+            } catch (e) {
+            }
+        })();
+    </script>
     <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />

@@ -21,7 +21,9 @@ namespace Vjezba.Model.Data
             {
                 new() { Id = 1, FirstName = "Marko", LastName = "Horvat", Email = "marko@delivery.hr", PhoneNumber = "+385911111111", VehicleType = "Van", LicensePlate = "ZG-111-AA", IsAvailable = true },
                 new() { Id = 2, FirstName = "Ana", LastName = "Kovac", Email = "ana@delivery.hr", PhoneNumber = "+385922222222", VehicleType = "Bike", LicensePlate = "ZG-222-BB", IsAvailable = true },
-                new() { Id = 3, FirstName = "Ivan", LastName = "Babic", Email = "ivan@delivery.hr", PhoneNumber = "+385933333333", VehicleType = "Truck", LicensePlate = "ST-333-CC", IsAvailable = false }
+                new() { Id = 3, FirstName = "Ivan", LastName = "Babic", Email = "ivan@delivery.hr", PhoneNumber = "+385933333333", VehicleType = "Truck", LicensePlate = "ST-333-CC", IsAvailable = false },
+                new() { Id = 4, FirstName = "Sara", LastName = "Milic", Email = "sara@delivery.hr", PhoneNumber = "+385944444444", VehicleType = "Scooter", LicensePlate = "ZG-444-DD", IsAvailable = true },
+                new() { Id = 5, FirstName = "Dario", LastName = "Bosnjak", Email = "dario@delivery.hr", PhoneNumber = "+385955555555", VehicleType = "Van", LicensePlate = "RI-555-EE", IsAvailable = true }
             };
 
             var users = new List<User>
@@ -31,7 +33,13 @@ namespace Vjezba.Model.Data
                 new() { Id = 3, FirstName = "Nikola", LastName = "Peric", Email = "nikola@example.com", PhoneNumber = "+385983333333" },
                 new() { Id = 4, FirstName = "Tea", LastName = "Juric", Email = "tea@example.com", PhoneNumber = "+385984444444" },
                 new() { Id = 5, FirstName = "Mia", LastName = "Klaric", Email = "mia@example.com", PhoneNumber = "+385985555555" },
-                new() { Id = 6, FirstName = "Filip", LastName = "Radic", Email = "filip@example.com", PhoneNumber = "+385986666666" }
+                new() { Id = 6, FirstName = "Filip", LastName = "Radic", Email = "filip@example.com", PhoneNumber = "+385986666666" },
+                new() { Id = 7, FirstName = "Ivana", LastName = "Bulat", Email = "ivana@example.com", PhoneNumber = "+385987777777" },
+                new() { Id = 8, FirstName = "Tomislav", LastName = "Sokic", Email = "tomislav@example.com", PhoneNumber = "+385988888888" },
+                new() { Id = 9, FirstName = "Lea", LastName = "Grgic", Email = "lea@example.com", PhoneNumber = "+385989999999" },
+                new() { Id = 10, FirstName = "Mario", LastName = "Knez", Email = "mario@example.com", PhoneNumber = "+385981010101" },
+                new() { Id = 11, FirstName = "Nina", LastName = "Bencic", Email = "nina@example.com", PhoneNumber = "+385982020202" },
+                new() { Id = 12, FirstName = "Karlo", LastName = "Varga", Email = "karlo@example.com", PhoneNumber = "+385983030303" }
             };
 
             var addresses = new List<Address>
@@ -41,7 +49,13 @@ namespace Vjezba.Model.Data
                 new() { Id = 3, Street = "Marmontova 12", City = "Split", PostalCode = "21000", Country = "Croatia" },
                 new() { Id = 4, Street = "Korzo 20", City = "Rijeka", PostalCode = "51000", Country = "Croatia" },
                 new() { Id = 5, Street = "Strossmayerova 8", City = "Osijek", PostalCode = "31000", Country = "Croatia" },
-                new() { Id = 6, Street = "Trg Bana Jelacica 1", City = "Varazdin", PostalCode = "42000", Country = "Croatia" }
+                new() { Id = 6, Street = "Trg Bana Jelacica 1", City = "Varazdin", PostalCode = "42000", Country = "Croatia" },
+                new() { Id = 7, Street = "Poljicka cesta 44", City = "Split", PostalCode = "21000", Country = "Croatia" },
+                new() { Id = 8, Street = "Zadarska 16", City = "Zadar", PostalCode = "23000", Country = "Croatia" },
+                new() { Id = 9, Street = "Dubrovacka 9", City = "Dubrovnik", PostalCode = "20000", Country = "Croatia" },
+                new() { Id = 10, Street = "Avenija Dubrovnik 120", City = "Zagreb", PostalCode = "10020", Country = "Croatia" },
+                new() { Id = 11, Street = "Kralja Zvonimira 27", City = "Sibenik", PostalCode = "22000", Country = "Croatia" },
+                new() { Id = 12, Street = "Riva 2", City = "Pula", PostalCode = "52100", Country = "Croatia" }
             };
 
             var packages = new List<Package>
@@ -54,21 +68,36 @@ namespace Vjezba.Model.Data
                 CreatePackage(6, "HR000006", couriers[1], users[5], users[2], addresses[1], addresses[3], PackageStatus.DeliveryFailed, DeliveryPriority.VeryLow, "Clothes"),
                 CreatePackage(7, "HR000007", couriers[0], users[0], users[4], addresses[0], addresses[4], PackageStatus.PickedUp, DeliveryPriority.High, "Laptop"),
                 CreatePackage(8, "HR000008", couriers[1], users[1], users[2], addresses[1], addresses[3], PackageStatus.InTransit, DeliveryPriority.Normal, "Shoes"),
-                CreatePackage(9, "HR000009", couriers[2], users[2], users[3], addresses[3], addresses[5], PackageStatus.PendingPickup, DeliveryPriority.Low, "Office supplies")
+                CreatePackage(9, "HR000009", couriers[2], users[2], users[3], addresses[3], addresses[5], PackageStatus.PendingPickup, DeliveryPriority.Low, "Office supplies"),
+                CreatePackage(10, "HR000010", couriers[3], users[6], users[7], addresses[6], addresses[7], PackageStatus.InTransit, DeliveryPriority.High, "Kitchen appliances"),
+                CreatePackage(11, "HR000011", couriers[4], users[8], users[9], addresses[8], addresses[9], PackageStatus.OutForDelivery, DeliveryPriority.Urgent, "Medical equipment"),
+                CreatePackage(12, "HR000012", couriers[0], users[10], users[11], addresses[10], addresses[11], PackageStatus.PendingPickup, DeliveryPriority.Normal, "Sports gear"),
+                CreatePackage(13, "HR000013", couriers[3], users[7], users[6], addresses[9], addresses[6], PackageStatus.Created, DeliveryPriority.Low, "Stationery"),
+                CreatePackage(14, "HR000014", couriers[4], users[9], users[8], addresses[7], addresses[8], PackageStatus.Delivered, DeliveryPriority.High, "Mobile accessories"),
+                CreatePackage(15, "HR000015", couriers[1], users[11], users[10], addresses[11], addresses[10], PackageStatus.PickedUp, DeliveryPriority.Normal, "Pet supplies"),
+                CreatePackage(16, "HR000016", couriers[2], users[6], users[8], addresses[0], addresses[11], PackageStatus.ReturnedToSender, DeliveryPriority.Low, "Fragile glassware"),
+                CreatePackage(17, "HR000017", couriers[3], users[10], users[7], addresses[10], addresses[3], PackageStatus.InTransit, DeliveryPriority.Urgent, "IT hardware"),
+                CreatePackage(18, "HR000018", couriers[4], users[11], users[9], addresses[5], addresses[2], PackageStatus.PendingPickup, DeliveryPriority.VeryLow, "Printed materials")
             };
 
             var warehouses = new List<Warehouse>
             {
                 new() { Id = 1, Name = "Central Zagreb", Address = addresses[0], Capacity = 500, StoredPackages = new List<Package> { packages[0], packages[1], packages[2] } },
                 new() { Id = 2, Name = "Adriatic Split", Address = addresses[2], Capacity = 350, StoredPackages = new List<Package> { packages[3], packages[4], packages[5] } },
-                new() { Id = 3, Name = "East Osijek", Address = addresses[4], Capacity = 300, StoredPackages = new List<Package> { packages[6], packages[7], packages[8] } }
+                new() { Id = 3, Name = "East Osijek", Address = addresses[4], Capacity = 300, StoredPackages = new List<Package> { packages[6], packages[7], packages[8] } },
+                new() { Id = 4, Name = "Dalmatia Hub", Address = addresses[7], Capacity = 280, StoredPackages = new List<Package> { packages[9], packages[10], packages[11] } },
+                new() { Id = 5, Name = "North Link", Address = addresses[9], Capacity = 420, StoredPackages = new List<Package> { packages[12], packages[13], packages[14] } },
+                new() { Id = 6, Name = "Coast Relay", Address = addresses[11], Capacity = 260, StoredPackages = new List<Package> { packages[15], packages[16], packages[17] } }
             };
 
             var deliveries = new List<Delivery>
             {
                 new() { Id = 1, DepartureDate = DateTime.UtcNow.AddHours(-8), ArrivalDate = DateTime.UtcNow.AddHours(2), CurrentLocation = "Karlovac", IsDelayed = false, Courier = couriers[0], Packages = new List<Package> { packages[0], packages[3], packages[6] } },
                 new() { Id = 2, DepartureDate = DateTime.UtcNow.AddHours(-6), ArrivalDate = DateTime.UtcNow.AddHours(1), CurrentLocation = "Zagreb", IsDelayed = false, Courier = couriers[1], Packages = new List<Package> { packages[1], packages[5], packages[7] } },
-                new() { Id = 3, DepartureDate = DateTime.UtcNow.AddHours(-12), ArrivalDate = DateTime.UtcNow.AddHours(-2), CurrentLocation = "Varazdin", IsDelayed = true, Courier = couriers[2], Packages = new List<Package> { packages[2], packages[4], packages[8] } }
+                new() { Id = 3, DepartureDate = DateTime.UtcNow.AddHours(-12), ArrivalDate = DateTime.UtcNow.AddHours(-2), CurrentLocation = "Varazdin", IsDelayed = true, Courier = couriers[2], Packages = new List<Package> { packages[2], packages[4], packages[8] } },
+                new() { Id = 4, DepartureDate = DateTime.UtcNow.AddHours(-4), ArrivalDate = DateTime.UtcNow.AddHours(4), CurrentLocation = "Zadar", IsDelayed = false, Courier = couriers[3], Packages = new List<Package> { packages[9], packages[12], packages[16] } },
+                new() { Id = 5, DepartureDate = DateTime.UtcNow.AddHours(-9), ArrivalDate = DateTime.UtcNow.AddHours(3), CurrentLocation = "Rijeka", IsDelayed = true, Courier = couriers[4], Packages = new List<Package> { packages[10], packages[13], packages[17] } },
+                new() { Id = 6, DepartureDate = DateTime.UtcNow.AddHours(-5), ArrivalDate = DateTime.UtcNow.AddHours(5), CurrentLocation = "Sibenik", IsDelayed = false, Courier = couriers[1], Packages = new List<Package> { packages[11], packages[14], packages[15] } }
             };
 
             return new SeedDataContext
@@ -107,7 +136,8 @@ namespace Vjezba.Model.Data
                 RecipientAddress = recipientAddress,
                 Status = status,
                 Description = description,
-                CreatedAt = DateTime.UtcNow.AddHours(-id * 3)
+                CreatedAt = DateTime.UtcNow.AddHours(-id * 3),
+                DeliveredAt = status == PackageStatus.Delivered ? DateTime.UtcNow.AddHours(-(id > 1 ? id : 1)) : null
             };
 
             package.StatusHistory = new List<StatusLog>

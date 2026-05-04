@@ -382,3 +382,16 @@ Validation:
 
 If it still renders old colors, run Developer: Reload Window once.
 
+Timestamp: 2026-05-04 13:02:39
+Agent: agent
+User Input: Add 
+Microsoft.EntityFrameworkCore
+Microsoft.EntityFrameworkCore.SQLite
+Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.Tools
+Agent output: Added the EF Core package references to [Vjezba.Model/Vjezba.Model.csproj](Vjezba.Model/Vjezba.Model.csproj). I used the official SQLite package ID, `Microsoft.EntityFrameworkCore.Sqlite`, along with `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Design`, and `Microsoft.EntityFrameworkCore.Tools`, all at version `10.0.0`.
+
+Validation passed: `dotnet restore` completed successfully for the project.
+
+
+

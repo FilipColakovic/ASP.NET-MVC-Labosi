@@ -17,6 +17,7 @@
 	var storageKey = "analogSidebarCollapsed";
 
 	function applyState(collapsed) {
+		document.documentElement.classList.toggle("analog-sidebar-collapsed", collapsed);
 		sidebar.classList.toggle("is-collapsed", collapsed);
 		icon.textContent = collapsed ? "chevron_right" : "chevron_left";
 		toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");

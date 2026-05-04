@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using Vjezba.Model.Data;
@@ -8,14 +9,49 @@ namespace Vjezba.Model.Controllers
 {
     public class HomeController : Controller
     {
+        private const string DefaultSelectedType = "package";
+
+        private static readonly HashSet<string> OverviewTypes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "package",
+            "courier",
+            "warehouse",
+            "user",
+            "delivery"
+        };
+
+        private static readonly IReadOnlyDictionary<string, Func<SeedDataContext, int, object?>> DetailSelectors =
+            new Dictionary<string, Func<SeedDataContext, int, object?>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["address"] = (seedData, id) => seedData.Addresses.FirstOrDefault(x => x.Id == id),
+                ["courier"] = (seedData, id) => seedData.Couriers.FirstOrDefault(x => x.Id == id),
+                ["user"] = (seedData, id) => seedData.Users.FirstOrDefault(x => x.Id == id),
+                ["package"] = (seedData, id) => seedData.Packages.FirstOrDefault(x => x.Id == id),
+                ["warehouse"] = (seedData, id) => seedData.Warehouses.FirstOrDefault(x => x.Id == id),
+                ["delivery"] = (seedData, id) => seedData.Deliveries.FirstOrDefault(x => x.Id == id),
+                ["statuslog"] = (seedData, id) => seedData.Packages
+                    .SelectMany(x => x.StatusHistory ?? new List<StatusLog>())
+                    .FirstOrDefault(x => x.Id == id)
+            };
+
+        private static readonly IReadOnlyDictionary<string, Func<object, int, string>> ReferenceLabelBuilders =
+            new Dictionary<string, Func<object, int, string>>(StringComparer.Ordinal)
+            {
+                ["courier"] = (value, id) => BuildFullName(value) ?? $"{value.GetType().Name} #{id}",
+                ["user"] = (value, id) => BuildFullName(value) ?? $"{value.GetType().Name} #{id}",
+                ["package"] = (value, id) => GetStringProperty(value, "TrackingNumber") ?? $"Package #{id}",
+                ["warehouse"] = (value, id) => GetStringProperty(value, "Name") ?? $"Warehouse #{id}",
+                ["address"] = (value, id) => BuildAddressLabel(value) ?? $"Address #{id}",
+                ["delivery"] = (_, id) => $"Delivery #{id}",
+                ["statuslog"] = (_, id) => $"Status Log #{id}"
+            };
+
         public IActionResult Index(string? selectedType)
         {
-            var normalized = (selectedType ?? "package").ToLowerInvariant();
-            var allowed = new HashSet<string> { "package", "courier", "warehouse", "user", "delivery" };
-
-            if (!allowed.Contains(normalized))
+            var normalized = NormalizeType(selectedType);
+            if (!OverviewTypes.Contains(normalized))
             {
-                normalized = "package";
+                normalized = DefaultSelectedType;
             }
 
             ViewData["SelectedType"] = normalized;
@@ -30,17 +66,8 @@ namespace Vjezba.Model.Controllers
         public IActionResult Details(string type, int id)
         {
             var seedData = SeedDataFactory.Create();
-
-            object? selectedObject = type?.ToLowerInvariant() switch
-            {
-                "address" => seedData.Addresses.FirstOrDefault(x => x.Id == id),
-                "courier" => seedData.Couriers.FirstOrDefault(x => x.Id == id),
-                "user" => seedData.Users.FirstOrDefault(x => x.Id == id),
-                "package" => seedData.Packages.FirstOrDefault(x => x.Id == id),
-                "warehouse" => seedData.Warehouses.FirstOrDefault(x => x.Id == id),
-                "delivery" => seedData.Deliveries.FirstOrDefault(x => x.Id == id),
-                _ => null
-            };
+            var normalizedType = NormalizeType(type);
+            var selectedObject = ResolveDetailObject(seedData, normalizedType, id);
 
             if (selectedObject is null)
             {
@@ -53,7 +80,7 @@ namespace Vjezba.Model.Controllers
 
             var model = new ObjectDetailsViewModel
             {
-                ObjectType = type ?? string.Empty,
+                ObjectType = normalizedType,
                 ObjectId = id,
                 Values = details,
                 Links = links
@@ -77,6 +104,23 @@ namespace Vjezba.Model.Controllers
             };
         }
 
+        private static string NormalizeType(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? string.Empty
+                : value.Trim().ToLowerInvariant();
+        }
+
+        private static object? ResolveDetailObject(SeedDataContext seedData, string type, int id)
+        {
+            if (!DetailSelectors.TryGetValue(type, out var selector))
+            {
+                return null;
+            }
+
+            return selector(seedData, id);
+        }
+
         private static void FillDetails(
             object value,
             string prefix,
@@ -87,43 +131,37 @@ namespace Vjezba.Model.Controllers
         {
             if (depth > maxDepth)
             {
-                output[prefix] = "...";
+                output[GetOutputKey(prefix)] = "...";
                 return;
             }
 
             if (IsSimple(value.GetType()))
             {
-                output[prefix] = value.ToString() ?? string.Empty;
+                output[GetOutputKey(prefix)] = value.ToString() ?? string.Empty;
                 return;
             }
 
-            if (value is System.Collections.IEnumerable enumerable && value is not string)
+            if (value is IEnumerable enumerable && value is not string)
             {
                 var index = 0;
                 foreach (var item in enumerable)
                 {
                     var itemPrefix = string.IsNullOrWhiteSpace(prefix) ? $"[{index}]" : $"{prefix}[{index}]";
-
                     if (item is null)
                     {
                         output[itemPrefix] = "null";
                     }
-                    else if (IsSimple(item.GetType()))
+                    else if (item is IEnumerable nestedEnumerable && item is not string)
                     {
-                        output[itemPrefix] = item.ToString() ?? string.Empty;
+                        FillDetails(nestedEnumerable, itemPrefix, output, links, depth + 1, maxDepth);
                     }
-                    else if (TryCreateObjectReference(item, out var referenceType, out var referenceId, out var referenceLabel))
+                    else if (IsSimple(item.GetType()) || TryCreateObjectReference(item, out _, out _, out _))
                     {
-                        output[itemPrefix] = referenceLabel;
-                        links[itemPrefix] = new ObjectReferenceLink
-                        {
-                            Type = referenceType,
-                            Id = referenceId
-                        };
+                        WriteValue(item, itemPrefix, output, links);
                     }
                     else
                     {
-                        output[itemPrefix] = item.GetType().Name;
+                        FillDetails(item, itemPrefix, output, links, depth + 1, maxDepth);
                     }
 
                     index++;
@@ -131,7 +169,7 @@ namespace Vjezba.Model.Controllers
 
                 if (index == 0)
                 {
-                    output[prefix] = "[]";
+                    output[GetOutputKey(prefix)] = "[]";
                 }
 
                 return;
@@ -148,28 +186,13 @@ namespace Vjezba.Model.Controllers
                     continue;
                 }
 
-                if (IsSimple(prop.PropertyType))
-                {
-                    output[propPrefix] = propValue.ToString() ?? string.Empty;
-                    continue;
-                }
-
-                if (TryCreateObjectReference(propValue, out var nestedType, out var nestedId, out var nestedLabel))
-                {
-                    output[propPrefix] = nestedLabel;
-                    links[propPrefix] = new ObjectReferenceLink
-                    {
-                        Type = nestedType,
-                        Id = nestedId
-                    };
-                }
-                else if (propValue is System.Collections.IEnumerable && propValue is not string)
+                if (propValue is IEnumerable && propValue is not string)
                 {
                     FillDetails(propValue, propPrefix, output, links, depth + 1, maxDepth);
                 }
                 else
                 {
-                    output[propPrefix] = propValue.GetType().Name;
+                    WriteValue(propValue, propPrefix, output, links);
                 }
             }
         }
@@ -183,21 +206,12 @@ namespace Vjezba.Model.Controllers
             var modelType = value.GetType();
             var modelTypeName = modelType.Name.ToLowerInvariant();
 
-            type = modelTypeName switch
-            {
-                "address" => "address",
-                "courier" => "courier",
-                "user" => "user",
-                "package" => "package",
-                "warehouse" => "warehouse",
-                "delivery" => "delivery",
-                _ => string.Empty
-            };
-
-            if (string.IsNullOrWhiteSpace(type))
+            if (!DetailSelectors.ContainsKey(modelTypeName))
             {
                 return false;
             }
+
+            type = modelTypeName;
 
             var idProperty = modelType.GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
             if (idProperty?.GetValue(value) is not int foundId)
@@ -206,18 +220,56 @@ namespace Vjezba.Model.Controllers
             }
 
             id = foundId;
-
-            label = type switch
-            {
-                "courier" or "user" => BuildFullName(value) ?? $"{modelType.Name} #{id}",
-                "package" => GetStringProperty(value, "TrackingNumber") ?? $"Package #{id}",
-                "warehouse" => GetStringProperty(value, "Name") ?? $"Warehouse #{id}",
-                "address" => BuildAddressLabel(value) ?? $"Address #{id}",
-                "delivery" => $"Delivery #{id}",
-                _ => $"{modelType.Name} #{id}"
-            };
+            label = BuildReferenceLabel(type, value, id);
 
             return true;
+        }
+
+        private static void WriteValue(
+            object? value,
+            string key,
+            IDictionary<string, string> output,
+            IDictionary<string, ObjectReferenceLink> links)
+        {
+            if (value is null)
+            {
+                output[GetOutputKey(key)] = "null";
+                return;
+            }
+
+            if (IsSimple(value.GetType()))
+            {
+                output[GetOutputKey(key)] = value.ToString() ?? string.Empty;
+                return;
+            }
+
+            if (TryCreateObjectReference(value, out var referenceType, out var referenceId, out var referenceLabel))
+            {
+                output[key] = referenceLabel;
+                links[key] = new ObjectReferenceLink
+                {
+                    Type = referenceType,
+                    Id = referenceId
+                };
+                return;
+            }
+
+            output[GetOutputKey(key)] = value.GetType().Name;
+        }
+
+        private static string BuildReferenceLabel(string type, object value, int id)
+        {
+            if (ReferenceLabelBuilders.TryGetValue(type, out var labelBuilder))
+            {
+                return labelBuilder(value, id);
+            }
+
+            return $"{value.GetType().Name} #{id}";
+        }
+
+        private static string GetOutputKey(string key)
+        {
+            return string.IsNullOrWhiteSpace(key) ? "(root)" : key;
         }
 
         private static string? BuildFullName(object value)

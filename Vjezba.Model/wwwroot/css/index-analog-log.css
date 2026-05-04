@@ -142,8 +142,23 @@
     padding-right: 0.75rem;
 }
 
+html.analog-sidebar-collapsed .analog-sidebar {
+    width: 5.25rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
 .analog-sidebar.is-collapsed .analog-sidebar-brand-text,
 .analog-sidebar.is-collapsed .analog-sidebar-text {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-brand-text,
+html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-text {
     opacity: 0;
     pointer-events: none;
     width: 0;
@@ -158,6 +173,37 @@
     padding-right: 0.6rem;
 }
 
+html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-link {
+    justify-content: center;
+    gap: 0;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+}
+
+.analog-sidebar.is-collapsed .analog-sidebar-brand-row {
+    justify-content: center;
+    gap: 0;
+}
+
+html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-brand-row {
+    justify-content: center;
+    gap: 0;
+}
+
+.analog-sidebar.is-collapsed .analog-sidebar-brand-icon {
+    display: none;
+}
+
+html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-brand-icon {
+    display: none;
+}
+
 .analog-sidebar.is-collapsed .analog-sidebar-toggle {
     margin-left: 0;
+    margin-right: 0;
+}
+
+html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-toggle {
+    margin-left: 0;
+    margin-right: 0;
 }
