@@ -37,47 +37,60 @@ namespace Vjezba.Model.Data
             {
                 entity.HasIndex(x => x.TrackingNumber).IsUnique();
                 entity.HasOne(x => x.Courier)
-                    .WithMany()
+                    .WithMany(x => x.Packages)
+                    .HasForeignKey(x => x.CourierId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(x => x.SenderUser)
-                    .WithMany()
+                    .WithMany(x => x.SentPackages)
+                    .HasForeignKey(x => x.SenderUserId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(x => x.RecipientUser)
-                    .WithMany()
+                    .WithMany(x => x.ReceivedPackages)
+                    .HasForeignKey(x => x.RecipientUserId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(x => x.SenderAddress)
-                    .WithMany()
+                    .WithMany(x => x.SentPackages)
+                    .HasForeignKey(x => x.SenderAddressId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(x => x.RecipientAddress)
-                    .WithMany()
+                    .WithMany(x => x.ReceivedPackages)
+                    .HasForeignKey(x => x.RecipientAddressId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasMany(x => x.StatusHistory)
                     .WithOne(x => x.Package)
+                    .HasForeignKey(x => x.PackageId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(x => x.Warehouses)
+                    .WithMany(x => x.StoredPackages);
+                entity.HasMany(x => x.Deliveries)
+                    .WithMany(x => x.Packages);
             });
 
             modelBuilder.Entity<Warehouse>(entity =>
             {
                 entity.HasOne(x => x.Address)
-                    .WithMany()
+                    .WithMany(x => x.Warehouses)
+                    .HasForeignKey(x => x.AddressId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasMany(x => x.StoredPackages)
-                    .WithMany();
+                    .WithMany(x => x.Warehouses);
             });
 
             modelBuilder.Entity<Delivery>(entity =>
             {
                 entity.HasOne(x => x.Courier)
-                    .WithMany()
+                    .WithMany(x => x.Deliveries)
+                    .HasForeignKey(x => x.CourierId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasMany(x => x.Packages)
-                    .WithMany();
+                    .WithMany(x => x.Deliveries);
             });
 
             modelBuilder.Entity<StatusLog>(entity =>
             {
                 entity.HasOne(x => x.Package)
                     .WithMany(x => x.StatusHistory)
+                    .HasForeignKey(x => x.PackageId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

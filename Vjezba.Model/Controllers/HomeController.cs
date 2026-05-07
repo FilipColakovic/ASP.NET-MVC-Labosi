@@ -59,6 +59,7 @@ namespace Vjezba.Model.Controllers
                 ["statuslog"] = (_, id) => $"Status Log #{id}"
             };
 
+        [HttpGet("/")]
         [HttpGet("dashboard/{selectedType?}")]
         [HttpGet("hub/{selectedType?}")]
         public IActionResult Index(string? selectedType)

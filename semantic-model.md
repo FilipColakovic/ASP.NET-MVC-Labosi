@@ -1,0 +1,73 @@
+# Semantic DB Model
+
+## Entities
+
+- Address
+  - Id (PK)
+  - Street
+  - City
+  - PostalCode
+  - Country
+- Courier
+  - Id (PK)
+  - FirstName
+  - LastName
+  - Email
+  - PhoneNumber
+  - VehicleType
+  - LicensePlate
+  - IsAvailable
+- User
+  - Id (PK)
+  - FirstName
+  - LastName
+  - Email
+  - PhoneNumber
+  - RegistrationDate
+- Package
+  - Id (PK)
+  - TrackingNumber
+  - WeightKg
+  - DeliveryPriority
+  - Status
+  - CreatedAt
+  - DeliveredAt
+  - Description
+  - CourierId (FK)
+  - SenderUserId (FK)
+  - RecipientUserId (FK)
+  - SenderAddressId (FK)
+  - RecipientAddressId (FK)
+- Delivery
+  - Id (PK)
+  - DepartureDate
+  - ArrivalDate
+  - CurrentLocation
+  - IsDelayed
+  - CourierId (FK)
+- Warehouse
+  - Id (PK)
+  - Name
+  - Capacity
+  - AddressId (FK)
+- StatusLog
+  - Id (PK)
+  - TimeChanged
+  - Location
+  - Description
+  - PreviousStatus
+  - NewStatus
+  - PackageId (FK)
+
+## Relationships
+
+- Courier 1-N Packages (Package.CourierId)
+- Courier 1-N Deliveries (Delivery.CourierId)
+- User 1-N SentPackages (Package.SenderUserId)
+- User 1-N ReceivedPackages (Package.RecipientUserId)
+- Address 1-N SentPackages (Package.SenderAddressId)
+- Address 1-N ReceivedPackages (Package.RecipientAddressId)
+- Address 1-N Warehouses (Warehouse.AddressId)
+- Package 1-N StatusLogs (StatusLog.PackageId)
+- Delivery N-N Packages (DeliveryPackage join table)
+- Warehouse N-N Packages (PackageWarehouse join table)
