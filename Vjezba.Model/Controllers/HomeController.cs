@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Data;
 using Vjezba.Model.Models;
 
@@ -9,7 +10,13 @@ namespace Vjezba.Model.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly AppDbContext _context;
         private const string DefaultSelectedType = "package";
+
+        public HomeController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         private static readonly HashSet<string> OverviewTypes = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -20,17 +27,23 @@ namespace Vjezba.Model.Controllers
             "delivery"
         };
 
-        private static readonly IReadOnlyDictionary<string, Func<SeedDataContext, int, object?>> DetailSelectors =
-            new Dictionary<string, Func<SeedDataContext, int, object?>>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Func<AppDbContext, int, object?>> DetailSelectors =
+            new Dictionary<string, Func<AppDbContext, int, object?>>(StringComparer.OrdinalIgnoreCase)
             {
-                ["address"] = (seedData, id) => seedData.Addresses.FirstOrDefault(x => x.Id == id),
-                ["courier"] = (seedData, id) => seedData.Couriers.FirstOrDefault(x => x.Id == id),
-                ["user"] = (seedData, id) => seedData.Users.FirstOrDefault(x => x.Id == id),
-                ["package"] = (seedData, id) => seedData.Packages.FirstOrDefault(x => x.Id == id),
-                ["warehouse"] = (seedData, id) => seedData.Warehouses.FirstOrDefault(x => x.Id == id),
-                ["delivery"] = (seedData, id) => seedData.Deliveries.FirstOrDefault(x => x.Id == id),
-                ["statuslog"] = (seedData, id) => seedData.Packages
-                    .SelectMany(x => x.StatusHistory ?? new List<StatusLog>())
+                ["address"] = (db, id) => db.Addresses.AsNoTracking().FirstOrDefault(x => x.Id == id),
+                ["courier"] = (db, id) => db.Couriers.AsNoTracking().FirstOrDefault(x => x.Id == id),
+                ["user"] = (db, id) => db.Users.AsNoTracking().FirstOrDefault(x => x.Id == id),
+                ["package"] = (db, id) => LoadPackageGraph(db.Packages.AsNoTracking()).FirstOrDefault(x => x.Id == id),
+                ["warehouse"] = (db, id) => db.Warehouses.AsNoTracking()
+                    .Include(x => x.Address)
+                    .Include(x => x.StoredPackages)
+                    .FirstOrDefault(x => x.Id == id),
+                ["delivery"] = (db, id) => db.Deliveries.AsNoTracking()
+                    .Include(x => x.Courier)
+                    .Include(x => x.Packages)
+                    .FirstOrDefault(x => x.Id == id),
+                ["statuslog"] = (db, id) => db.StatusLogs.AsNoTracking()
+                    .Include(x => x.Package)
                     .FirstOrDefault(x => x.Id == id)
             };
 
@@ -46,6 +59,8 @@ namespace Vjezba.Model.Controllers
                 ["statuslog"] = (_, id) => $"Status Log #{id}"
             };
 
+        [HttpGet("dashboard/{selectedType?}")]
+        [HttpGet("hub/{selectedType?}")]
         public IActionResult Index(string? selectedType)
         {
             var normalized = NormalizeType(selectedType);
@@ -58,16 +73,18 @@ namespace Vjezba.Model.Controllers
             return View(BuildOverviewModel());
         }
 
+        [HttpGet("policy/privacy")]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [HttpGet("objects/{type}/{id:int}")]
+        [HttpGet("details/{type}/{id:int}")]
         public IActionResult Details(string type, int id)
         {
-            var seedData = SeedDataFactory.Create();
             var normalizedType = NormalizeType(type);
-            var selectedObject = ResolveDetailObject(seedData, normalizedType, id);
+            var selectedObject = ResolveDetailObject(_context, normalizedType, id);
 
             if (selectedObject is null)
             {
@@ -89,19 +106,36 @@ namespace Vjezba.Model.Controllers
             return View(model);
         }
 
-        private static ObjectOverviewViewModel BuildOverviewModel()
+        private ObjectOverviewViewModel BuildOverviewModel()
         {
-            var seedData = SeedDataFactory.Create();
-
             return new ObjectOverviewViewModel
             {
-                Addresses = seedData.Addresses,
-                Couriers = seedData.Couriers,
-                Users = seedData.Users,
-                Packages = seedData.Packages,
-                Warehouses = seedData.Warehouses,
-                Deliveries = seedData.Deliveries
+                Addresses = _context.Addresses.AsNoTracking().OrderBy(x => x.Id).ToList(),
+                Couriers = _context.Couriers.AsNoTracking().OrderBy(x => x.Id).ToList(),
+                Users = _context.Users.AsNoTracking().OrderBy(x => x.Id).ToList(),
+                Packages = LoadPackageGraph(_context.Packages.AsNoTracking()).OrderBy(x => x.Id).ToList(),
+                Warehouses = _context.Warehouses.AsNoTracking()
+                    .Include(x => x.Address)
+                    .Include(x => x.StoredPackages)
+                    .OrderBy(x => x.Id)
+                    .ToList(),
+                Deliveries = _context.Deliveries.AsNoTracking()
+                    .Include(x => x.Courier)
+                    .Include(x => x.Packages)
+                    .OrderBy(x => x.Id)
+                    .ToList()
             };
+        }
+
+        private static IQueryable<Package> LoadPackageGraph(IQueryable<Package> query)
+        {
+            return query
+                .Include(x => x.Courier)
+                .Include(x => x.SenderUser)
+                .Include(x => x.RecipientUser)
+                .Include(x => x.SenderAddress)
+                .Include(x => x.RecipientAddress)
+                .Include(x => x.StatusHistory);
         }
 
         private static string NormalizeType(string? value)
@@ -111,14 +145,14 @@ namespace Vjezba.Model.Controllers
                 : value.Trim().ToLowerInvariant();
         }
 
-        private static object? ResolveDetailObject(SeedDataContext seedData, string type, int id)
+        private static object? ResolveDetailObject(AppDbContext dbContext, string type, int id)
         {
             if (!DetailSelectors.TryGetValue(type, out var selector))
             {
                 return null;
             }
 
-            return selector(seedData, id);
+            return selector(dbContext, id);
         }
 
         private static void FillDetails(
@@ -311,6 +345,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpGet("errors/app")]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
