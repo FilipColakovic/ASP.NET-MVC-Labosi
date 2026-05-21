@@ -269,103 +269,264 @@ html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-toggle {
 }
 
 .hero-package-stage {
-    min-height: 170px;
+    min-height: 210px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-unbox-container {
+    position: relative;
+    width: min(100%, 286px);
+    min-height: 188px;
+    padding: 0.85rem;
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #e7dfd8 0%, #d9cfc6 100%);
+    border: 1px solid rgba(125, 82, 49, 0.26);
+    overflow: hidden;
+    perspective: 1100px;
+    cursor: pointer;
+    transition: transform 0.34s ease, opacity 0.45s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 24px rgba(56, 34, 17, 0.14);
+}
+
+.hero-unbox-container:hover {
+    transform: translateY(-2px);
+}
+
+.hero-unbox-container:focus-visible {
+    outline: 2px solid rgba(125, 82, 49, 0.42);
+    outline-offset: 3px;
+}
+
+.hero-unbox-lid {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50.5%;
+    background: linear-gradient(180deg, #bb8a5a 0%, #9f6f41 100%);
+    border: 1px solid rgba(86, 53, 26, 0.34);
+    transition: transform 0.82s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 4;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.hero-unbox-lid-left {
+    left: 0;
+    transform-origin: left;
+    border-right: 1px solid rgba(48, 26, 8, 0.16);
+}
+
+.hero-unbox-lid-right {
+    right: 0;
+    transform-origin: right;
+    border-left: 1px solid rgba(48, 26, 8, 0.16);
+}
+
+.hero-unbox-lid-icon {
+    font-size: 30px;
+    color: rgba(49, 27, 11, 0.72);
+}
+
+.hero-unbox-scan {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    opacity: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%, rgba(254, 147, 44, 0.2) 46%, transparent 100%);
+}
+
+.hero-unbox-content {
+    position: relative;
+    z-index: 2;
+    min-height: 160px;
+    border-radius: 0.82rem;
+    border: 1px solid rgba(125, 82, 49, 0.13);
+    background: linear-gradient(180deg, #f7f4f1 0%, #ece6e1 100%);
+    padding: 0.8rem;
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    transition: opacity 0.58s ease-out 0.22s, transform 0.58s ease-out 0.22s;
+}
+
+.hero-unbox-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+}
+
+.hero-unbox-label {
+    font-family: "Space Grotesk", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.62rem;
+    color: rgba(80, 69, 59, 0.78);
+}
+
+.hero-unbox-status {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 0.18rem 0.36rem;
+    border-radius: 999px;
+    color: #704900;
+    background: rgba(228, 196, 81, 0.25);
+}
+
+.hero-unbox-tracking {
+    margin-top: 0.5rem;
+    font-family: "Work Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #4a2f1b;
+}
+
+.hero-unbox-stats {
+    margin-top: 0.58rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+}
+
+.hero-unbox-stat {
+    border-radius: 0.62rem;
+    border: 1px solid rgba(125, 82, 49, 0.1);
+    background: rgba(255, 255, 255, 0.58);
+    padding: 0.38rem 0.46rem;
+}
+
+.hero-unbox-stat-label {
+    display: block;
+    font-family: "Space Grotesk", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    font-size: 0.54rem;
+    color: rgba(80, 69, 59, 0.72);
+}
+
+.hero-unbox-stat-value {
+    display: block;
+    margin-top: 0.08rem;
+    font-family: "Work Sans", sans-serif;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #332013;
+}
+
+.hero-unbox-route {
+    margin-top: 0.62rem;
+    border-radius: 0.62rem;
+    border: 1px solid rgba(125, 82, 49, 0.1);
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.36rem 0.42rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+
+.hero-unbox-city {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.56rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(61, 43, 27, 0.86);
+    line-height: 1.25;
+    flex: 1;
+}
+
+.hero-unbox-route-arrow {
+    font-size: 0.98rem;
+    color: rgba(125, 82, 49, 0.72);
+    flex: 0 0 auto;
+}
+
+.hero-unbox-prompt {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.hero-package-crate {
-    position: relative;
-    width: 148px;
-    height: 130px;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    cursor: pointer;
-    transition: transform 0.4s ease, opacity 0.5s ease;
-}
-
-.hero-package-lid {
-    position: absolute;
-    top: 10px;
-    left: 9px;
-    width: 130px;
-    height: 34px;
-    border-radius: 9px 9px 4px 4px;
-    background: linear-gradient(180deg, #d2a272 0%, #b67f4f 100%);
-    border: 1px solid rgba(86, 53, 26, 0.34);
-    transform-origin: center bottom;
-    transition: transform 0.65s ease;
-    z-index: 3;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
-}
-
-.hero-package-body {
-    position: absolute;
-    top: 34px;
-    left: 8px;
-    width: 132px;
-    height: 86px;
-    border-radius: 10px;
-    background: linear-gradient(165deg, #c59362 0%, #9f6c3f 100%);
-    border: 1px solid rgba(86, 53, 26, 0.35);
-    transition: transform 0.5s ease, opacity 0.45s ease;
-    transform-origin: center center;
-    display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
-    z-index: 2;
+    gap: 0.38rem;
+    transition: opacity 0.28s ease;
 }
 
-.hero-package-symbol {
-    font-size: 38px;
-    color: rgba(37, 20, 7, 0.8);
+.hero-unbox-prompt-icon {
+    font-size: 2rem;
+    color: rgba(58, 35, 18, 0.9);
 }
 
-.hero-package-shadow {
-    position: absolute;
-    bottom: -4px;
-    left: 23px;
-    width: 104px;
-    height: 14px;
-    border-radius: 999px;
-    background: radial-gradient(ellipse at center, rgba(40, 20, 8, 0.32) 0%, rgba(40, 20, 8, 0.06) 70%, transparent 100%);
-    transition: transform 0.45s ease, opacity 0.45s ease;
-    z-index: 1;
+.hero-unbox-prompt-text {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(58, 35, 18, 0.88);
 }
 
-.hero-package-crate.is-opening .hero-package-lid {
-    transform: perspective(420px) rotateX(72deg) translateY(-9px);
+.hero-unbox-container.is-open .hero-unbox-lid-left {
+    transform: rotateY(-112deg);
 }
 
-.hero-package-crate.is-unfolded .hero-package-body {
-    transform: scaleX(1.24) scaleY(0.58) translateY(16px) rotate(2deg);
-    opacity: 0.76;
+.hero-unbox-container.is-open .hero-unbox-lid-right {
+    transform: rotateY(112deg);
 }
 
-.hero-package-crate.is-unfolded .hero-package-shadow {
-    transform: scaleX(1.2) translateY(4px);
-    opacity: 0.55;
+.hero-unbox-container.is-open .hero-unbox-content {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
-.hero-package-crate.is-hidden {
+.hero-unbox-container.is-open .hero-unbox-prompt {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hero-unbox-container.is-open .hero-unbox-scan {
+    animation: hero-unbox-scan 1.8s ease-in-out forwards;
+}
+
+@keyframes hero-unbox-scan {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    45% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.hero-unbox-container.is-hidden {
     opacity: 0;
     transform: scale(0.72) translateY(12px);
     pointer-events: none;
 }
 
-@keyframes package-return {
+@keyframes hero-unbox-return {
     0% {
         opacity: 0;
-        transform: scale(0.7) translateY(12px);
+        transform: scale(0.72) translateY(12px);
     }
 
     70% {
         opacity: 1;
-        transform: scale(1.06) translateY(-2px);
+        transform: scale(1.05) translateY(-2px);
     }
 
     100% {
@@ -374,6 +535,25 @@ html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-toggle {
     }
 }
 
-.hero-package-crate.is-returning {
-    animation: package-return 0.72s ease;
+.hero-unbox-container.is-returning {
+    animation: hero-unbox-return 0.72s ease;
+}
+
+.hero-unbox-container[data-hero-inert="true"] {
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-unbox-container,
+    .hero-unbox-lid,
+    .hero-unbox-content,
+    .hero-unbox-scan,
+    .hero-unbox-prompt {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .hero-unbox-container.is-open .hero-unbox-lid {
+        display: none;
+    }
 }

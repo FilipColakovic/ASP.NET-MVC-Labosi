@@ -36,45 +36,75 @@
 })();
 
 (function () {
-	var crate = document.querySelector("[data-hero-package]");
-	if (!crate) {
+	var unboxContainer = document.querySelector("[data-hero-package]");
+	if (!unboxContainer) {
 		return;
 	}
 
-	var isLocked = false;
-	var openDurationMs = 650;
-	var unfoldDelayMs = 1100;
-	var hiddenDurationMs = 25000;
+	var revealItems = unboxContainer.querySelectorAll("[data-hero-package-reveal]");
+	var revealToken = 0;
 
-	crate.addEventListener("click", function () {
-		if (isLocked || crate.classList.contains("is-hidden")) {
+	function resetRevealItems() {
+		revealItems.forEach(function (item) {
+			item.style.opacity = "0";
+			item.style.transform = "translateY(8px)";
+		});
+	}
+
+	function revealItemsStaggered() {
+		var token = ++revealToken;
+		revealItems.forEach(function (item, index) {
+			item.style.opacity = "0";
+			item.style.transform = "translateY(8px)";
+			item.style.transition = "opacity 0.45s ease, transform 0.45s ease";
+
+			window.setTimeout(function () {
+				if (token !== revealToken || !unboxContainer.classList.contains("is-open")) {
+					return;
+				}
+				item.style.opacity = "1";
+				item.style.transform = "translateY(0)";
+			}, 260 + index * 90);
+		});
+	}
+
+	function openPackage() {
+		unboxContainer.classList.remove("is-hidden", "is-returning");
+		unboxContainer.setAttribute("aria-hidden", "false");
+		resetRevealItems();
+		unboxContainer.classList.add("is-open");
+		window.requestAnimationFrame(revealItemsStaggered);
+	}
+
+	function closePackage() {
+		revealToken += 1;
+		unboxContainer.classList.remove("is-open", "is-hidden", "is-returning");
+		unboxContainer.setAttribute("aria-hidden", "false");
+		resetRevealItems();
+	}
+
+	function runUnboxAnimation() {
+		if (unboxContainer.getAttribute("data-hero-inert") === "true") {
 			return;
 		}
 
-		isLocked = true;
-		crate.classList.remove("is-returning");
-		crate.classList.add("is-opening");
+		if (unboxContainer.classList.contains("is-open")) {
+			closePackage();
+			return;
+		}
 
-		window.setTimeout(function () {
-			crate.classList.add("is-unfolded");
-		}, openDurationMs);
+		openPackage();
+	}
 
-		window.setTimeout(function () {
-			crate.classList.add("is-hidden");
-			crate.setAttribute("aria-hidden", "true");
-		}, unfoldDelayMs);
-
-		window.setTimeout(function () {
-			crate.classList.remove("is-opening", "is-unfolded", "is-hidden");
-			crate.classList.add("is-returning");
-			crate.setAttribute("aria-hidden", "false");
-
-			window.setTimeout(function () {
-				crate.classList.remove("is-returning");
-				isLocked = false;
-			}, 760);
-		}, unfoldDelayMs + hiddenDurationMs);
+	unboxContainer.addEventListener("click", runUnboxAnimation);
+	unboxContainer.addEventListener("keydown", function (event) {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			runUnboxAnimation();
+		}
 	});
+
+	resetRevealItems();
 })();
 
 (function () {
