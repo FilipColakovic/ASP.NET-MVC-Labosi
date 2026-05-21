@@ -64,6 +64,40 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = user.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(UserEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var user = _context.Users.FirstOrDefault(x => x.Id == model.Id);
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var normalizedEmail = model.Email.Trim();
+            var emailExists = _context.Users.IgnoreQueryFilters()
+                .Any(x => x.Email.ToLower() == normalizedEmail.ToLower() && x.Id != model.Id);
+            if (emailExists)
+            {
+                ModelState.AddModelError(nameof(UserEditViewModel.Email), "Email already exists.");
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            user.FirstName = model.FirstName.Trim();
+            user.LastName = model.LastName.Trim();
+            user.Email = normalizedEmail;
+            user.PhoneNumber = model.PhoneNumber.Trim();
+
+            _context.SaveChanges();
+
+            return Ok(new { id = user.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

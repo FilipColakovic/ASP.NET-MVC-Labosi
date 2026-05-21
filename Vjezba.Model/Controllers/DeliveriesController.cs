@@ -61,6 +61,39 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = delivery.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(DeliveryEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var delivery = _context.Deliveries.FirstOrDefault(x => x.Id == model.Id);
+            if (delivery is null)
+            {
+                return NotFound();
+            }
+
+            var courier = _context.Couriers.FirstOrDefault(x => x.Id == model.CourierId);
+            if (courier is null)
+            {
+                ModelState.AddModelError(nameof(DeliveryEditViewModel.CourierId), "Courier not found.");
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            delivery.DepartureDate = model.DepartureDate;
+            delivery.ArrivalDate = model.ArrivalDate;
+            delivery.CurrentLocation = model.CurrentLocation.Trim();
+            delivery.IsDelayed = model.IsDelayed;
+            delivery.CourierId = model.CourierId;
+
+            _context.SaveChanges();
+
+            return Ok(new { id = delivery.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

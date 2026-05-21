@@ -1,0 +1,44 @@
+@model Vjezba.Model.Models.AddressDetailsViewModel
+
+@{
+    var address = Model.Address;
+}
+
+<table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
+    <thead>
+        <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+            <th class="px-4 py-3 font-bold">Field</th>
+            <th class="px-4 py-3 font-bold">Value</th>
+        </tr>
+    </thead>
+    <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Street</td>
+            <td class="px-4 py-3">@address.Street</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">City</td>
+            <td class="px-4 py-3">@address.City</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Postal code</td>
+            <td class="px-4 py-3">@address.PostalCode</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Country</td>
+            <td class="px-4 py-3">@address.Country</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Sender packages</td>
+            <td class="px-4 py-3">@Model.SentPackageCount</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Recipient packages</td>
+            <td class="px-4 py-3">@Model.ReceivedPackageCount</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Warehouses</td>
+            <td class="px-4 py-3">@Model.WarehouseCount</td>
+        </tr>
+    </tbody>
+</table>

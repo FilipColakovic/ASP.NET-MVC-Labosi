@@ -1,0 +1,45 @@
+@model Vjezba.Model.Models.StatusLogDetailsViewModel
+
+@{
+    var nestedReturnUrl = ViewData["NestedReturnUrl"]?.ToString() ?? "/";
+    var statusLog = Model.StatusLog;
+}
+
+<table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
+    <thead>
+        <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+            <th class="px-4 py-3 font-bold">Field</th>
+            <th class="px-4 py-3 font-bold">Value</th>
+        </tr>
+    </thead>
+    <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Package</td>
+            <td class="px-4 py-3">
+                <a asp-action="Details" asp-route-type="package" asp-route-id="@statusLog.PackageId" asp-route-returnUrl="@nestedReturnUrl" class="text-primary hover:text-[#653d1e] underline underline-offset-2 transition-colors">
+                    @statusLog.Package.TrackingNumber
+                </a>
+            </td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Time changed</td>
+            <td class="px-4 py-3">@statusLog.TimeChanged.ToString("yyyy.MM.dd HH:mm")</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Previous status</td>
+            <td class="px-4 py-3">@statusLog.PreviousStatus</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">New status</td>
+            <td class="px-4 py-3">@statusLog.NewStatus</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Location</td>
+            <td class="px-4 py-3">@statusLog.Location</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Description</td>
+            <td class="px-4 py-3">@statusLog.Description</td>
+        </tr>
+    </tbody>
+</table>

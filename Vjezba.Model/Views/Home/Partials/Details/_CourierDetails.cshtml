@@ -1,0 +1,48 @@
+@model Vjezba.Model.Models.CourierDetailsViewModel
+
+@{
+    var courier = Model.Courier;
+}
+
+<table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
+    <thead>
+        <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+            <th class="px-4 py-3 font-bold">Field</th>
+            <th class="px-4 py-3 font-bold">Value</th>
+        </tr>
+    </thead>
+    <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Name</td>
+            <td class="px-4 py-3">@courier.FirstName @courier.LastName</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Email</td>
+            <td class="px-4 py-3">@courier.Email</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Phone</td>
+            <td class="px-4 py-3">@courier.PhoneNumber</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Vehicle type</td>
+            <td class="px-4 py-3">@courier.VehicleType</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">License plate</td>
+            <td class="px-4 py-3">@courier.LicensePlate</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Availability</td>
+            <td class="px-4 py-3">@(courier.IsAvailable ? "Available" : "Unavailable")</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Assigned packages</td>
+            <td class="px-4 py-3">@Model.PackageCount</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Assigned deliveries</td>
+            <td class="px-4 py-3">@Model.DeliveryCount</td>
+        </tr>
+    </tbody>
+</table>

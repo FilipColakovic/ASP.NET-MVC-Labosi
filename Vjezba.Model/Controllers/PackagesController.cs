@@ -100,6 +100,76 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = package.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(PackageEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var package = _context.Packages.FirstOrDefault(x => x.Id == model.Id);
+            if (package is null)
+            {
+                return NotFound();
+            }
+
+            var normalizedTracking = model.TrackingNumber.Trim();
+            var trackingExists = _context.Packages.IgnoreQueryFilters()
+                .Any(x => x.TrackingNumber.ToLower() == normalizedTracking.ToLower() && x.Id != model.Id);
+            if (trackingExists)
+            {
+                ModelState.AddModelError(nameof(PackageEditViewModel.TrackingNumber), "Tracking number already exists.");
+            }
+
+            if (_context.Couriers.FirstOrDefault(x => x.Id == model.CourierId) is null)
+            {
+                ModelState.AddModelError(nameof(PackageEditViewModel.CourierId), "Courier not found.");
+            }
+
+            if (_context.Users.FirstOrDefault(x => x.Id == model.SenderUserId) is null)
+            {
+                ModelState.AddModelError(nameof(PackageEditViewModel.SenderUserId), "Sender user not found.");
+            }
+
+            if (_context.Users.FirstOrDefault(x => x.Id == model.RecipientUserId) is null)
+            {
+                ModelState.AddModelError(nameof(PackageEditViewModel.RecipientUserId), "Recipient user not found.");
+            }
+
+            if (_context.Addresses.FirstOrDefault(x => x.Id == model.SenderAddressId) is null)
+            {
+                ModelState.AddModelError(nameof(PackageEditViewModel.SenderAddressId), "Sender address not found.");
+            }
+
+            if (_context.Addresses.FirstOrDefault(x => x.Id == model.RecipientAddressId) is null)
+            {
+                ModelState.AddModelError(nameof(PackageEditViewModel.RecipientAddressId), "Recipient address not found.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            package.TrackingNumber = normalizedTracking;
+            package.WeightKg = model.WeightKg;
+            package.DeliveryPriority = model.DeliveryPriority;
+            package.CourierId = model.CourierId;
+            package.SenderUserId = model.SenderUserId;
+            package.RecipientUserId = model.RecipientUserId;
+            package.SenderAddressId = model.SenderAddressId;
+            package.RecipientAddressId = model.RecipientAddressId;
+            package.Status = model.Status;
+            package.DeliveredAt = model.DeliveredAt;
+            package.Description = model.Description.Trim();
+
+            _context.SaveChanges();
+
+            return Ok(new { id = package.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

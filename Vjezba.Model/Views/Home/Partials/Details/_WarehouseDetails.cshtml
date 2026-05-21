@@ -1,0 +1,37 @@
+@model Vjezba.Model.Models.WarehouseDetailsViewModel
+
+@{
+    var nestedReturnUrl = ViewData["NestedReturnUrl"]?.ToString() ?? "/";
+    var warehouse = Model.Warehouse;
+}
+
+<table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
+    <thead>
+        <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+            <th class="px-4 py-3 font-bold">Field</th>
+            <th class="px-4 py-3 font-bold">Value</th>
+        </tr>
+    </thead>
+    <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Name</td>
+            <td class="px-4 py-3">@warehouse.Name</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Address</td>
+            <td class="px-4 py-3">
+                <a asp-action="Details" asp-route-type="address" asp-route-id="@warehouse.AddressId" asp-route-returnUrl="@nestedReturnUrl" class="text-primary hover:text-[#653d1e] underline underline-offset-2 transition-colors">
+                    @warehouse.Address.Street, @warehouse.Address.City
+                </a>
+            </td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Capacity</td>
+            <td class="px-4 py-3">@warehouse.Capacity</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Stored packages</td>
+            <td class="px-4 py-3">@Model.StoredPackageCount</td>
+        </tr>
+    </tbody>
+</table>

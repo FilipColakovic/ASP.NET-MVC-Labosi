@@ -1,0 +1,76 @@
+@model Vjezba.Model.Models.CourierEditViewModel
+
+<div class="analog-modal is-hidden" data-edit-modal="courier" aria-hidden="true" aria-labelledby="courier-edit-title" role="dialog">
+    <div class="analog-modal-backdrop" data-edit-close></div>
+    <div class="analog-modal-panel analog-panel-surface">
+        <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3 mb-4">
+            <div>
+                <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Courier Update</p>
+                <h3 id="courier-edit-title" class="font-headline text-xl font-bold">Edit courier</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-high/70" data-edit-close aria-label="Close">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-controller="Couriers" asp-action="Edit" method="post" data-edit-form novalidate>
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+
+            <div class="space-y-4">
+                <div class="grid gap-2">
+                    <label asp-for="FirstName" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="FirstName" class="analog-input" autocomplete="given-name" />
+                    <span asp-validation-for="FirstName" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="LastName" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="LastName" class="analog-input" autocomplete="family-name" />
+                    <span asp-validation-for="LastName" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="Email" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="Email" class="analog-input" autocomplete="email" />
+                    <span asp-validation-for="Email" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="PhoneNumber" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="PhoneNumber" class="analog-input" autocomplete="tel" />
+                    <span asp-validation-for="PhoneNumber" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="VehicleType" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="VehicleType" class="analog-input" />
+                    <span asp-validation-for="VehicleType" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="LicensePlate" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="LicensePlate" class="analog-input" />
+                    <span asp-validation-for="LicensePlate" class="field-error"></span>
+                </div>
+
+                <div class="flex items-center justify-between rounded-lg border border-outline-variant/20 px-3 py-2">
+                    <label asp-for="IsAvailable" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Available</label>
+                    <input asp-for="IsAvailable" type="checkbox" class="h-4 w-4" />
+                </div>
+            </div>
+
+            <div class="field-error mt-3" data-edit-summary></div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" class="rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-on-surface" data-edit-close>
+                    Cancel
+                </button>
+                <button type="submit" class="inline-flex items-center gap-2 rounded px-4 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    Save courier
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

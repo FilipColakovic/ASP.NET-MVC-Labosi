@@ -62,6 +62,40 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = statusLog.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(StatusLogEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var statusLog = _context.StatusLogs.FirstOrDefault(x => x.Id == model.Id);
+            if (statusLog is null)
+            {
+                return NotFound();
+            }
+
+            var package = _context.Packages.FirstOrDefault(x => x.Id == model.PackageId);
+            if (package is null)
+            {
+                ModelState.AddModelError(nameof(StatusLogEditViewModel.PackageId), "Package not found.");
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            statusLog.TimeChanged = model.TimeChanged;
+            statusLog.Location = model.Location.Trim();
+            statusLog.Description = model.Description.Trim();
+            statusLog.PreviousStatus = model.PreviousStatus;
+            statusLog.NewStatus = model.NewStatus;
+            statusLog.PackageId = model.PackageId;
+
+            _context.SaveChanges();
+
+            return Ok(new { id = statusLog.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

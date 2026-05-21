@@ -259,3 +259,64 @@ Updated in [Vjezba.Model/wwwroot/js/site.js](Vjezba.Model/wwwroot/js/site.js).
 
 If you want, I can also switch those view model fields to nullable `DateTime?` to avoid the `0001-01-01` value entirely.
 
+Timestamp: 2026-05-21 15:04:05
+Agent: agent
+User Input: sada napravi edit funkcionalnost za user class
+
+Agent output: Edit functionality for `User` is in place with an edit modal, AJAX validation, and update endpoint.
+
+What I added and wired:
+- View model: [Vjezba.Model/Models/UserEditViewModel.cs](Vjezba.Model/Models/UserEditViewModel.cs)
+- Edit endpoint: [Vjezba.Model/Controllers/UsersController.cs](Vjezba.Model/Controllers/UsersController.cs)
+- Edit modal partial: [Vjezba.Model/Views/Home/Partials/_UserEditModal.cshtml](Vjezba.Model/Views/Home/Partials/_UserEditModal.cshtml)
+- Modal included in dashboard: [Vjezba.Model/Views/Home/Index.cshtml](Vjezba.Model/Views/Home/Index.cshtml)
+- Edit button per user row + data attributes: [Vjezba.Model/Views/Home/Partials/_AnalogManifestSection.cshtml](Vjezba.Model/Views/Home/Partials/_AnalogManifestSection.cshtml)
+- JS to open, validate, submit, and reload: [Vjezba.Model/wwwroot/js/site.js](Vjezba.Model/wwwroot/js/site.js)
+
+How it works:
+- Click **Edit** on a user row â†’ modal opens with fields prefilled.
+- Blur validation runs for required/email fields.
+- Save submits AJAX, returns validation errors or reloads on success.
+
+If you want Edit from the Details page too, I can add a button there that opens the same modal.
+
+Timestamp: 2026-05-21 15:14:13
+Agent: agent
+User Input: now do it for the rest of the classes
+Agent output: Edit functionality for `User` is in place with an edit modal, AJAX validation, and update endpoint.
+
+What I added and wired:
+- View model: [Vjezba.Model/Models/UserEditViewModel.cs](Vjezba.Model/Models/UserEditViewModel.cs)
+- Edit endpoint: [Vjezba.Model/Controllers/UsersController.cs](Vjezba.Model/Controllers/UsersController.cs)
+- Edit modal partial: [Vjezba.Model/Views/Home/Partials/_UserEditModal.cshtml](Vjezba.Model/Views/Home/Partials/_UserEditModal.cshtml)
+- Modal included in dashboard: [Vjezba.Model/Views/Home/Index.cshtml](Vjezba.Model/Views/Home/Index.cshtml)
+- Edit button per user row + data attributes: [Vjezba.Model/Views/Home/Partials/_AnalogManifestSection.cshtml](Vjezba.Model/Views/Home/Partials/_AnalogManifestSection.cshtml)
+- JS to open, validate, submit, and reload: [Vjezba.Model/wwwroot/js/site.js](Vjezba.Model/wwwroot/js/site.js)
+
+How it works:
+- Click **Edit** on a user row â†’ modal opens with fields prefilled.
+- Blur validation runs for required/email fields.
+- Save submits AJAX, returns validation errors or reloads on success.
+
+If you want Edit from the Details page too, I can add a button there that opens the same modal.
+
+Timestamp: 2026-05-21 15:19:53
+Agent: agent
+User Input: Try Again
+Agent output: Edit functionality for `User` is in place with an edit modal, AJAX validation, and update endpoint.
+
+What I added and wired:
+- View model: [Vjezba.Model/Models/UserEditViewModel.cs](Vjezba.Model/Models/UserEditViewModel.cs)
+- Edit endpoint: [Vjezba.Model/Controllers/UsersController.cs](Vjezba.Model/Controllers/UsersController.cs)
+- Edit modal partial: [Vjezba.Model/Views/Home/Partials/_UserEditModal.cshtml](Vjezba.Model/Views/Home/Partials/_UserEditModal.cshtml)
+- Modal included in dashboard: [Vjezba.Model/Views/Home/Index.cshtml](Vjezba.Model/Views/Home/Index.cshtml)
+- Edit button per user row + data attributes: [Vjezba.Model/Views/Home/Partials/_AnalogManifestSection.cshtml](Vjezba.Model/Views/Home/Partials/_AnalogManifestSection.cshtml)
+- JS to open, validate, submit, and reload: [Vjezba.Model/wwwroot/js/site.js](Vjezba.Model/wwwroot/js/site.js)
+
+How it works:
+- Click **Edit** on a user row â†’ modal opens with fields prefilled.
+- Blur validation runs for required/email fields.
+- Save submits AJAX, returns validation errors or reloads on success.
+
+If you want Edit from the Details page too, I can add a button there that opens the same modal.
+

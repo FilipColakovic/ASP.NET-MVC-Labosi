@@ -1,0 +1,148 @@
+@model Vjezba.Model.Models.PackageEditViewModel
+@using Vjezba.Model.Enums
+@using Vjezba.Model.Models
+
+@{
+    var overview = ViewData["Overview"] as ObjectOverviewViewModel;
+    var couriers = overview?.Couriers ?? new List<Courier>();
+    var users = overview?.Users ?? new List<User>();
+    var addresses = overview?.Addresses ?? new List<Address>();
+}
+
+<div class="analog-modal is-hidden" data-edit-modal="package" aria-hidden="true" aria-labelledby="package-edit-title" role="dialog">
+    <div class="analog-modal-backdrop" data-edit-close></div>
+    <div class="analog-modal-panel analog-panel-surface analog-modal-panel-scroll">
+        <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3 mb-4">
+            <div>
+                <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Package Update</p>
+                <h3 id="package-edit-title" class="font-headline text-xl font-bold">Edit package</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-high/70" data-edit-close aria-label="Close">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-controller="Packages" asp-action="Edit" method="post" data-edit-form novalidate>
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+
+            <div class="space-y-4">
+                <div class="grid gap-2">
+                    <label asp-for="TrackingNumber" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="TrackingNumber" class="analog-input" />
+                    <span asp-validation-for="TrackingNumber" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="WeightKg" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="WeightKg" type="number" step="0.01" min="0" class="analog-input" />
+                    <span asp-validation-for="WeightKg" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="DeliveryPriority" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Priority</label>
+                    <select asp-for="DeliveryPriority" class="analog-input">
+                        @foreach (DeliveryPriority priority in Enum.GetValues(typeof(DeliveryPriority)))
+                        {
+                            <option value="@priority">@priority</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="Status" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Status</label>
+                    <select asp-for="Status" class="analog-input">
+                        @foreach (PackageStatus status in Enum.GetValues(typeof(PackageStatus)))
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="CourierId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Courier</label>
+                    <select asp-for="CourierId" class="analog-input">
+                        <option value="">Select courier</option>
+                        @foreach (var courier in couriers)
+                        {
+                            <option value="@courier.Id">@courier.FirstName @courier.LastName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CourierId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="SenderUserId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Sender user</label>
+                    <select asp-for="SenderUserId" class="analog-input">
+                        <option value="">Select sender</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SenderUserId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="RecipientUserId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Recipient user</label>
+                    <select asp-for="RecipientUserId" class="analog-input">
+                        <option value="">Select recipient</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="RecipientUserId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="SenderAddressId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Sender address</label>
+                    <select asp-for="SenderAddressId" class="analog-input">
+                        <option value="">Select sender address</option>
+                        @foreach (var address in addresses)
+                        {
+                            <option value="@address.Id">@address.Street, @address.City</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SenderAddressId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="RecipientAddressId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Recipient address</label>
+                    <select asp-for="RecipientAddressId" class="analog-input">
+                        <option value="">Select recipient address</option>
+                        @foreach (var address in addresses)
+                        {
+                            <option value="@address.Id">@address.Street, @address.City</option>
+                        }
+                    </select>
+                    <span asp-validation-for="RecipientAddressId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="DeliveredAt" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Delivered at</label>
+                    <input asp-for="DeliveredAt" type="datetime-local" class="analog-input" />
+                    <span asp-validation-for="DeliveredAt" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="Description" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <textarea asp-for="Description" class="analog-input" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="field-error mt-3" data-edit-summary></div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" class="rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-on-surface" data-edit-close>
+                    Cancel
+                </button>
+                <button type="submit" class="inline-flex items-center gap-2 rounded px-4 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    Save package
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

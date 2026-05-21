@@ -196,12 +196,32 @@
                                 <span class="font-label text-[10px] uppercase ml-1">@package.DeliveryPriority</span>
                             </td>
                             <td class="px-6 py-5 text-right">
-                                <form asp-controller="Packages" asp-action="SoftDelete" asp-route-id="@package.Id" method="post">
-                                    <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
-                                        <span class="material-symbols-outlined text-[14px]">delete</span>
-                                        Delete
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="package"
+                                            data-edit-id="@package.Id"
+                                            data-edit-tracking-number="@package.TrackingNumber"
+                                            data-edit-weight-kg="@package.WeightKg.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-edit-delivery-priority="@package.DeliveryPriority"
+                                            data-edit-status="@package.Status"
+                                            data-edit-courier-id="@package.CourierId"
+                                            data-edit-sender-user-id="@package.SenderUserId"
+                                            data-edit-recipient-user-id="@package.RecipientUserId"
+                                            data-edit-sender-address-id="@package.SenderAddressId"
+                                            data-edit-recipient-address-id="@package.RecipientAddressId"
+                                            data-edit-delivered-at="@package.DeliveredAt?.ToString("yyyy-MM-ddTHH:mm")"
+                                            data-edit-description="@(package.Description?.Replace("\r", " ").Replace("\n", " ") ?? string.Empty)">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
                                     </button>
-                                </form>
+                                    <form asp-controller="Packages" asp-action="SoftDelete" asp-route-id="@package.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -228,12 +248,28 @@
                             <td class="px-6 py-5">@courier.PhoneNumber</td>
                             <td class="px-6 py-5 text-right text-on-surface-variant">@courier.VehicleType</td>
                             <td class="px-6 py-5 text-right">
-                                <form asp-controller="Couriers" asp-action="SoftDelete" asp-route-id="@courier.Id" method="post">
-                                    <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
-                                        <span class="material-symbols-outlined text-[14px]">delete</span>
-                                        Delete
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="courier"
+                                            data-edit-id="@courier.Id"
+                                            data-edit-first-name="@courier.FirstName"
+                                            data-edit-last-name="@courier.LastName"
+                                            data-edit-email="@courier.Email"
+                                            data-edit-phone-number="@courier.PhoneNumber"
+                                            data-edit-vehicle-type="@courier.VehicleType"
+                                            data-edit-license-plate="@courier.LicensePlate"
+                                            data-edit-is-available="@(courier.IsAvailable ? "true" : "false")">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
                                     </button>
-                                </form>
+                                    <form asp-controller="Couriers" asp-action="SoftDelete" asp-route-id="@courier.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -254,12 +290,24 @@
                             <td class="px-6 py-5">@warehouse.Capacity</td>
                             <td class="px-6 py-5 text-right">@warehouse.StoredPackages.Count</td>
                             <td class="px-6 py-5 text-right">
-                                <form asp-controller="Warehouses" asp-action="SoftDelete" asp-route-id="@warehouse.Id" method="post">
-                                    <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
-                                        <span class="material-symbols-outlined text-[14px]">delete</span>
-                                        Delete
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="warehouse"
+                                            data-edit-id="@warehouse.Id"
+                                            data-edit-name="@warehouse.Name"
+                                            data-edit-address-id="@warehouse.AddressId"
+                                            data-edit-capacity="@warehouse.Capacity">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
                                     </button>
-                                </form>
+                                    <form asp-controller="Warehouses" asp-action="SoftDelete" asp-route-id="@warehouse.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -280,12 +328,25 @@
                             <td class="px-6 py-5">@user.PhoneNumber</td>
                             <td class="px-6 py-5 text-right">@user.RegistrationDate.ToString("yyyy.MM.dd")</td>
                             <td class="px-6 py-5 text-right">
-                                <form asp-controller="Users" asp-action="SoftDelete" asp-route-id="@user.Id" method="post">
-                                    <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
-                                        <span class="material-symbols-outlined text-[14px]">delete</span>
-                                        Delete
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="user"
+                                            data-edit-id="@user.Id"
+                                            data-edit-first-name="@user.FirstName"
+                                            data-edit-last-name="@user.LastName"
+                                            data-edit-email="@user.Email"
+                                            data-edit-phone-number="@user.PhoneNumber">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
                                     </button>
-                                </form>
+                                    <form asp-controller="Users" asp-action="SoftDelete" asp-route-id="@user.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -315,12 +376,26 @@
                                 }
                             </td>
                             <td class="px-6 py-5 text-right">
-                                <form asp-controller="Deliveries" asp-action="SoftDelete" asp-route-id="@delivery.Id" method="post">
-                                    <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
-                                        <span class="material-symbols-outlined text-[14px]">delete</span>
-                                        Delete
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="delivery"
+                                            data-edit-id="@delivery.Id"
+                                            data-edit-courier-id="@delivery.CourierId"
+                                            data-edit-current-location="@delivery.CurrentLocation"
+                                            data-edit-departure-date="@delivery.DepartureDate.ToString("yyyy-MM-ddTHH:mm")"
+                                            data-edit-arrival-date="@delivery.ArrivalDate.ToString("yyyy-MM-ddTHH:mm")"
+                                            data-edit-is-delayed="@(delivery.IsDelayed ? "true" : "false")">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
                                     </button>
-                                </form>
+                                    <form asp-controller="Deliveries" asp-action="SoftDelete" asp-route-id="@delivery.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }

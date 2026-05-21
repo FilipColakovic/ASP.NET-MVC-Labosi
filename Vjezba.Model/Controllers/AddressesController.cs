@@ -53,6 +53,31 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = address.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(AddressEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var address = _context.Addresses.FirstOrDefault(x => x.Id == model.Id);
+            if (address is null)
+            {
+                return NotFound();
+            }
+
+            address.Street = model.Street.Trim();
+            address.City = model.City.Trim();
+            address.PostalCode = model.PostalCode.Trim();
+            address.Country = model.Country.Trim();
+
+            _context.SaveChanges();
+
+            return Ok(new { id = address.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

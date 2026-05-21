@@ -79,6 +79,56 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = courier.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(CourierEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var courier = _context.Couriers.FirstOrDefault(x => x.Id == model.Id);
+            if (courier is null)
+            {
+                return NotFound();
+            }
+
+            var normalizedEmail = model.Email.Trim();
+            var normalizedPlate = model.LicensePlate.Trim();
+
+            var emailExists = _context.Couriers.IgnoreQueryFilters()
+                .Any(x => x.Email.ToLower() == normalizedEmail.ToLower() && x.Id != model.Id);
+            if (emailExists)
+            {
+                ModelState.AddModelError(nameof(CourierEditViewModel.Email), "Email already exists.");
+            }
+
+            var plateExists = _context.Couriers.IgnoreQueryFilters()
+                .Any(x => x.LicensePlate.ToLower() == normalizedPlate.ToLower() && x.Id != model.Id);
+            if (plateExists)
+            {
+                ModelState.AddModelError(nameof(CourierEditViewModel.LicensePlate), "License plate already exists.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            courier.FirstName = model.FirstName.Trim();
+            courier.LastName = model.LastName.Trim();
+            courier.Email = normalizedEmail;
+            courier.PhoneNumber = model.PhoneNumber.Trim();
+            courier.VehicleType = model.VehicleType.Trim();
+            courier.LicensePlate = normalizedPlate;
+            courier.IsAvailable = model.IsAvailable;
+
+            _context.SaveChanges();
+
+            return Ok(new { id = courier.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

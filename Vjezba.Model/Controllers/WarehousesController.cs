@@ -59,6 +59,37 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = warehouse.Id });
         }
 
+        [HttpPost("edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(WarehouseEditViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var warehouse = _context.Warehouses.FirstOrDefault(x => x.Id == model.Id);
+            if (warehouse is null)
+            {
+                return NotFound();
+            }
+
+            var address = _context.Addresses.FirstOrDefault(x => x.Id == model.AddressId);
+            if (address is null)
+            {
+                ModelState.AddModelError(nameof(WarehouseEditViewModel.AddressId), "Address not found.");
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            warehouse.Name = model.Name.Trim();
+            warehouse.AddressId = model.AddressId;
+            warehouse.Capacity = model.Capacity;
+
+            _context.SaveChanges();
+
+            return Ok(new { id = warehouse.Id });
+        }
+
         private IDictionary<string, string[]> BuildErrors()
         {
             return ModelState

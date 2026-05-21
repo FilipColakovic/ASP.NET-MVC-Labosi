@@ -1,0 +1,76 @@
+@model Vjezba.Model.Models.DeliveryEditViewModel
+@using Vjezba.Model.Models
+
+@{
+    var overview = ViewData["Overview"] as ObjectOverviewViewModel;
+    var couriers = overview?.Couriers ?? new List<Courier>();
+}
+
+<div class="analog-modal is-hidden" data-edit-modal="delivery" aria-hidden="true" aria-labelledby="delivery-edit-title" role="dialog">
+    <div class="analog-modal-backdrop" data-edit-close></div>
+    <div class="analog-modal-panel analog-panel-surface">
+        <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3 mb-4">
+            <div>
+                <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Delivery Update</p>
+                <h3 id="delivery-edit-title" class="font-headline text-xl font-bold">Edit delivery</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-high/70" data-edit-close aria-label="Close">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-controller="Deliveries" asp-action="Edit" method="post" data-edit-form novalidate>
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+
+            <div class="space-y-4">
+                <div class="grid gap-2">
+                    <label asp-for="CourierId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Courier</label>
+                    <select asp-for="CourierId" class="analog-input">
+                        <option value="">Select courier</option>
+                        @foreach (var courier in couriers)
+                        {
+                            <option value="@courier.Id">@courier.FirstName @courier.LastName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CourierId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="CurrentLocation" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="CurrentLocation" class="analog-input" />
+                    <span asp-validation-for="CurrentLocation" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="DepartureDate" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="DepartureDate" type="datetime-local" class="analog-input" />
+                    <span asp-validation-for="DepartureDate" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="ArrivalDate" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="ArrivalDate" type="datetime-local" class="analog-input" />
+                    <span asp-validation-for="ArrivalDate" class="field-error"></span>
+                </div>
+
+                <div class="flex items-center justify-between rounded-lg border border-outline-variant/20 px-3 py-2">
+                    <label asp-for="IsDelayed" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Delayed</label>
+                    <input asp-for="IsDelayed" type="checkbox" class="h-4 w-4" />
+                </div>
+            </div>
+
+            <div class="field-error mt-3" data-edit-summary></div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" class="rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-on-surface" data-edit-close>
+                    Cancel
+                </button>
+                <button type="submit" class="inline-flex items-center gap-2 rounded px-4 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    Save delivery
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

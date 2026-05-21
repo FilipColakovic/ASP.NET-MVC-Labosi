@@ -1,19 +1,43 @@
-@model Vjezba.Model.Models.ObjectDetailsViewModel
+@using Vjezba.Model.Models
+@model IObjectDetailsPageViewModel
 
 @{
     Layout = null;
     ViewData["Title"] = "Package Hub | Object Details";
 
-    var normalizedType = (Model.ObjectType ?? string.Empty).Trim();
+    var normalizedType = (Model.ObjectType ?? string.Empty).Trim().ToLowerInvariant();
+    var displayType = normalizedType switch
+    {
+        "statuslog" => "Status Log",
+        "package" => "Package",
+        "courier" => "Courier",
+        "warehouse" => "Warehouse",
+        "user" => "User",
+        "delivery" => "Delivery",
+        "address" => "Address",
+        _ => "Object"
+    };
     var referenceCode = $"{normalizedType.ToUpperInvariant()}-{Model.ObjectId:00000}";
-    var selectedTypeForBack = string.IsNullOrWhiteSpace(normalizedType) ? "package" : normalizedType.ToLowerInvariant();
+    var selectedTypeForBack = normalizedType switch
+    {
+        "statuslog" => "delivery",
+        "address" => "package",
+        _ => string.IsNullOrWhiteSpace(normalizedType) ? "package" : normalizedType
+    };
     var fallbackUrl = Url.Action("Index", "Home", new { selectedType = selectedTypeForBack }) ?? "/";
+    var editUrl = Url.Action("Index", "Home", new
+    {
+        selectedType = selectedTypeForBack,
+        editType = normalizedType,
+        editId = Model.ObjectId
+    }) ?? fallbackUrl;
     var requestedReturnUrl = Context.Request.Query["returnUrl"].ToString();
     var backUrl = !string.IsNullOrWhiteSpace(requestedReturnUrl) && Url.IsLocalUrl(requestedReturnUrl)
         ? requestedReturnUrl
         : fallbackUrl;
     var nestedReturnUrl = Context.Request.Path + Context.Request.QueryString;
-    var allValues = Model.Values.OrderBy(v => v.Key).ToList();
+    ViewData["NestedReturnUrl"] = nestedReturnUrl;
+
     var deleteControllers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["package"] = "Packages",
@@ -34,10 +58,10 @@
         ["address"] = "address",
         ["statuslog"] = "status log"
     };
-    var deleteController = deleteControllers.TryGetValue(selectedTypeForBack, out var controller)
+    var deleteController = deleteControllers.TryGetValue(normalizedType, out var controller)
         ? controller
         : string.Empty;
-    var deleteLabel = deleteLabels.TryGetValue(selectedTypeForBack, out var label)
+    var deleteLabel = deleteLabels.TryGetValue(normalizedType, out var label)
         ? label
         : "item";
 }
@@ -98,11 +122,14 @@
         <div class="p-6 lg:p-8 max-w-7xl mx-auto w-full relative z-10">
             <section class="details-content-shell analog-panel-surface rounded-xl p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h4 class="font-headline text-2xl font-bold">@Model.ObjectType Details</h4>
+                    <h4 class="font-headline text-2xl font-bold">@displayType Details</h4>
                     <div class="flex items-center gap-3">
-                        <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@allValues.Count total</span>
                         @if (!string.IsNullOrWhiteSpace(deleteController))
                         {
+                            <a href="@editUrl" class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">edit</span>
+                                Edit @deleteLabel
+                            </a>
                             <form asp-controller="@deleteController" asp-action="SoftDelete" asp-route-id="@Model.ObjectId" method="post">
                                 <button type="submit" class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-error bg-error/10 hover:bg-error/20 transition-colors">
                                     <span class="material-symbols-outlined text-[16px]">delete</span>
@@ -114,32 +141,40 @@
                 </div>
 
                 <div class="overflow-x-auto analog-table-surface rounded-lg p-1">
-                    <table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
-                        <thead>
-                            <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
-                                <th class="px-4 py-3 font-bold">Property</th>
-                                <th class="px-4 py-3 font-bold">Value</th>
-                            </tr>
-                        </thead>
-                        <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
-                            @foreach (var row in allValues)
-                            {
-                                <tr class="hover:bg-surface-container-low transition-colors">
-                                    <td class="px-4 py-3 align-top font-label text-[11px] uppercase tracking-wider text-on-surface-variant">@row.Key</td>
-                                    <td class="px-4 py-3 break-all">
-                                        @if (Model.Links.TryGetValue(row.Key, out var link))
-                                        {
-                                            <a asp-action="Details" asp-route-type="@link.Type" asp-route-id="@link.Id" asp-route-returnUrl="@nestedReturnUrl" class="text-primary hover:text-[#653d1e] underline underline-offset-2 transition-colors">@row.Value</a>
-                                        }
-                                        else
-                                        {
-                                            @row.Value
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    @if (Model is PackageDetailsViewModel packageModel)
+                    {
+                        <partial name="Partials/Details/_PackageDetails" model="packageModel" />
+                    }
+                    else if (Model is CourierDetailsViewModel courierModel)
+                    {
+                        <partial name="Partials/Details/_CourierDetails" model="courierModel" />
+                    }
+                    else if (Model is UserDetailsViewModel userModel)
+                    {
+                        <partial name="Partials/Details/_UserDetails" model="userModel" />
+                    }
+                    else if (Model is WarehouseDetailsViewModel warehouseModel)
+                    {
+                        <partial name="Partials/Details/_WarehouseDetails" model="warehouseModel" />
+                    }
+                    else if (Model is DeliveryDetailsViewModel deliveryModel)
+                    {
+                        <partial name="Partials/Details/_DeliveryDetails" model="deliveryModel" />
+                    }
+                    else if (Model is AddressDetailsViewModel addressModel)
+                    {
+                        <partial name="Partials/Details/_AddressDetails" model="addressModel" />
+                    }
+                    else if (Model is StatusLogDetailsViewModel statusLogModel)
+                    {
+                        <partial name="Partials/Details/_StatusLogDetails" model="statusLogModel" />
+                    }
+                    else
+                    {
+                        <div class="px-4 py-3 text-sm text-on-surface-variant">
+                            Unable to render this details view.
+                        </div>
+                    }
                 </div>
             </section>
         </div>

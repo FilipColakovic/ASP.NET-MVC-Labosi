@@ -1,0 +1,65 @@
+@model Vjezba.Model.Models.WarehouseEditViewModel
+@using Vjezba.Model.Models
+
+@{
+    var overview = ViewData["Overview"] as ObjectOverviewViewModel;
+    var addresses = overview?.Addresses ?? new List<Address>();
+}
+
+<div class="analog-modal is-hidden" data-edit-modal="warehouse" aria-hidden="true" aria-labelledby="warehouse-edit-title" role="dialog">
+    <div class="analog-modal-backdrop" data-edit-close></div>
+    <div class="analog-modal-panel analog-panel-surface">
+        <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3 mb-4">
+            <div>
+                <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Warehouse Update</p>
+                <h3 id="warehouse-edit-title" class="font-headline text-xl font-bold">Edit warehouse</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-high/70" data-edit-close aria-label="Close">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-controller="Warehouses" asp-action="Edit" method="post" data-edit-form novalidate>
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+
+            <div class="space-y-4">
+                <div class="grid gap-2">
+                    <label asp-for="Name" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="Name" class="analog-input" />
+                    <span asp-validation-for="Name" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="AddressId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Address</label>
+                    <select asp-for="AddressId" class="analog-input">
+                        <option value="">Select address</option>
+                        @foreach (var address in addresses)
+                        {
+                            <option value="@address.Id">@address.Street, @address.City</option>
+                        }
+                    </select>
+                    <span asp-validation-for="AddressId" class="field-error"></span>
+                </div>
+
+                <div class="grid gap-2">
+                    <label asp-for="Capacity" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
+                    <input asp-for="Capacity" type="number" min="0" class="analog-input" />
+                    <span asp-validation-for="Capacity" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="field-error mt-3" data-edit-summary></div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" class="rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-on-surface" data-edit-close>
+                    Cancel
+                </button>
+                <button type="submit" class="inline-flex items-center gap-2 rounded px-4 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    Save warehouse
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

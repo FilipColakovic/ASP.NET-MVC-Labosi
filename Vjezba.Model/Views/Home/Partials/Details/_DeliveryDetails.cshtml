@@ -1,0 +1,67 @@
+@model Vjezba.Model.Models.DeliveryDetailsViewModel
+
+@{
+    var nestedReturnUrl = ViewData["NestedReturnUrl"]?.ToString() ?? "/";
+    var delivery = Model.Delivery;
+}
+
+<table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
+    <thead>
+        <tr class="bg-surface-container-high font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+            <th class="px-4 py-3 font-bold">Field</th>
+            <th class="px-4 py-3 font-bold">Value</th>
+        </tr>
+    </thead>
+    <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Courier</td>
+            <td class="px-4 py-3">
+                <a asp-action="Details" asp-route-type="courier" asp-route-id="@delivery.CourierId" asp-route-returnUrl="@nestedReturnUrl" class="text-primary hover:text-[#653d1e] underline underline-offset-2 transition-colors">
+                    @delivery.Courier.FirstName @delivery.Courier.LastName
+                </a>
+            </td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Current location</td>
+            <td class="px-4 py-3">@delivery.CurrentLocation</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Departure</td>
+            <td class="px-4 py-3">@delivery.DepartureDate.ToString("yyyy.MM.dd HH:mm")</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Arrival</td>
+            <td class="px-4 py-3">@delivery.ArrivalDate.ToString("yyyy.MM.dd HH:mm")</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Delay status</td>
+            <td class="px-4 py-3">@(delivery.IsDelayed ? "Delayed" : "On time")</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Package count</td>
+            <td class="px-4 py-3">@Model.PackageCount</td>
+        </tr>
+        <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-4 py-3 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">Packages</td>
+            <td class="px-4 py-3">
+                @if (delivery.Packages.Count == 0)
+                {
+                    <span>-</span>
+                }
+                else
+                {
+                    var packages = delivery.Packages.OrderBy(x => x.TrackingNumber).ToList();
+                    for (var i = 0; i < packages.Count; i++)
+                    {
+                        var package = packages[i];
+                        <a asp-action="Details" asp-route-type="package" asp-route-id="@package.Id" asp-route-returnUrl="@nestedReturnUrl" class="text-primary hover:text-[#653d1e] underline underline-offset-2 transition-colors">@package.TrackingNumber</a>
+                        if (i < packages.Count - 1)
+                        {
+                            <span>, </span>
+                        }
+                    }
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>
