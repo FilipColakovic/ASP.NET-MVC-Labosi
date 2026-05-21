@@ -17,7 +17,9 @@ namespace Vjezba.Model.Controllers
             "courier",
             "warehouse",
             "user",
-            "delivery"
+            "delivery",
+            "address",
+            "statuslog"
         };
 
         public HomeController(AppDbContext context)
@@ -58,7 +60,48 @@ namespace Vjezba.Model.Controllers
             }
 
             ViewData["SelectedType"] = MapSelectedTypeForSidebar(normalizedType);
+            ViewData["Overview"] = BuildOverviewModel();
             return View("Details", model);
+        }
+
+        [HttpGet("manifest/search")]
+        public IActionResult ManifestSearch(string selectedType, string? q)
+        {
+            var normalizedType = NormalizeType(selectedType);
+            var term = (q ?? string.Empty).Trim();
+
+            var ids = normalizedType switch
+            {
+                "package" => SearchPackageIds(term),
+                "courier" => SearchCourierIds(term),
+                "warehouse" => SearchWarehouseIds(term),
+                "user" => SearchUserIds(term),
+                "delivery" => SearchDeliveryIds(term),
+                "address" => SearchAddressIds(term),
+                "statuslog" => SearchStatusLogIds(term),
+                _ => new List<int>()
+            };
+
+            return Json(new { ids });
+        }
+
+        [HttpGet("autocomplete/{source}")]
+        public IActionResult Autocomplete(string source, string? q, int take = 20)
+        {
+            var normalizedSource = NormalizeType(source);
+            var term = (q ?? string.Empty).Trim();
+            var cappedTake = Math.Clamp(take, 1, 50);
+
+            var items = normalizedSource switch
+            {
+                "couriers" => SearchAutocompleteCouriers(term, cappedTake),
+                "users" => SearchAutocompleteUsers(term, cappedTake),
+                "addresses" => SearchAutocompleteAddresses(term, cappedTake),
+                "packages" => SearchAutocompletePackages(term, cappedTake),
+                _ => new List<object>()
+            };
+
+            return Json(items);
         }
 
         private ObjectOverviewViewModel BuildOverviewModel()
@@ -78,6 +121,10 @@ namespace Vjezba.Model.Controllers
                     .Include(x => x.Courier)
                     .Include(x => x.Packages)
                     .OrderBy(x => x.Id)
+                    .ToList(),
+                StatusLogs = _context.StatusLogs.AsNoTracking()
+                    .Include(x => x.Package)
+                    .OrderByDescending(x => x.TimeChanged)
                     .ToList()
             };
         }
@@ -213,6 +260,235 @@ namespace Vjezba.Model.Controllers
                 .Include(x => x.Deliveries);
         }
 
+        private List<int> SearchPackageIds(string term)
+        {
+            var query = _context.Packages.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.TrackingNumber, pattern) ||
+                    EF.Functions.Like(x.Description, pattern) ||
+                    EF.Functions.Like(x.RecipientAddress.City, pattern) ||
+                    EF.Functions.Like(x.RecipientAddress.Country, pattern));
+            }
+
+            return query
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<int> SearchCourierIds(string term)
+        {
+            var query = _context.Couriers.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.FirstName, pattern) ||
+                    EF.Functions.Like(x.LastName, pattern) ||
+                    EF.Functions.Like(x.Email, pattern) ||
+                    EF.Functions.Like(x.PhoneNumber, pattern) ||
+                    EF.Functions.Like(x.VehicleType, pattern) ||
+                    EF.Functions.Like(x.LicensePlate, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<int> SearchWarehouseIds(string term)
+        {
+            var query = _context.Warehouses.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Name, pattern) ||
+                    EF.Functions.Like(x.Address.City, pattern) ||
+                    EF.Functions.Like(x.Address.Street, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.Name)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<int> SearchUserIds(string term)
+        {
+            var query = _context.Users.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.FirstName, pattern) ||
+                    EF.Functions.Like(x.LastName, pattern) ||
+                    EF.Functions.Like(x.Email, pattern) ||
+                    EF.Functions.Like(x.PhoneNumber, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<int> SearchDeliveryIds(string term)
+        {
+            var query = _context.Deliveries.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.CurrentLocation, pattern) ||
+                    EF.Functions.Like(x.Courier.FirstName, pattern) ||
+                    EF.Functions.Like(x.Courier.LastName, pattern));
+            }
+
+            return query
+                .OrderByDescending(x => x.DepartureDate)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<int> SearchAddressIds(string term)
+        {
+            var query = _context.Addresses.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Street, pattern) ||
+                    EF.Functions.Like(x.City, pattern) ||
+                    EF.Functions.Like(x.PostalCode, pattern) ||
+                    EF.Functions.Like(x.Country, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.City)
+                .ThenBy(x => x.Street)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<int> SearchStatusLogIds(string term)
+        {
+            var query = _context.StatusLogs.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Package.TrackingNumber, pattern) ||
+                    EF.Functions.Like(x.Location, pattern) ||
+                    EF.Functions.Like(x.Description, pattern));
+            }
+
+            return query
+                .OrderByDescending(x => x.TimeChanged)
+                .Select(x => x.Id)
+                .ToList();
+        }
+
+        private List<object> SearchAutocompleteCouriers(string term, int take)
+        {
+            var query = _context.Couriers.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.FirstName, pattern) ||
+                    EF.Functions.Like(x.LastName, pattern) ||
+                    EF.Functions.Like(x.LicensePlate, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Take(take)
+                .Select(x => (object)new
+                {
+                    id = x.Id,
+                    text = x.FirstName + " " + x.LastName + " (" + x.LicensePlate + ")"
+                })
+                .ToList();
+        }
+
+        private List<object> SearchAutocompleteUsers(string term, int take)
+        {
+            var query = _context.Users.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.FirstName, pattern) ||
+                    EF.Functions.Like(x.LastName, pattern) ||
+                    EF.Functions.Like(x.Email, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Take(take)
+                .Select(x => (object)new
+                {
+                    id = x.Id,
+                    text = x.FirstName + " " + x.LastName + " (" + x.Email + ")"
+                })
+                .ToList();
+        }
+
+        private List<object> SearchAutocompleteAddresses(string term, int take)
+        {
+            var query = _context.Addresses.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Street, pattern) ||
+                    EF.Functions.Like(x.City, pattern) ||
+                    EF.Functions.Like(x.PostalCode, pattern));
+            }
+
+            return query
+                .OrderBy(x => x.City)
+                .ThenBy(x => x.Street)
+                .Take(take)
+                .Select(x => (object)new
+                {
+                    id = x.Id,
+                    text = x.Street + ", " + x.City + " " + x.PostalCode
+                })
+                .ToList();
+        }
+
+        private List<object> SearchAutocompletePackages(string term, int take)
+        {
+            var query = _context.Packages.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var pattern = $"%{term}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.TrackingNumber, pattern) ||
+                    EF.Functions.Like(x.Description, pattern));
+            }
+
+            return query
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(take)
+                .Select(x => (object)new
+                {
+                    id = x.Id,
+                    text = x.TrackingNumber
+                })
+                .ToList();
+        }
+
         private static string NormalizeType(string? value)
         {
             return string.IsNullOrWhiteSpace(value)
@@ -227,12 +503,7 @@ namespace Vjezba.Model.Controllers
                 return normalizedType;
             }
 
-            return normalizedType switch
-            {
-                "statuslog" => "delivery",
-                "address" => "package",
-                _ => DefaultSelectedType
-            };
+            return DefaultSelectedType;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

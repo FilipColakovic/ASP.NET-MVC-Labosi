@@ -27,7 +27,7 @@
             <div class="space-y-4">
                 <div class="grid gap-2">
                     <label asp-for="PackageId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Package</label>
-                    <select asp-for="PackageId" class="analog-input">
+                    <select asp-for="PackageId" class="analog-input" data-autocomplete-source="packages" data-autocomplete-placeholder="Search package..." data-autocomplete-empty-label="Select package">
                         <option value="">Select package</option>
                         @foreach (var package in packages)
                         {
@@ -37,11 +37,14 @@
                     <span asp-validation-for="PackageId" class="field-error"></span>
                 </div>
 
-                <div class="grid gap-2">
-                    <label asp-for="TimeChanged" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Time changed</label>
-                    <input asp-for="TimeChanged" type="datetime-local" class="analog-input" />
-                    <span asp-validation-for="TimeChanged" class="field-error"></span>
-                </div>
+                <partial name="Partials/_DateTimePickerField"
+                         model='(Model.TimeChanged == default ? string.Empty : Model.TimeChanged.ToString("yyyy-MM-ddTHH:mm"))'
+                         view-data='new ViewDataDictionary(ViewData)
+                         {
+                             ["FieldName"] = nameof(Model.TimeChanged),
+                             ["Label"] = "Time changed",
+                             ["RequiredMessage"] = "Time changed is required."
+                         }' />
 
                 <div class="grid gap-2">
                     <label asp-for="Location" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>

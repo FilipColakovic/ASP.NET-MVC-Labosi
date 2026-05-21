@@ -37,8 +37,16 @@
             <span class="material-symbols-outlined">group</span>
             <span class="analog-sidebar-text">Users</span>
         </a>
-        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "delivery" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="delivery" title="Status Logs">
+        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "address" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="address" title="Addresses">
+            <span class="material-symbols-outlined">home_pin</span>
+            <span class="analog-sidebar-text">Addresses</span>
+        </a>
+        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "delivery" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="delivery" title="Deliveries">
             <span class="material-symbols-outlined">receipt_long</span>
+            <span class="analog-sidebar-text">Deliveries</span>
+        </a>
+        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "statuslog" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" asp-route-selectedType="statuslog" title="Status Logs">
+            <span class="material-symbols-outlined">history</span>
             <span class="analog-sidebar-text">Status Logs</span>
         </a>
     </nav>

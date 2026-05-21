@@ -36,6 +36,245 @@
 })();
 
 (function () {
+	var crate = document.querySelector("[data-hero-package]");
+	if (!crate) {
+		return;
+	}
+
+	var isLocked = false;
+	var openDurationMs = 650;
+	var unfoldDelayMs = 1100;
+	var hiddenDurationMs = 25000;
+
+	crate.addEventListener("click", function () {
+		if (isLocked || crate.classList.contains("is-hidden")) {
+			return;
+		}
+
+		isLocked = true;
+		crate.classList.remove("is-returning");
+		crate.classList.add("is-opening");
+
+		window.setTimeout(function () {
+			crate.classList.add("is-unfolded");
+		}, openDurationMs);
+
+		window.setTimeout(function () {
+			crate.classList.add("is-hidden");
+			crate.setAttribute("aria-hidden", "true");
+		}, unfoldDelayMs);
+
+		window.setTimeout(function () {
+			crate.classList.remove("is-opening", "is-unfolded", "is-hidden");
+			crate.classList.add("is-returning");
+			crate.setAttribute("aria-hidden", "false");
+
+			window.setTimeout(function () {
+				crate.classList.remove("is-returning");
+				isLocked = false;
+			}, 760);
+		}, unfoldDelayMs + hiddenDurationMs);
+	});
+})();
+
+(function () {
+	var selects = document.querySelectorAll("select[data-autocomplete-source]");
+	if (!selects.length) {
+		return;
+	}
+
+	selects.forEach(function (select) {
+		if (select.getAttribute("data-autocomplete-init") === "1") {
+			return;
+		}
+
+		var source = select.getAttribute("data-autocomplete-source");
+		if (!source) {
+			return;
+		}
+
+		select.setAttribute("data-autocomplete-init", "1");
+		select.style.display = "none";
+		select.setAttribute("aria-hidden", "true");
+
+		var wrapper = document.createElement("div");
+		wrapper.className = "relative";
+		var searchInput = document.createElement("input");
+		searchInput.type = "text";
+		searchInput.className = select.className;
+		searchInput.autocomplete = "off";
+		searchInput.placeholder = select.getAttribute("data-autocomplete-placeholder") || "Search...";
+		searchInput.setAttribute("aria-label", "Search dropdown options");
+
+		var panel = document.createElement("div");
+		panel.className = "absolute z-30 mt-1 w-full max-h-56 overflow-auto rounded-md border border-outline-variant/30 bg-[#f3efe9] shadow-xl hidden";
+
+		select.parentNode.insertBefore(wrapper, select);
+		wrapper.appendChild(searchInput);
+		wrapper.appendChild(panel);
+
+		function closePanel() {
+			panel.classList.add("hidden");
+			panel.innerHTML = "";
+		}
+
+		function getSelectedText() {
+			var selectedOption = select.options[select.selectedIndex];
+			if (!selectedOption || !selectedOption.value) {
+				return "";
+			}
+
+			return selectedOption.text;
+		}
+
+		function setSelection(item) {
+			var value = String(item.id);
+			var option = select.querySelector('option[value="' + value + '"]');
+			if (!option) {
+				option = document.createElement("option");
+				option.value = value;
+				option.text = item.text;
+				select.appendChild(option);
+			}
+
+			select.value = value;
+			searchInput.value = item.text;
+			select.dispatchEvent(new Event("change", { bubbles: true }));
+			closePanel();
+		}
+
+		function renderItems(items) {
+			panel.innerHTML = "";
+			if (!items.length) {
+				closePanel();
+				return;
+			}
+
+			items.forEach(function (item) {
+				if (!item || typeof item.id === "undefined" || typeof item.text !== "string") {
+					return;
+				}
+
+				var optionButton = document.createElement("button");
+				optionButton.type = "button";
+				optionButton.className = "block w-full px-3 py-2 text-left text-sm text-on-surface bg-[#f3efe9] hover:bg-[#e7e1d9] transition-colors border-b border-outline-variant/20 last:border-b-0";
+				optionButton.textContent = item.text;
+				optionButton.addEventListener("mousedown", function (event) {
+					event.preventDefault();
+					setSelection(item);
+				});
+				panel.appendChild(optionButton);
+			});
+
+			if (!panel.childElementCount) {
+				closePanel();
+				return;
+			}
+
+			panel.classList.remove("hidden");
+		}
+
+		searchInput.value = getSelectedText();
+
+		select.addEventListener("change", function () {
+			var selectedText = getSelectedText();
+			if (selectedText !== searchInput.value) {
+				searchInput.value = selectedText;
+			}
+		});
+		if (select.form) {
+			select.form.addEventListener("reset", function () {
+				window.setTimeout(function () {
+					searchInput.value = getSelectedText();
+					closePanel();
+				}, 0);
+			});
+		}
+
+		var debounceHandle = 0;
+		var latestRequestId = 0;
+
+		function executeSearch() {
+			window.clearTimeout(debounceHandle);
+			debounceHandle = window.setTimeout(function () {
+				var query = searchInput.value || "";
+				if (!query.trim()) {
+					closePanel();
+				}
+
+				// Keep model value valid only when an item was explicitly picked.
+				if (query !== getSelectedText()) {
+					select.value = "";
+				}
+
+				var requestId = ++latestRequestId;
+				var endpoint = "/autocomplete/" + encodeURIComponent(source) + "?q=" + encodeURIComponent(query);
+
+				fetch(endpoint, {
+					headers: {
+						"X-Requested-With": "XMLHttpRequest"
+					}
+				})
+					.then(function (response) {
+						if (!response.ok) {
+							throw new Error("Autocomplete request failed.");
+						}
+						return response.json();
+					})
+					.then(function (items) {
+						if (requestId !== latestRequestId) {
+							return;
+						}
+
+						var safeItems = Array.isArray(items) ? items : [];
+						renderItems(safeItems);
+					})
+					.catch(function () {
+						closePanel();
+					});
+			}, 180);
+		}
+
+		searchInput.addEventListener("blur", function () {
+			window.setTimeout(function () {
+				closePanel();
+			}, 120);
+		});
+		searchInput.addEventListener("input", executeSearch);
+		searchInput.addEventListener("focus", executeSearch);
+	});
+})();
+
+(function () {
+	var dateInputs = document.querySelectorAll('input[data-datetime-picker="true"]');
+	if (!dateInputs.length || typeof flatpickr !== "function") {
+		return;
+	}
+
+	var documentLang = (document.documentElement.lang || "en").toLowerCase();
+	var useCroatianLocale = documentLang.startsWith("hr");
+
+	if (useCroatianLocale && window.flatpickr && window.flatpickr.l10ns && window.flatpickr.l10ns.hr) {
+		window.flatpickr.localize(window.flatpickr.l10ns.hr);
+	}
+
+	dateInputs.forEach(function (input) {
+		if (input._flatpickr) {
+			return;
+		}
+
+		flatpickr(input, {
+			enableTime: true,
+			allowInput: true,
+			time_24hr: useCroatianLocale,
+			dateFormat: "Y-m-d\\TH:i",
+			altInput: true,
+			altFormat: useCroatianLocale ? "d.m.Y H:i" : "m/d/Y h:i K"
+		});
+	});
+})();
+
+(function () {
 	var modals = document.querySelectorAll("[data-create-modal]");
 	if (!modals.length) {
 		return;
@@ -142,6 +381,19 @@
 		return !value || value.indexOf("0001-01-01") === 0;
 	}
 
+	function setInputValue(input, value) {
+		if (!input) {
+			return;
+		}
+
+		if (input._flatpickr) {
+			input._flatpickr.setDate(value, true, "Y-m-d\\TH:i");
+			return;
+		}
+
+		input.value = value;
+	}
+
 	modals.forEach(function (modal) {
 		var form = modal.querySelector("[data-create-form]");
 		if (!form) {
@@ -172,7 +424,7 @@
 				var now = new Date();
 				var departureBase = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
 				if (departureInput && isEmptyDateValue(departureInput.value)) {
-					departureInput.value = formatLocalDateTime(departureBase);
+					setInputValue(departureInput, formatLocalDateTime(departureBase));
 				}
 				var departureValue = departureInput && !isEmptyDateValue(departureInput.value)
 					? new Date(departureInput.value)
@@ -180,13 +432,13 @@
 				if (arrivalInput && isEmptyDateValue(arrivalInput.value)) {
 					var arrivalValue = new Date(departureValue.getTime());
 					arrivalValue.setDate(arrivalValue.getDate() + 7);
-					arrivalInput.value = formatLocalDateTime(arrivalValue);
+					setInputValue(arrivalInput, formatLocalDateTime(arrivalValue));
 				}
 			}
 			if (modalKey === "statuslog") {
 				var timeInput = form.querySelector("[name='TimeChanged']");
 				if (timeInput && isEmptyDateValue(timeInput.value)) {
-					timeInput.value = formatLocalDateTime(new Date());
+					setInputValue(timeInput, formatLocalDateTime(new Date()));
 				}
 			}
 			var firstInput = form.querySelector("input, select, textarea");
@@ -381,10 +633,18 @@
 			var value = button.getAttribute(dataKey) || "";
 			if (field.type === "checkbox") {
 				field.checked = value.toLowerCase() === "true" || value === "1";
+				field.dispatchEvent(new Event("change", { bubbles: true }));
+				return;
+			}
+
+			if (field.getAttribute("data-datetime-picker") === "true" && field._flatpickr) {
+				field._flatpickr.setDate(value, true, "Y-m-d\\TH:i");
+				field.dispatchEvent(new Event("change", { bubbles: true }));
 				return;
 			}
 
 			field.value = value;
+			field.dispatchEvent(new Event("change", { bubbles: true }));
 		});
 	}
 

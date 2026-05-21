@@ -39,10 +39,12 @@
             if (!searchInput) return;
 
             const manifest = document.getElementById("manifest");
-            const tbody = manifest ? manifest.querySelector("tbody") : null;
-            const thead = manifest ? manifest.querySelector("thead tr") : null;
+            const table = manifest ? manifest.querySelector("table[data-selected-type]") : null;
+            const tbody = table ? table.querySelector("tbody") : null;
+            const thead = table ? table.querySelector("thead tr") : null;
+            const selectedType = table ? table.getAttribute("data-selected-type") : "";
 
-            if (!tbody) {
+            if (!tbody || !selectedType) {
                 searchInput.disabled = true;
                 searchInput.placeholder = "No manifest to search";
                 return;
@@ -64,6 +66,20 @@
                 return isSubsequence(query, candidate);
             };
 
+            const applyClientFallback = (query) => {
+                const rows = getRows();
+                let visibleCount = 0;
+
+                rows.forEach((row) => {
+                    const rowText = normalize(row.textContent || "");
+                    const matched = fuzzyMatch(query, rowText);
+                    row.style.display = matched ? "" : "none";
+                    if (matched) visibleCount++;
+                });
+
+                noResultsRow.style.display = visibleCount === 0 ? "" : "none";
+            };
+
             let noResultsRow = document.getElementById("manifest-search-empty");
             if (!noResultsRow) {
                 noResultsRow = document.createElement("tr");
@@ -80,21 +96,57 @@
             }
 
             const getRows = () =>
-                Array.from(tbody.querySelectorAll("tr")).filter((row) => row.id !== "manifest-search-empty");
+                Array.from(tbody.querySelectorAll("tr[data-row-id]"));
 
-            const applyFilter = () => {
-                const query = normalize(searchInput.value);
+            const applyVisibilityFromIds = (ids) => {
                 const rows = getRows();
+                const visibleIdSet = new Set(ids.map((id) => id.toString()));
                 let visibleCount = 0;
 
                 rows.forEach((row) => {
-                    const rowText = normalize(row.textContent || "");
-                    const matched = fuzzyMatch(query, rowText);
+                    const rowId = row.getAttribute("data-row-id") || "";
+                    const matched = visibleIdSet.has(rowId);
                     row.style.display = matched ? "" : "none";
                     if (matched) visibleCount++;
                 });
 
                 noResultsRow.style.display = visibleCount === 0 ? "" : "none";
+            };
+
+            let debounceHandle = 0;
+            let latestRequestId = 0;
+
+            const applyFilter = () => {
+                window.clearTimeout(debounceHandle);
+                debounceHandle = window.setTimeout(async () => {
+                    const requestId = ++latestRequestId;
+                    const query = searchInput.value || "";
+                    const normalizedQuery = normalize(query);
+
+                    try {
+                        const url = `/manifest/search?selectedType=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(query)}`;
+                        const response = await fetch(url, {
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Manifest search failed.");
+                        }
+
+                        const payload = await response.json();
+                        if (requestId !== latestRequestId) {
+                            return;
+                        }
+
+                        const ids = payload && Array.isArray(payload.ids) ? payload.ids : [];
+                        applyVisibilityFromIds(ids);
+                    } catch (error) {
+                        // Fallback to client filtering if AJAX search is unavailable.
+                        applyClientFallback(normalizedQuery);
+                    }
+                }, 180);
             };
 
             searchInput.addEventListener("input", applyFilter);

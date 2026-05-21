@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 using Vjezba.Model.Data;
 using Vjezba.Model.Enums;
 using Vjezba.Model.Models;
@@ -98,6 +100,20 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+var supportedCultures = new[]
+{
+    new CultureInfo("hr"),
+    new CultureInfo("en-US")
+};
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("hr"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 app.UseRouting();
 
 app.UseAuthorization();

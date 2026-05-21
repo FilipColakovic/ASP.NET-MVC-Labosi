@@ -8,12 +8,24 @@
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
-<div class="grid grid-cols-12 gap-6 items-end rise-in">
-    <div class="col-span-12 md:col-span-7">
+<div class="grid grid-cols-12 gap-6 items-center rise-in">
+    <div class="col-span-12 lg:col-span-5">
         <h2 class="font-headline font-extrabold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Live Manifest Index</h2>
         <p class="font-label text-sm text-on-surface-variant uppercase tracking-widest opacity-70">Region: Croatia</p>
     </div>
-    <div class="col-span-12 md:col-span-5 flex md:justify-end flex-wrap gap-4">
+    <div class="col-span-12 lg:col-span-3 flex justify-center">
+        <div class="hero-package-stage">
+            <button type="button" class="hero-package-crate" data-hero-package aria-label="Open package animation">
+                <span class="hero-package-lid"></span>
+                <span class="hero-package-body">
+                    <span class="material-symbols-outlined hero-package-symbol">inventory_2</span>
+                </span>
+                <span class="hero-package-shadow"></span>
+            </button>
+            <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70 mt-2">Tap package crate</p>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-4 flex lg:justify-end flex-wrap gap-4">
         <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Active Parcels</span>
             <span class="font-headline font-bold text-2xl text-primary">@Model.Packages.Count</span>
@@ -31,7 +43,7 @@
 
 <div id="manifest" class="bg-surface-container manifest-shell-bg analog-panel-surface p-1 rounded-xl rise-in" style="animation-delay: 180ms;">
     <div class="bg-surface-container-lowest manifest-table-bg analog-table-surface rounded-lg overflow-x-auto">
-        <table class="w-full text-left border-collapse min-w-[780px]" data-user-table="@(selectedType == "user" ? "true" : "false")" data-user-return-url="@returnUrl">
+        <table class="w-full text-left border-collapse min-w-[780px]" data-user-table="@(selectedType == "user" ? "true" : "false")" data-user-return-url="@returnUrl" data-selected-type="@selectedType">
             <thead>
                 @if (selectedType == "package")
                 {
@@ -109,7 +121,7 @@
                         </th>
                     </tr>
                 }
-                else
+                else if (selectedType == "delivery")
                 {
                     <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
                         <th class="px-6 py-4 font-bold">Ref No.</th>
@@ -128,6 +140,44 @@
                         </th>
                     </tr>
                 }
+                else if (selectedType == "address")
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Street</th>
+                        <th class="px-6 py-4 font-bold">City</th>
+                        <th class="px-6 py-4 font-bold">Postal</th>
+                        <th class="px-6 py-4 font-bold text-right">Country</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="address">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
+                    </tr>
+                }
+                else
+                {
+                    <tr class="bg-surface-container-high manifest-head-bg font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                        <th class="px-6 py-4 font-bold">Ref No.</th>
+                        <th class="px-6 py-4 font-bold">Package</th>
+                        <th class="px-6 py-4 font-bold">Location</th>
+                        <th class="px-6 py-4 font-bold">Changed At</th>
+                        <th class="px-6 py-4 font-bold text-right">Status</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="statuslog">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
+                    </tr>
+                }
             </thead>
             <tbody class="font-body text-sm divide-y divide-surface-container-high/30">
                 @if (selectedType == "package")
@@ -136,7 +186,7 @@
                     {
                         var destination = package.RecipientAddress;
 
-                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-package-ref="@package.TrackingNumber">
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-package-ref="@package.TrackingNumber" data-row-id="@package.Id">
                             <td class="px-6 py-5">
                                 <a asp-action="Details" asp-route-type="Package" asp-route-id="@package.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">inventory_2</span>
@@ -236,7 +286,7 @@
                 {
                     @foreach (var courier in Model.Couriers.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
                     {
-                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-row-id="@courier.Id">
                             <td class="px-6 py-5">
                                 <a asp-action="Details" asp-route-type="Courier" asp-route-id="@courier.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">local_shipping</span>
@@ -278,7 +328,7 @@
                 {
                     @foreach (var warehouse in Model.Warehouses.OrderBy(w => w.Name))
                     {
-                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-row-id="@warehouse.Id">
                             <td class="px-6 py-5">
                                 <a asp-action="Details" asp-route-type="Warehouse" asp-route-id="@warehouse.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">warehouse</span>
@@ -316,7 +366,7 @@
                 {
                     @foreach (var user in Model.Users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName))
                     {
-                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-row-id="@user.Id">
                             <td class="px-6 py-5">
                                 <a asp-action="Details" asp-route-type="User" asp-route-id="@user.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">group</span>
@@ -351,11 +401,11 @@
                         </tr>
                     }
                 }
-                else
+                else if (selectedType == "delivery")
                 {
                     @foreach (var delivery in Model.Deliveries.OrderByDescending(d => d.DepartureDate))
                     {
-                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group">
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-row-id="@delivery.Id">
                             <td class="px-6 py-5">
                                 <a asp-action="Details" asp-route-type="Delivery" asp-route-id="@delivery.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
                                     <span class="material-symbols-outlined text-primary">receipt_long</span>
@@ -390,6 +440,86 @@
                                         Edit
                                     </button>
                                     <form asp-controller="Deliveries" asp-action="SoftDelete" asp-route-id="@delivery.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else if (selectedType == "address")
+                {
+                    @foreach (var address in Model.Addresses.OrderBy(a => a.City).ThenBy(a => a.Street))
+                    {
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-row-id="@address.Id">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="Address" asp-route-id="@address.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">home_pin</span>
+                                    <span class="font-label font-bold text-primary">#AD-@address.Id</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">@address.Street</td>
+                            <td class="px-6 py-5">@address.City</td>
+                            <td class="px-6 py-5">@address.PostalCode</td>
+                            <td class="px-6 py-5 text-right">@address.Country</td>
+                            <td class="px-6 py-5 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="address"
+                                            data-edit-id="@address.Id"
+                                            data-edit-street="@address.Street"
+                                            data-edit-city="@address.City"
+                                            data-edit-postal-code="@address.PostalCode"
+                                            data-edit-country="@address.Country">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
+                                    </button>
+                                    <form asp-controller="Addresses" asp-action="SoftDelete" asp-route-id="@address.Id" method="post">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
+                                            <span class="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    @foreach (var statusLog in Model.StatusLogs.OrderByDescending(s => s.TimeChanged))
+                    {
+                        <tr class="hover:bg-surface-container-low cursor-pointer transition-colors group" data-row-id="@statusLog.Id">
+                            <td class="px-6 py-5">
+                                <a asp-action="Details" asp-route-type="StatusLog" asp-route-id="@statusLog.Id" asp-route-returnUrl="@returnUrl" class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-primary">history</span>
+                                    <span class="font-label font-bold text-primary">#SL-@statusLog.Id</span>
+                                </a>
+                            </td>
+                            <td class="px-6 py-5">@statusLog.Package.TrackingNumber</td>
+                            <td class="px-6 py-5">@statusLog.Location</td>
+                            <td class="px-6 py-5 text-on-surface-variant">@statusLog.TimeChanged.ToString("yyyy.MM.dd HH:mm")</td>
+                            <td class="px-6 py-5 text-right">@statusLog.PreviousStatus -> @statusLog.NewStatus</td>
+                            <td class="px-6 py-5 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button"
+                                            class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
+                                            data-edit-open="statuslog"
+                                            data-edit-id="@statusLog.Id"
+                                            data-edit-package-id="@statusLog.PackageId"
+                                            data-edit-time-changed="@statusLog.TimeChanged.ToString("yyyy-MM-ddTHH:mm")"
+                                            data-edit-location="@statusLog.Location"
+                                            data-edit-description="@statusLog.Description"
+                                            data-edit-previous-status="@statusLog.PreviousStatus"
+                                            data-edit-new-status="@statusLog.NewStatus">
+                                        <span class="material-symbols-outlined text-[14px]">edit</span>
+                                        Edit
+                                    </button>
+                                    <form asp-controller="StatusLogs" asp-action="SoftDelete" asp-route-id="@statusLog.Id" method="post">
                                         <button type="submit" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors">
                                             <span class="material-symbols-outlined text-[14px]">delete</span>
                                             Delete

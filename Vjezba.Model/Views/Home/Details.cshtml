@@ -4,6 +4,7 @@
 @{
     Layout = null;
     ViewData["Title"] = "Package Hub | Object Details";
+    var currentLang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
     var normalizedType = (Model.ObjectType ?? string.Empty).Trim().ToLowerInvariant();
     var displayType = normalizedType switch
@@ -18,19 +19,8 @@
         _ => "Object"
     };
     var referenceCode = $"{normalizedType.ToUpperInvariant()}-{Model.ObjectId:00000}";
-    var selectedTypeForBack = normalizedType switch
-    {
-        "statuslog" => "delivery",
-        "address" => "package",
-        _ => string.IsNullOrWhiteSpace(normalizedType) ? "package" : normalizedType
-    };
+    var selectedTypeForBack = string.IsNullOrWhiteSpace(normalizedType) ? "package" : normalizedType;
     var fallbackUrl = Url.Action("Index", "Home", new { selectedType = selectedTypeForBack }) ?? "/";
-    var editUrl = Url.Action("Index", "Home", new
-    {
-        selectedType = selectedTypeForBack,
-        editType = normalizedType,
-        editId = Model.ObjectId
-    }) ?? fallbackUrl;
     var requestedReturnUrl = Context.Request.Query["returnUrl"].ToString();
     var backUrl = !string.IsNullOrWhiteSpace(requestedReturnUrl) && Url.IsLocalUrl(requestedReturnUrl)
         ? requestedReturnUrl
@@ -67,7 +57,7 @@
 }
 
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="@currentLang">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -84,6 +74,9 @@
     </script>
     <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/hr.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&family=Work+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
@@ -126,10 +119,116 @@
                     <div class="flex items-center gap-3">
                         @if (!string.IsNullOrWhiteSpace(deleteController))
                         {
-                            <a href="@editUrl" class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors">
-                                <span class="material-symbols-outlined text-[16px]">edit</span>
-                                Edit @deleteLabel
-                            </a>
+                            @if (Model is PackageDetailsViewModel packageModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="package"
+                                        data-edit-id="@packageModelForEdit.Package.Id"
+                                        data-edit-tracking-number="@packageModelForEdit.Package.TrackingNumber"
+                                        data-edit-weight-kg="@packageModelForEdit.Package.WeightKg.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                        data-edit-delivery-priority="@packageModelForEdit.Package.DeliveryPriority"
+                                        data-edit-status="@packageModelForEdit.Package.Status"
+                                        data-edit-courier-id="@packageModelForEdit.Package.CourierId"
+                                        data-edit-sender-user-id="@packageModelForEdit.Package.SenderUserId"
+                                        data-edit-recipient-user-id="@packageModelForEdit.Package.RecipientUserId"
+                                        data-edit-sender-address-id="@packageModelForEdit.Package.SenderAddressId"
+                                        data-edit-recipient-address-id="@packageModelForEdit.Package.RecipientAddressId"
+                                        data-edit-delivered-at="@packageModelForEdit.Package.DeliveredAt?.ToString("yyyy-MM-ddTHH:mm")"
+                                        data-edit-description="@(packageModelForEdit.Package.Description?.Replace("\r", " ").Replace("\n", " ") ?? string.Empty)">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
+                            else if (Model is CourierDetailsViewModel courierModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="courier"
+                                        data-edit-id="@courierModelForEdit.Courier.Id"
+                                        data-edit-first-name="@courierModelForEdit.Courier.FirstName"
+                                        data-edit-last-name="@courierModelForEdit.Courier.LastName"
+                                        data-edit-email="@courierModelForEdit.Courier.Email"
+                                        data-edit-phone-number="@courierModelForEdit.Courier.PhoneNumber"
+                                        data-edit-vehicle-type="@courierModelForEdit.Courier.VehicleType"
+                                        data-edit-license-plate="@courierModelForEdit.Courier.LicensePlate"
+                                        data-edit-is-available="@(courierModelForEdit.Courier.IsAvailable ? "true" : "false")">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
+                            else if (Model is UserDetailsViewModel userModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="user"
+                                        data-edit-id="@userModelForEdit.User.Id"
+                                        data-edit-first-name="@userModelForEdit.User.FirstName"
+                                        data-edit-last-name="@userModelForEdit.User.LastName"
+                                        data-edit-email="@userModelForEdit.User.Email"
+                                        data-edit-phone-number="@userModelForEdit.User.PhoneNumber">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
+                            else if (Model is WarehouseDetailsViewModel warehouseModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="warehouse"
+                                        data-edit-id="@warehouseModelForEdit.Warehouse.Id"
+                                        data-edit-name="@warehouseModelForEdit.Warehouse.Name"
+                                        data-edit-address-id="@warehouseModelForEdit.Warehouse.AddressId"
+                                        data-edit-capacity="@warehouseModelForEdit.Warehouse.Capacity">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
+                            else if (Model is DeliveryDetailsViewModel deliveryModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="delivery"
+                                        data-edit-id="@deliveryModelForEdit.Delivery.Id"
+                                        data-edit-courier-id="@deliveryModelForEdit.Delivery.CourierId"
+                                        data-edit-current-location="@deliveryModelForEdit.Delivery.CurrentLocation"
+                                        data-edit-departure-date="@deliveryModelForEdit.Delivery.DepartureDate.ToString("yyyy-MM-ddTHH:mm")"
+                                        data-edit-arrival-date="@deliveryModelForEdit.Delivery.ArrivalDate.ToString("yyyy-MM-ddTHH:mm")"
+                                        data-edit-is-delayed="@(deliveryModelForEdit.Delivery.IsDelayed ? "true" : "false")">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
+                            else if (Model is AddressDetailsViewModel addressModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="address"
+                                        data-edit-id="@addressModelForEdit.Address.Id"
+                                        data-edit-street="@addressModelForEdit.Address.Street"
+                                        data-edit-city="@addressModelForEdit.Address.City"
+                                        data-edit-postal-code="@addressModelForEdit.Address.PostalCode"
+                                        data-edit-country="@addressModelForEdit.Address.Country">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
+                            else if (Model is StatusLogDetailsViewModel statusLogModelForEdit)
+                            {
+                                <button type="button"
+                                        class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors"
+                                        data-edit-open="statuslog"
+                                        data-edit-id="@statusLogModelForEdit.StatusLog.Id"
+                                        data-edit-package-id="@statusLogModelForEdit.StatusLog.PackageId"
+                                        data-edit-time-changed="@statusLogModelForEdit.StatusLog.TimeChanged.ToString("yyyy-MM-ddTHH:mm")"
+                                        data-edit-location="@statusLogModelForEdit.StatusLog.Location"
+                                        data-edit-description="@(statusLogModelForEdit.StatusLog.Description?.Replace("\r", " ").Replace("\n", " ") ?? string.Empty)"
+                                        data-edit-previous-status="@statusLogModelForEdit.StatusLog.PreviousStatus"
+                                        data-edit-new-status="@statusLogModelForEdit.StatusLog.NewStatus">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    Edit @deleteLabel
+                                </button>
+                            }
                             <form asp-controller="@deleteController" asp-action="SoftDelete" asp-route-id="@Model.ObjectId" method="post">
                                 <button type="submit" class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-error bg-error/10 hover:bg-error/20 transition-colors">
                                     <span class="material-symbols-outlined text-[16px]">delete</span>
@@ -203,5 +302,13 @@
             </a>
         </nav>
     </main>
+
+    <partial name="Partials/_UserEditModal" model="new Vjezba.Model.Models.UserEditViewModel()" />
+    <partial name="Partials/_CourierEditModal" model="new Vjezba.Model.Models.CourierEditViewModel()" />
+    <partial name="Partials/_WarehouseEditModal" model="new Vjezba.Model.Models.WarehouseEditViewModel()" />
+    <partial name="Partials/_DeliveryEditModal" model="new Vjezba.Model.Models.DeliveryEditViewModel()" />
+    <partial name="Partials/_AddressEditModal" model="new Vjezba.Model.Models.AddressEditViewModel()" />
+    <partial name="Partials/_PackageEditModal" model="new Vjezba.Model.Models.PackageEditViewModel()" />
+    <partial name="Partials/_StatusLogEditModal" model="new Vjezba.Model.Models.StatusLogEditViewModel()" />
 </body>
 </html>

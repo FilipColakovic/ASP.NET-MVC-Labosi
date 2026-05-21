@@ -26,7 +26,7 @@
             <div class="space-y-4">
                 <div class="grid gap-2">
                     <label asp-for="CourierId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Courier</label>
-                    <select asp-for="CourierId" class="analog-input">
+                    <select asp-for="CourierId" class="analog-input" data-autocomplete-source="couriers" data-autocomplete-placeholder="Search courier..." data-autocomplete-empty-label="Select courier">
                         <option value="">Select courier</option>
                         @foreach (var courier in couriers)
                         {
@@ -42,17 +42,23 @@
                     <span asp-validation-for="CurrentLocation" class="field-error"></span>
                 </div>
 
-                <div class="grid gap-2">
-                    <label asp-for="DepartureDate" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
-                    <input asp-for="DepartureDate" type="datetime-local" class="analog-input" />
-                    <span asp-validation-for="DepartureDate" class="field-error"></span>
-                </div>
+                <partial name="Partials/_DateTimePickerField"
+                         model='(Model.DepartureDate == default ? string.Empty : Model.DepartureDate.ToString("yyyy-MM-ddTHH:mm"))'
+                         view-data='new ViewDataDictionary(ViewData)
+                         {
+                             ["FieldName"] = nameof(Model.DepartureDate),
+                             ["Label"] = "Departure date",
+                             ["RequiredMessage"] = "Departure date is required."
+                         }' />
 
-                <div class="grid gap-2">
-                    <label asp-for="ArrivalDate" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant"></label>
-                    <input asp-for="ArrivalDate" type="datetime-local" class="analog-input" />
-                    <span asp-validation-for="ArrivalDate" class="field-error"></span>
-                </div>
+                <partial name="Partials/_DateTimePickerField"
+                         model='(Model.ArrivalDate == default ? string.Empty : Model.ArrivalDate.ToString("yyyy-MM-ddTHH:mm"))'
+                         view-data='new ViewDataDictionary(ViewData)
+                         {
+                             ["FieldName"] = nameof(Model.ArrivalDate),
+                             ["Label"] = "Arrival date",
+                             ["RequiredMessage"] = "Arrival date is required."
+                         }' />
 
                 <div class="flex items-center justify-between rounded-lg border border-outline-variant/20 px-3 py-2">
                     <label asp-for="IsDelayed" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Delayed</label>

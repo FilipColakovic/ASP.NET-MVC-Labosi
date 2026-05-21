@@ -1,0 +1,34 @@
+@model string
+
+@{
+    var fieldName = ViewData["FieldName"]?.ToString() ?? string.Empty;
+    var labelText = ViewData["Label"]?.ToString() ?? fieldName;
+    var requiredMessage = ViewData["RequiredMessage"]?.ToString();
+    var inputId = fieldName.Replace(".", "_");
+}
+
+<div class="grid gap-2">
+    <label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant" for="@inputId">@labelText</label>
+    @if (string.IsNullOrWhiteSpace(requiredMessage))
+    {
+        <input id="@inputId"
+               name="@fieldName"
+               type="text"
+               value="@Model"
+               class="analog-input"
+               data-datetime-picker="true"
+               data-val="true" />
+    }
+    else
+    {
+        <input id="@inputId"
+               name="@fieldName"
+               type="text"
+               value="@Model"
+               class="analog-input"
+               data-datetime-picker="true"
+               data-val="true"
+               data-val-required="@requiredMessage" />
+    }
+    <span class="field-error" data-valmsg-for="@fieldName"></span>
+</div>

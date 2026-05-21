@@ -31,7 +31,7 @@
 
                 <div class="grid gap-2">
                     <label asp-for="AddressId" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Address</label>
-                    <select asp-for="AddressId" class="analog-input">
+                    <select asp-for="AddressId" class="analog-input" data-autocomplete-source="addresses" data-autocomplete-placeholder="Search address..." data-autocomplete-empty-label="Select address">
                         <option value="">Select address</option>
                         @foreach (var address in addresses)
                         {

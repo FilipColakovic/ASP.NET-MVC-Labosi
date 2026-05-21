@@ -8,5 +8,6 @@ namespace Vjezba.Model.Models
         public IReadOnlyList<Package> Packages { get; init; } = Array.Empty<Package>();
         public IReadOnlyList<Warehouse> Warehouses { get; init; } = Array.Empty<Warehouse>();
         public IReadOnlyList<Delivery> Deliveries { get; init; } = Array.Empty<Delivery>();
+        public IReadOnlyList<StatusLog> StatusLogs { get; init; } = Array.Empty<StatusLog>();
     }
 }
