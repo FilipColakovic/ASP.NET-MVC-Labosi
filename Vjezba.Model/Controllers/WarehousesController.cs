@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Vjezba.Model.Data;
+using Vjezba.Model.Models;
 
 namespace Vjezba.Model.Controllers
 {
@@ -27,6 +28,44 @@ namespace Vjezba.Model.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index", "Home", new { selectedType = "warehouse" });
+        }
+
+        [HttpPost("create")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(WarehouseCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var address = _context.Addresses.FirstOrDefault(x => x.Id == model.AddressId);
+            if (address is null)
+            {
+                ModelState.AddModelError(nameof(WarehouseCreateViewModel.AddressId), "Address not found.");
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var warehouse = new Warehouse
+            {
+                Name = model.Name.Trim(),
+                AddressId = model.AddressId,
+                Capacity = model.Capacity
+            };
+
+            _context.Warehouses.Add(warehouse);
+            _context.SaveChanges();
+
+            return Ok(new { id = warehouse.Id });
+        }
+
+        private IDictionary<string, string[]> BuildErrors()
+        {
+            return ModelState
+                .Where(entry => entry.Value is not null && entry.Value.Errors.Count > 0)
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value?.Errors.Select(error => error.ErrorMessage).ToArray() ?? Array.Empty<string>());
         }
     }
 }

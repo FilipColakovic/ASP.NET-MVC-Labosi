@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Vjezba.Model.Data;
+using Vjezba.Model.Models;
 
 namespace Vjezba.Model.Controllers
 {
@@ -27,6 +28,38 @@ namespace Vjezba.Model.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index", "Home", new { selectedType = "address" });
+        }
+
+        [HttpPost("create")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(AddressCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var address = new Address
+            {
+                Street = model.Street.Trim(),
+                City = model.City.Trim(),
+                PostalCode = model.PostalCode.Trim(),
+                Country = model.Country.Trim()
+            };
+
+            _context.Addresses.Add(address);
+            _context.SaveChanges();
+
+            return Ok(new { id = address.Id });
+        }
+
+        private IDictionary<string, string[]> BuildErrors()
+        {
+            return ModelState
+                .Where(entry => entry.Value is not null && entry.Value.Errors.Count > 0)
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value?.Errors.Select(error => error.ErrorMessage).ToArray() ?? Array.Empty<string>());
         }
     }
 }

@@ -31,7 +31,7 @@
 
 <div id="manifest" class="bg-surface-container manifest-shell-bg analog-panel-surface p-1 rounded-xl rise-in" style="animation-delay: 180ms;">
     <div class="bg-surface-container-lowest manifest-table-bg analog-table-surface rounded-lg overflow-x-auto">
-        <table class="w-full text-left border-collapse min-w-[780px]">
+        <table class="w-full text-left border-collapse min-w-[780px]" data-user-table="@(selectedType == "user" ? "true" : "false")" data-user-return-url="@returnUrl">
             <thead>
                 @if (selectedType == "package")
                 {
@@ -41,7 +41,15 @@
                         <th class="px-6 py-4 font-bold">Status</th>
                         <th class="px-6 py-4 font-bold">Timestamp</th>
                         <th class="px-6 py-4 font-bold text-right">Priority</th>
-                        <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="package">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 }
                 else if (selectedType == "courier")
@@ -52,7 +60,15 @@
                         <th class="px-6 py-4 font-bold">Email</th>
                         <th class="px-6 py-4 font-bold">Phone</th>
                         <th class="px-6 py-4 font-bold text-right">Vehicle</th>
-                        <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="courier">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 }
                 else if (selectedType == "warehouse")
@@ -63,7 +79,15 @@
                         <th class="px-6 py-4 font-bold">City</th>
                         <th class="px-6 py-4 font-bold">Capacity</th>
                         <th class="px-6 py-4 font-bold text-right">Stored</th>
-                        <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="warehouse">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 }
                 else if (selectedType == "user")
@@ -74,7 +98,15 @@
                         <th class="px-6 py-4 font-bold">Email</th>
                         <th class="px-6 py-4 font-bold">Phone</th>
                         <th class="px-6 py-4 font-bold text-right">Registered</th>
-                        <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="user">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 }
                 else
@@ -85,7 +117,15 @@
                         <th class="px-6 py-4 font-bold">Current Location</th>
                         <th class="px-6 py-4 font-bold">Departure</th>
                         <th class="px-6 py-4 font-bold text-right">Delayed</th>
-                        <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        <th class="px-6 py-4 font-bold text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <span>Actions</span>
+                                <button type="button" class="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-label uppercase tracking-widest text-on-secondary-container bg-secondary-container hover:bg-secondary-container/80 transition-colors" data-create-open="delivery">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    Create
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 }
             </thead>

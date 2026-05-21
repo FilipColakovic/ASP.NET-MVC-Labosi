@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Data;
+using Vjezba.Model.Models;
 
 namespace Vjezba.Model.Controllers
 {
@@ -27,6 +29,63 @@ namespace Vjezba.Model.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index", "Home", new { selectedType = "courier" });
+        }
+
+        [HttpPost("create")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CourierCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var normalizedEmail = model.Email.Trim();
+            var normalizedPlate = model.LicensePlate.Trim();
+
+            var emailExists = _context.Couriers.IgnoreQueryFilters()
+                .Any(x => x.Email.ToLower() == normalizedEmail.ToLower());
+            if (emailExists)
+            {
+                ModelState.AddModelError(nameof(CourierCreateViewModel.Email), "Email already exists.");
+            }
+
+            var plateExists = _context.Couriers.IgnoreQueryFilters()
+                .Any(x => x.LicensePlate.ToLower() == normalizedPlate.ToLower());
+            if (plateExists)
+            {
+                ModelState.AddModelError(nameof(CourierCreateViewModel.LicensePlate), "License plate already exists.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { errors = BuildErrors() });
+            }
+
+            var courier = new Courier
+            {
+                FirstName = model.FirstName.Trim(),
+                LastName = model.LastName.Trim(),
+                Email = normalizedEmail,
+                PhoneNumber = model.PhoneNumber.Trim(),
+                VehicleType = model.VehicleType.Trim(),
+                LicensePlate = normalizedPlate,
+                IsAvailable = model.IsAvailable
+            };
+
+            _context.Couriers.Add(courier);
+            _context.SaveChanges();
+
+            return Ok(new { id = courier.Id });
+        }
+
+        private IDictionary<string, string[]> BuildErrors()
+        {
+            return ModelState
+                .Where(entry => entry.Value is not null && entry.Value.Errors.Count > 0)
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value?.Errors.Select(error => error.ErrorMessage).ToArray() ?? Array.Empty<string>());
         }
     }
 }

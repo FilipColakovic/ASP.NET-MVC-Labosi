@@ -2,6 +2,7 @@
 @{
     Layout = null;
     ViewData["Title"] = "Package Hub - Management Console";
+    ViewData["Overview"] = Model;
 }
 
 <!DOCTYPE html>
@@ -42,5 +43,12 @@
     </main>
 
     <partial name="Partials/_AnalogFab" />
+    <partial name="Partials/_UserCreateModal" model="new Vjezba.Model.Models.UserCreateViewModel()" />
+    <partial name="Partials/_CourierCreateModal" model="new Vjezba.Model.Models.CourierCreateViewModel()" />
+    <partial name="Partials/_WarehouseCreateModal" model="new Vjezba.Model.Models.WarehouseCreateViewModel()" />
+    <partial name="Partials/_DeliveryCreateModal" model="new Vjezba.Model.Models.DeliveryCreateViewModel()" />
+    <partial name="Partials/_AddressCreateModal" model="new Vjezba.Model.Models.AddressCreateViewModel()" />
+    <partial name="Partials/_PackageCreateModal" model="new Vjezba.Model.Models.PackageCreateViewModel()" />
+    <partial name="Partials/_StatusLogCreateModal" model="new Vjezba.Model.Models.StatusLogCreateViewModel()" />
 </body>
 </html>
