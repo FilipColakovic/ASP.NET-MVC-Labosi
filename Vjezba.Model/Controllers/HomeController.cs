@@ -45,6 +45,7 @@ namespace Vjezba.Model.Controllers
         [HttpGet("policy/privacy")]
         public IActionResult Privacy()
         {
+            ViewData["SelectedType"] = "privacy";
             return View();
         }
 

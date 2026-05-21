@@ -60,8 +60,8 @@
             <span class="material-symbols-outlined">help</span>
             <span class="analog-sidebar-text">Support</span>
         </a>
-        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" asp-action="Privacy" asp-controller="Home" title="Privacy">
-            <span class="material-symbols-outlined">logout</span>
+        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md font-label text-sm uppercase tracking-wider @(selectedType == "privacy" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Privacy" asp-controller="Home" title="Privacy">
+            <span class="material-symbols-outlined">privacy_tip</span>
             <span class="analog-sidebar-text">Privacy</span>
         </a>
     </div>

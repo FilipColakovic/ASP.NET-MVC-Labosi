@@ -119,7 +119,7 @@
                     <span asp-validation-for="RecipientAddressId" class="field-error"></span>
                 </div>
 
-                <partial name="Partials/_DateTimePickerField"
+                <partial name="~/Views/Home/Partials/_DateTimePickerField.cshtml"
                          model='(Model.DeliveredAt.HasValue ? Model.DeliveredAt.Value.ToString("yyyy-MM-ddTHH:mm") : string.Empty)'
                          view-data='new ViewDataDictionary(ViewData)
                          {
@@ -148,3 +148,4 @@
         </form>
     </div>
 </div>
+

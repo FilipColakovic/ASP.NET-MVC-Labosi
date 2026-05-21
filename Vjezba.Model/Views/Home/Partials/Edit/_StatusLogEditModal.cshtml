@@ -37,7 +37,7 @@
                     <span asp-validation-for="PackageId" class="field-error"></span>
                 </div>
 
-                <partial name="Partials/_DateTimePickerField"
+                <partial name="~/Views/Home/Partials/_DateTimePickerField.cshtml"
                          model='(Model.TimeChanged == default ? string.Empty : Model.TimeChanged.ToString("yyyy-MM-ddTHH:mm"))'
                          view-data='new ViewDataDictionary(ViewData)
                          {
@@ -93,3 +93,4 @@
         </form>
     </div>
 </div>
+

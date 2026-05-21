@@ -42,7 +42,7 @@
                     <span asp-validation-for="CurrentLocation" class="field-error"></span>
                 </div>
 
-                <partial name="Partials/_DateTimePickerField"
+                <partial name="~/Views/Home/Partials/_DateTimePickerField.cshtml"
                          model='(Model.DepartureDate == default ? string.Empty : Model.DepartureDate.ToString("yyyy-MM-ddTHH:mm"))'
                          view-data='new ViewDataDictionary(ViewData)
                          {
@@ -51,7 +51,7 @@
                              ["RequiredMessage"] = "Departure date is required."
                          }' />
 
-                <partial name="Partials/_DateTimePickerField"
+                <partial name="~/Views/Home/Partials/_DateTimePickerField.cshtml"
                          model='(Model.ArrivalDate == default ? string.Empty : Model.ArrivalDate.ToString("yyyy-MM-ddTHH:mm"))'
                          view-data='new ViewDataDictionary(ViewData)
                          {
@@ -80,3 +80,4 @@
         </form>
     </div>
 </div>
+
