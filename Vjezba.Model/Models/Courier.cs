@@ -26,6 +26,7 @@ namespace Vjezba.Model.Models
         public string LicensePlate { get; set; } = string.Empty;
 
         public bool IsAvailable { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
         public virtual ICollection<Delivery> Deliveries { get; set; } = new List<Delivery>();

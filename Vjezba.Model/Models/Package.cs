@@ -38,6 +38,7 @@ namespace Vjezba.Model.Models
         public virtual ICollection<StatusLog> StatusHistory { get; set; } = new List<StatusLog>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DeliveredAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         [Required]
         public string Description { get; set; } = string.Empty;

@@ -14,6 +14,32 @@
         : fallbackUrl;
     var nestedReturnUrl = Context.Request.Path + Context.Request.QueryString;
     var allValues = Model.Values.OrderBy(v => v.Key).ToList();
+    var deleteControllers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["package"] = "Packages",
+        ["courier"] = "Couriers",
+        ["warehouse"] = "Warehouses",
+        ["user"] = "Users",
+        ["delivery"] = "Deliveries",
+        ["address"] = "Addresses",
+        ["statuslog"] = "StatusLogs"
+    };
+    var deleteLabels = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["package"] = "package",
+        ["courier"] = "courier",
+        ["warehouse"] = "warehouse",
+        ["user"] = "user",
+        ["delivery"] = "delivery",
+        ["address"] = "address",
+        ["statuslog"] = "status log"
+    };
+    var deleteController = deleteControllers.TryGetValue(selectedTypeForBack, out var controller)
+        ? controller
+        : string.Empty;
+    var deleteLabel = deleteLabels.TryGetValue(selectedTypeForBack, out var label)
+        ? label
+        : "item";
 }
 
 <!DOCTYPE html>
@@ -73,7 +99,18 @@
             <section class="details-content-shell analog-panel-surface rounded-xl p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="font-headline text-2xl font-bold">@Model.ObjectType Details</h4>
-                    <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@allValues.Count total</span>
+                    <div class="flex items-center gap-3">
+                        <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@allValues.Count total</span>
+                        @if (!string.IsNullOrWhiteSpace(deleteController))
+                        {
+                            <form asp-controller="@deleteController" asp-action="SoftDelete" asp-route-id="@Model.ObjectId" method="post">
+                                <button type="submit" class="inline-flex items-center gap-2 rounded px-3 py-2 text-[10px] font-label uppercase tracking-widest text-error bg-error/10 hover:bg-error/20 transition-colors">
+                                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                                    Delete @deleteLabel
+                                </button>
+                            </form>
+                        }
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto analog-table-surface rounded-lg p-1">

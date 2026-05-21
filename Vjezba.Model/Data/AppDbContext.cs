@@ -26,16 +26,29 @@ namespace Vjezba.Model.Data
             {
                 entity.HasIndex(x => x.Email).IsUnique();
                 entity.HasIndex(x => x.LicensePlate).IsUnique();
+                entity.HasQueryFilter(x => x.DeletedAt == null);
             });
 
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(x => x.Email).IsUnique();
+                entity.HasQueryFilter(x => x.DeletedAt == null);
+            });
+
+            modelBuilder.Entity<Address>(entity =>
+            {
+                entity.HasQueryFilter(x => x.DeletedAt == null);
             });
 
             modelBuilder.Entity<Package>(entity =>
             {
                 entity.HasIndex(x => x.TrackingNumber).IsUnique();
+                entity.HasQueryFilter(x => x.DeletedAt == null
+                    && x.Courier.DeletedAt == null
+                    && x.SenderUser.DeletedAt == null
+                    && x.RecipientUser.DeletedAt == null
+                    && x.SenderAddress.DeletedAt == null
+                    && x.RecipientAddress.DeletedAt == null);
                 entity.HasOne(x => x.Courier)
                     .WithMany(x => x.Packages)
                     .HasForeignKey(x => x.CourierId)
@@ -68,6 +81,7 @@ namespace Vjezba.Model.Data
 
             modelBuilder.Entity<Warehouse>(entity =>
             {
+                entity.HasQueryFilter(x => x.DeletedAt == null && x.Address.DeletedAt == null);
                 entity.HasOne(x => x.Address)
                     .WithMany(x => x.Warehouses)
                     .HasForeignKey(x => x.AddressId)
@@ -78,6 +92,7 @@ namespace Vjezba.Model.Data
 
             modelBuilder.Entity<Delivery>(entity =>
             {
+                entity.HasQueryFilter(x => x.DeletedAt == null && x.Courier.DeletedAt == null);
                 entity.HasOne(x => x.Courier)
                     .WithMany(x => x.Deliveries)
                     .HasForeignKey(x => x.CourierId)
@@ -88,6 +103,7 @@ namespace Vjezba.Model.Data
 
             modelBuilder.Entity<StatusLog>(entity =>
             {
+                entity.HasQueryFilter(x => x.DeletedAt == null && x.Package.DeletedAt == null);
                 entity.HasOne(x => x.Package)
                     .WithMany(x => x.StatusHistory)
                     .HasForeignKey(x => x.PackageId)

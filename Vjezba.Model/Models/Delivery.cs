@@ -13,6 +13,7 @@ namespace Vjezba.Model.Models
         [Required]
         public string CurrentLocation { get; set; } = string.Empty;
         public bool IsDelayed { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         [ForeignKey(nameof(Courier))]
         public int CourierId { get; set; }

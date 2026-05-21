@@ -16,6 +16,7 @@ namespace Vjezba.Model.Models
 
         public virtual Address Address { get; set; } = null!;
         public int Capacity { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public virtual ICollection<Package> StoredPackages { get; set; } = new List<Package>();
     }
 }

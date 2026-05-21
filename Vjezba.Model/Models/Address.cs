@@ -19,6 +19,8 @@ namespace Vjezba.Model.Models
         [Required]
         public string Country { get; set; } = string.Empty;
 
+        public DateTime? DeletedAt { get; set; }
+
         public virtual ICollection<Package> SentPackages { get; set; } = new List<Package>();
         public virtual ICollection<Package> ReceivedPackages { get; set; } = new List<Package>();
         public virtual ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();

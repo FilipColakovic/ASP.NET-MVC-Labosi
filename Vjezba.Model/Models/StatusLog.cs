@@ -17,6 +17,7 @@ namespace Vjezba.Model.Models
         public string Description { get; set; } = string.Empty;
         public PackageStatus PreviousStatus { get; set; }
         public PackageStatus NewStatus { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         [ForeignKey(nameof(Package))]
         public int PackageId { get; set; }

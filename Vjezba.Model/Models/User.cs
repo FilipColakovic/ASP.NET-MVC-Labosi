@@ -20,6 +20,7 @@ namespace Vjezba.Model.Models
         public string PhoneNumber { get; set; } = string.Empty;
 
         public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
+        public DateTime? DeletedAt { get; set; }
 
         public virtual ICollection<Package> SentPackages { get; set; } = new List<Package>();
         public virtual ICollection<Package> ReceivedPackages { get; set; } = new List<Package>();
