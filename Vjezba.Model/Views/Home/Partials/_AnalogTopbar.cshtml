@@ -1,3 +1,18 @@
+@{
+    var selectedType = (ViewData["SelectedType"]?.ToString() ?? "package").Trim().ToLowerInvariant();
+    var selectedTypeLabel = selectedType switch
+    {
+        "package" => "package",
+        "courier" => "courier",
+        "warehouse" => "warehouse",
+        "user" => "user",
+        "delivery" => "delivery",
+        "address" => "address",
+        "statuslog" => "status log",
+        _ => "item"
+    };
+}
+
 <header class="w-full sticky top-0 analog-topbar-surface backdrop-blur z-10">
     <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-6">
@@ -15,11 +30,11 @@
                 <input id="analog-manifest-search"
                        data-role="manifest-search"
                        class="bg-transparent border-none focus:ring-0 text-xs font-label uppercase tracking-wider w-full placeholder:text-stone-400"
-                       placeholder="Search manifest..."
+                       placeholder="Search @selectedTypeLabel..."
                        type="text"
                        autocomplete="off"
                        spellcheck="false"
-                       aria-label="Search manifest rows" />
+                       aria-label="Search @selectedTypeLabel rows" />
             </div>
             <button class="p-2 text-stone-600 hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
                 <span class="material-symbols-outlined">notifications</span>
@@ -43,10 +58,23 @@
             const tbody = table ? table.querySelector("tbody") : null;
             const thead = table ? table.querySelector("thead tr") : null;
             const selectedType = table ? table.getAttribute("data-selected-type") : "";
+            const typeLabels = {
+                package: "package",
+                courier: "courier",
+                warehouse: "warehouse",
+                user: "user",
+                delivery: "delivery",
+                address: "address",
+                statuslog: "status log"
+            };
+            const selectedTypeLabel = typeLabels[(selectedType || "").toLowerCase()] || "item";
+
+            searchInput.placeholder = `Search ${selectedTypeLabel}...`;
+            searchInput.setAttribute("aria-label", `Search ${selectedTypeLabel} rows`);
 
             if (!tbody || !selectedType) {
                 searchInput.disabled = true;
-                searchInput.placeholder = "No manifest to search";
+                searchInput.placeholder = "No data to search";
                 return;
             }
 
