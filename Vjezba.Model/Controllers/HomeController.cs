@@ -49,6 +49,14 @@ namespace Vjezba.Model.Controllers
             return View();
         }
 
+        [HttpGet("analytics")]
+        [HttpGet("reports/analytics")]
+        public IActionResult Analytics()
+        {
+            ViewData["SelectedType"] = "analytics";
+            return View(BuildOverviewModel());
+        }
+
         [HttpGet("objects/{type}/{id:int}")]
         [HttpGet("details/{type}/{id:int}")]
         public IActionResult Details(string type, int id)

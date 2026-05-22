@@ -49,6 +49,10 @@
             <span class="material-symbols-outlined">history</span>
             <span class="analog-sidebar-text">Status Logs</span>
         </a>
+        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "analytics" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Analytics" asp-controller="Home" title="Analytics">
+            <span class="material-symbols-outlined">monitoring</span>
+            <span class="analog-sidebar-text">Analytics</span>
+        </a>
     </nav>
 
     <div class="mt-auto space-y-1">

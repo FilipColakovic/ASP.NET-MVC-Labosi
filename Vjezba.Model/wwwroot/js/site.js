@@ -15,6 +15,32 @@
 	}
 
 	var storageKey = "analogSidebarCollapsed";
+	var storageEnabled = true;
+
+	function readStorageValue(key) {
+		if (!storageEnabled) {
+			return null;
+		}
+
+		try {
+			return window.localStorage.getItem(key);
+		} catch (error) {
+			storageEnabled = false;
+			return null;
+		}
+	}
+
+	function writeStorageValue(key, value) {
+		if (!storageEnabled) {
+			return;
+		}
+
+		try {
+			window.localStorage.setItem(key, value);
+		} catch (error) {
+			storageEnabled = false;
+		}
+	}
 
 	function applyState(collapsed) {
 		document.documentElement.classList.toggle("analog-sidebar-collapsed", collapsed);
@@ -25,13 +51,13 @@
 		toggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
 	}
 
-	var isCollapsed = window.localStorage.getItem(storageKey) === "1";
+	var isCollapsed = readStorageValue(storageKey) === "1";
 	applyState(isCollapsed);
 
 	toggle.addEventListener("click", function () {
 		isCollapsed = !isCollapsed;
 		applyState(isCollapsed);
-		window.localStorage.setItem(storageKey, isCollapsed ? "1" : "0");
+		writeStorageValue(storageKey, isCollapsed ? "1" : "0");
 	});
 })();
 
@@ -41,8 +67,11 @@
 		return;
 	}
 
-	var revealItems = unboxContainer.querySelectorAll("[data-hero-package-reveal]");
+	var revealItems = Array.prototype.slice.call(unboxContainer.querySelectorAll("[data-hero-package-reveal]"));
 	var revealToken = 0;
+	var requestFrame = window.requestAnimationFrame || function (callback) {
+		window.setTimeout(callback, 16);
+	};
 
 	function resetRevealItems() {
 		revealItems.forEach(function (item) {
@@ -73,7 +102,7 @@
 		unboxContainer.setAttribute("aria-hidden", "false");
 		resetRevealItems();
 		unboxContainer.classList.add("is-open");
-		window.requestAnimationFrame(revealItemsStaggered);
+		requestFrame(revealItemsStaggered);
 	}
 
 	function closePackage() {
@@ -98,7 +127,7 @@
 
 	unboxContainer.addEventListener("click", runUnboxAnimation);
 	unboxContainer.addEventListener("keydown", function (event) {
-		if (event.key === "Enter" || event.key === " ") {
+		if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
 			event.preventDefault();
 			runUnboxAnimation();
 		}
