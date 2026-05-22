@@ -1,9 +1,28 @@
-﻿@model Vjezba.Model.Models.ObjectOverviewViewModel
+@using System.Globalization
+@using Vjezba.Model.Enums
+@model Vjezba.Model.Models.PackageTrackingPageViewModel
+
 @{
     Layout = null;
-    ViewData["Title"] = "Package Hub - Management Console";
-    ViewData["Overview"] = Model;
-    var currentLang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    ViewData["Title"] = "Package Tracking";
+    ViewData["TopbarActive"] = "track";
+    ViewData["TopbarSearchPlaceholder"] = "Search package...";
+    var currentLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    string FormatStatus(PackageStatus status) => status switch
+    {
+        PackageStatus.PendingPickup => "Pending Pickup",
+        PackageStatus.PickedUp => "Picked Up",
+        PackageStatus.InTransit => "In Transit",
+        PackageStatus.OutForDelivery => "Out for Delivery",
+        PackageStatus.DeliveryFailed => "Delivery Failed",
+        PackageStatus.ReturnedToSender => "Returned to Sender",
+        _ => status.ToString()
+    };
+
+    string FormatDate(DateTime value) => value.ToLocalTime().ToString("yyyy.MM.dd HH:mm", CultureInfo.InvariantCulture);
+
+    var package = Model.Package;
 }
 
 <!DOCTYPE html>
@@ -12,54 +31,267 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
-    <script>
-        (function () {
-            try {
-                if (window.localStorage.getItem("analogSidebarCollapsed") === "1") {
-                    document.documentElement.classList.add("analog-sidebar-collapsed");
-                }
-            } catch (e) {
-            }
-        })();
-    </script>
-    <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/hr.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
-    <script src="~/js/site.js" asp-append-version="true" defer></script>
+    <style>
+        :root {
+            --surface: #fdf9f6;
+            --surface-container: #f1edea;
+            --surface-container-low: #f7f3f0;
+            --surface-container-high: #ebe7e4;
+            --outline: #d4c4b7;
+            --primary: #7d5231;
+            --secondary: #fe932c;
+            --on-surface: #1c1b1a;
+            --on-surface-variant: #62574d;
+            --error: #ba1a1a;
+            --success: #2f6f3e;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: radial-gradient(circle at top left, #fff7ef 0%, var(--surface) 45%, #f2eee8 100%);
+            color: var(--on-surface);
+        }
+
+        .headline-font {
+            font-family: "Work Sans", sans-serif;
+        }
+
+        .label-font {
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        .font-headline {
+            font-family: "Work Sans", sans-serif;
+        }
+
+        .font-label {
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        .paper-overlay {
+            background-image: linear-gradient(0deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)), url("https://lh3.googleusercontent.com/aida-public/AB6AXuB5hrkn7Z_7kE8RC_BnxywwUTpn7XKv1AcD3MvVdbLUpxunku8aKTE4n_wyaFeHpqzm_B4A5IfXUeKu0UhiMabdVUR1x0jT1__m6etH6AV6JfVux9VHnLbV5CBFswukrlRKN1KxaxIbUbPJAhhZzYGFYDqrhWbMmwaxO-dW3fc82Jnw8eYddeTD_WvHr7S8ujv1MuL3uoUtoIr8Fl3iJQdgkJe_GfIm8-I5mY4v4ass-zPLbmI3_3ikpzbk0oVJ8-BrJwJJvbYzY4Q");
+            background-size: 600px auto;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .tracking-unbox-shell {
+            width: 100%;
+            max-width: 100%;
+            min-height: 0;
+            padding: 1rem;
+            border-radius: 1.25rem;
+            cursor: default;
+        }
+
+        .tracking-unbox-shell:hover {
+            transform: none;
+        }
+
+        .tracking-unbox-content {
+            min-height: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .tracking-unbox-shell .hero-unbox-prompt {
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .tracking-unbox-shell .hero-unbox-prompt-text {
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+        }
+
+        .tracking-unbox-shell .hero-unbox-lid {
+            transition-duration: 2.82s;
+        }
+
+        .tracking-unbox-shell .hero-unbox-content {
+            transition: opacity 2.58s ease-out 0.22s, transform 2.58s ease-out 0.22s;
+        }
+
+        .tracking-unbox-shell.is-open .hero-unbox-scan {
+            animation-duration: 3.8s;
+        }
+    </style>
 </head>
-<body class="analog-shell-bg font-body text-on-surface flex min-h-screen">
-    <partial name="Partials/_AnalogSidebar" model="Model" />
+<body class="min-h-screen">
+    <partial name="Partials/_AnalogTopbar" />
 
-    <main class="index-canvas-bg flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <div class="absolute inset-0 grain-overlay"></div>
+    <main class="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-12 md:py-20">
+        <div class="paper-overlay absolute inset-0 -z-10 rounded-3xl"></div>
 
-        <partial name="Partials/_AnalogTopbar" />
+        <section class="mx-auto w-full max-w-3xl text-center">
+            <p class="label-font mb-3 text-xs uppercase tracking-[0.3em] text-[var(--primary)]">Shipment Tracking</p>
+            <h1 class="headline-font mb-5 text-4xl font-extrabold tracking-tight md:text-6xl">Track your package in real time</h1>
+            <p class="mx-auto max-w-2xl text-sm text-[var(--on-surface-variant)] md:text-base">
+                Enter a package tracking number to see the current status, route details, and latest scan events.
+            </p>
+        </section>
 
-        <div class="p-4 md:p-8 space-y-8 overflow-y-auto relative">
-            <partial name="Partials/_AnalogManifestSection" model="Model" />
-            <partial name="Partials/_AnalogInsights" model="Model" />
-        </div>
+        <section class="mx-auto w-full max-w-3xl rounded-2xl border border-[var(--outline)]/50 bg-[var(--surface-container)] p-3 shadow-sm">
+            <form method="get" asp-action="Index" asp-controller="Home" class="flex flex-col gap-3 md:flex-row">
+                <label class="sr-only" for="trackingInput">Tracking number</label>
+                <input id="trackingInput"
+                       name="trackingNumber"
+                       value="@Model.TrackingNumber"
+                       placeholder="Example: HR000001"
+                       class="label-font w-full rounded-xl border-0 bg-white px-5 py-4 text-base font-semibold uppercase tracking-[0.08em] text-[var(--primary)] placeholder:text-[var(--on-surface-variant)]/55 focus:ring-2 focus:ring-[var(--primary)]/25"
+                       autocomplete="off"
+                       spellcheck="false" />
+                <button type="submit" class="headline-font inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--secondary)] px-8 py-4 text-base font-bold text-[#663500] transition hover:brightness-105 active:opacity-80">
+                    <span>Track Package</span>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </form>
+            <p class="label-font mt-3 px-2 text-[11px] uppercase tracking-[0.22em] text-[var(--on-surface-variant)]/75">
+                Try seeded examples: HR000001, HR000010, HR000017
+            </p>
+        </section>
+
+        @if (Model.LookupAttempted)
+        {
+            @if (package is null)
+            {
+                <section class="mx-auto w-full max-w-3xl rounded-2xl border border-[var(--error)]/30 bg-[#ffe8e6] p-6">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-[var(--error)]">error</span>
+                        <div>
+                            <h2 class="headline-font text-xl font-bold text-[var(--error)]">Tracking number not found</h2>
+                            <p class="mt-2 text-sm text-[var(--on-surface-variant)]">@Model.ErrorMessage</p>
+                        </div>
+                    </div>
+                </section>
+            }
+            else
+            {
+                <section class="space-y-6">
+                    <div id="tracking-results-unbox" class="tracking-unbox-shell hero-unbox-container" data-hero-inert="true" aria-hidden="false">
+                            <div class="hero-unbox-lid hero-unbox-lid-left">
+                                <span class="material-symbols-outlined hero-unbox-lid-icon">inventory_2</span>
+                            </div>
+                            <div class="hero-unbox-lid hero-unbox-lid-right"></div>
+                            <div class="hero-unbox-scan"></div>
+
+                            <div class="hero-unbox-content tracking-unbox-content">
+                                <div id="tracking-results-panel" class="grid gap-6 lg:grid-cols-3">
+                                    <article class="rounded-2xl border border-[var(--outline)]/40 bg-[var(--surface-container-low)] p-6 lg:col-span-2">
+                                        <div class="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-[var(--outline)]/40 pb-4">
+                                            <div>
+                                                <p class="label-font text-[10px] uppercase tracking-[0.24em] text-[var(--on-surface-variant)]">Tracking Number</p>
+                                                <h2 class="label-font mt-1 text-2xl font-bold text-[var(--primary)]">@package.TrackingNumber</h2>
+                                            </div>
+                                            <span class="label-font rounded-md bg-[var(--primary)]/12 px-3 py-2 text-xs font-bold uppercase tracking-widest text-[var(--primary)]">
+                                                @FormatStatus(package.Status)
+                                            </span>
+                                        </div>
+
+                                        <ol class="space-y-4">
+                                            @if (Model.StatusHistory.Any())
+                                            {
+                                                @foreach (var log in Model.StatusHistory)
+                                                {
+                                                    <li class="rounded-xl border border-[var(--outline)]/35 bg-white p-4">
+                                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                                            <span class="label-font text-xs font-bold uppercase tracking-wider text-[var(--primary)]">@FormatStatus(log.NewStatus)</span>
+                                                            <span class="text-xs text-[var(--on-surface-variant)]">@FormatDate(log.TimeChanged)</span>
+                                                        </div>
+                                                        <p class="mt-2 text-sm font-semibold text-[var(--on-surface)]">@log.Location</p>
+                                                        <p class="mt-1 text-sm text-[var(--on-surface-variant)]">@log.Description</p>
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <li class="rounded-xl border border-[var(--outline)]/35 bg-white p-4">
+                                                    <p class="text-sm text-[var(--on-surface-variant)]">No status events are available for this package yet.</p>
+                                                </li>
+                                            }
+                                        </ol>
+                                    </article>
+
+                                    <aside class="space-y-4 rounded-2xl border border-[var(--outline)]/40 bg-[var(--surface-container-low)] p-6">
+                                        <h3 class="headline-font text-xl font-bold">Package Details</h3>
+                                        <dl class="space-y-4 text-sm">
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Current Status</dt>
+                                                <dd class="mt-1 font-semibold text-[var(--success)]">@FormatStatus(package.Status)</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Priority</dt>
+                                                <dd class="mt-1 font-semibold">@package.DeliveryPriority</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Weight</dt>
+                                                <dd class="mt-1 font-semibold">@package.WeightKg.ToString("0.##", CultureInfo.InvariantCulture) kg</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Origin</dt>
+                                                <dd class="mt-1 font-semibold">@package.SenderAddress.City, @package.SenderAddress.Country</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Destination</dt>
+                                                <dd class="mt-1 font-semibold">@package.RecipientAddress.City, @package.RecipientAddress.Country</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Courier</dt>
+                                                <dd class="mt-1 font-semibold">@package.Courier.FirstName @package.Courier.LastName</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Created</dt>
+                                                <dd class="mt-1 font-semibold">@FormatDate(package.CreatedAt)</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="label-font text-[10px] uppercase tracking-widest text-[var(--on-surface-variant)]">Delivered At</dt>
+                                                <dd class="mt-1 font-semibold">@(package.DeliveredAt.HasValue ? FormatDate(package.DeliveredAt.Value) : "Not delivered yet")</dd>
+                                            </div>
+                                        </dl>
+                                    </aside>
+                                </div>
+                            </div>
+
+                            <div class="hero-unbox-prompt">
+                                <span class="material-symbols-outlined hero-unbox-prompt-icon">inventory_2</span>
+                                <span class="hero-unbox-prompt-text">Opening package data</span>
+                            </div>
+                        </div>
+                </section>
+            }
+        }
     </main>
 
-    <partial name="Partials/_AnalogFab" />
-    <partial name="Partials/Create/_UserCreateModal" model="new Vjezba.Model.Models.UserCreateViewModel()" />
-    <partial name="Partials/Edit/_UserEditModal" model="new Vjezba.Model.Models.UserEditViewModel()" />
-    <partial name="Partials/Create/_CourierCreateModal" model="new Vjezba.Model.Models.CourierCreateViewModel()" />
-    <partial name="Partials/Edit/_CourierEditModal" model="new Vjezba.Model.Models.CourierEditViewModel()" />
-    <partial name="Partials/Create/_WarehouseCreateModal" model="new Vjezba.Model.Models.WarehouseCreateViewModel()" />
-    <partial name="Partials/Edit/_WarehouseEditModal" model="new Vjezba.Model.Models.WarehouseEditViewModel()" />
-    <partial name="Partials/Create/_DeliveryCreateModal" model="new Vjezba.Model.Models.DeliveryCreateViewModel()" />
-    <partial name="Partials/Edit/_DeliveryEditModal" model="new Vjezba.Model.Models.DeliveryEditViewModel()" />
-    <partial name="Partials/Create/_AddressCreateModal" model="new Vjezba.Model.Models.AddressCreateViewModel()" />
-    <partial name="Partials/Edit/_AddressEditModal" model="new Vjezba.Model.Models.AddressEditViewModel()" />
-    <partial name="Partials/Create/_PackageCreateModal" model="new Vjezba.Model.Models.PackageCreateViewModel()" />
-    <partial name="Partials/Edit/_PackageEditModal" model="new Vjezba.Model.Models.PackageEditViewModel()" />
-    <partial name="Partials/Create/_StatusLogCreateModal" model="new Vjezba.Model.Models.StatusLogCreateViewModel()" />
-    <partial name="Partials/Edit/_StatusLogEditModal" model="new Vjezba.Model.Models.StatusLogEditViewModel()" />
+    <script>
+        (() => {
+            const input = document.getElementById("trackingInput");
+            if (!input) return;
+
+            input.addEventListener("blur", () => {
+                input.value = (input.value || "").trim().toUpperCase();
+            });
+
+            const unboxContainer = document.getElementById("tracking-results-unbox");
+            if (!unboxContainer) {
+                return;
+            }
+
+            const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            if (prefersReducedMotion) {
+                unboxContainer.classList.add("is-open");
+                return;
+            }
+
+            window.setTimeout(() => {
+                unboxContainer.classList.add("is-open");
+            }, 120);
+        })();
+    </script>
 </body>
 </html>

@@ -28,9 +28,17 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("/")]
+        [HttpGet("track")]
+        public IActionResult Index(string? trackingNumber)
+        {
+            ViewData["SelectedType"] = "tracking";
+            return View(BuildTrackingPageModel(trackingNumber));
+        }
+
+        [HttpGet("manifest/{selectedType?}")]
         [HttpGet("dashboard/{selectedType?}")]
         [HttpGet("hub/{selectedType?}")]
-        public IActionResult Index(string? selectedType)
+        public IActionResult Manifest(string? selectedType)
         {
             var normalized = NormalizeType(selectedType);
             if (!OverviewTypes.Contains(normalized))
@@ -39,7 +47,7 @@ namespace Vjezba.Model.Controllers
             }
 
             ViewData["SelectedType"] = normalized;
-            return View(BuildOverviewModel());
+            return View("Manifest", BuildOverviewModel());
         }
 
         [HttpGet("policy/privacy")]
@@ -136,6 +144,36 @@ namespace Vjezba.Model.Controllers
                     .OrderByDescending(x => x.TimeChanged)
                     .ToList()
             };
+        }
+
+        private PackageTrackingPageViewModel BuildTrackingPageModel(string? trackingNumber)
+        {
+            var normalizedTrackingNumber = (trackingNumber ?? string.Empty).Trim().ToUpperInvariant();
+            var model = new PackageTrackingPageViewModel
+            {
+                TrackingNumber = normalizedTrackingNumber
+            };
+
+            if (string.IsNullOrWhiteSpace(normalizedTrackingNumber))
+            {
+                return model;
+            }
+
+            var package = LoadPackageDetailsGraph(_context.Packages.AsNoTracking())
+                .FirstOrDefault(x => EF.Functions.Like(x.TrackingNumber, normalizedTrackingNumber));
+
+            model.LookupAttempted = true;
+            if (package is null)
+            {
+                model.ErrorMessage = $"No package found for tracking number '{normalizedTrackingNumber}'.";
+                return model;
+            }
+
+            model.Package = package;
+            model.StatusHistory = package.StatusHistory
+                .OrderByDescending(x => x.TimeChanged)
+                .ToList();
+            return model;
         }
 
         private IObjectDetailsPageViewModel? BuildDetailsModel(string normalizedType, int id)

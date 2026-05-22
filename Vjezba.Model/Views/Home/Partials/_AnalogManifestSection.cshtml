@@ -6,70 +6,14 @@
     var inTransitCount = Model.Packages.Count(p => p.Status == PackageStatus.InTransit || p.Status == PackageStatus.OutForDelivery);
     var deliveredTodayCount = Model.Packages.Count(p => p.DeliveredAt.HasValue && p.DeliveredAt.Value.Date == DateTime.UtcNow.Date);
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
-    var heroPackage = Model.Packages.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-    var heroTracking = heroPackage?.TrackingNumber ?? "PKG-N/A";
-    var heroStatus = heroPackage?.Status.ToString() ?? "No Data";
-    var heroPriority = heroPackage?.DeliveryPriority.ToString() ?? "-";
-    var heroWeight = heroPackage is null
-        ? "-"
-        : $"{heroPackage.WeightKg.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} kg";
-    var heroOrigin = heroPackage?.SenderAddress is null
-        ? "Unknown"
-        : $"{heroPackage.SenderAddress.City}, {heroPackage.SenderAddress.Country}";
-    var heroDestination = heroPackage?.RecipientAddress is null
-        ? "Unknown"
-        : $"{heroPackage.RecipientAddress.City}, {heroPackage.RecipientAddress.Country}";
-    var heroPrompt = heroPackage is null ? "No active package" : "Tap to scan and unbox";
 }
 
 <div class="grid grid-cols-12 gap-6 items-center rise-in">
-    <div class="col-span-12 lg:col-span-5">
+    <div class="col-span-12 lg:col-span-6">
         <h2 class="font-headline font-extrabold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Live Manifest Index</h2>
         <p class="font-label text-sm text-on-surface-variant uppercase tracking-widest opacity-70">Region: Croatia</p>
     </div>
-    <div class="col-span-12 lg:col-span-3 flex justify-center">
-        <div class="hero-package-stage">
-            <div class="hero-unbox-container" data-hero-package role="button" tabindex="0" aria-label="Open package animation">
-                <div class="hero-unbox-lid hero-unbox-lid-left">
-                    <span class="material-symbols-outlined hero-unbox-lid-icon">qr_code_scanner</span>
-                </div>
-                <div class="hero-unbox-lid hero-unbox-lid-right"></div>
-                <div class="hero-unbox-scan"></div>
-
-                <div class="hero-unbox-content">
-                    <div class="hero-unbox-header" data-hero-package-reveal>
-                        <span class="hero-unbox-label">Manifest</span>
-                        <span class="hero-unbox-status">@heroStatus</span>
-                    </div>
-
-                    <div class="hero-unbox-tracking" data-hero-package-reveal>@heroTracking</div>
-
-                    <div class="hero-unbox-stats" data-hero-package-reveal>
-                        <div class="hero-unbox-stat">
-                            <span class="hero-unbox-stat-label">Weight</span>
-                            <span class="hero-unbox-stat-value">@heroWeight</span>
-                        </div>
-                        <div class="hero-unbox-stat">
-                            <span class="hero-unbox-stat-label">Priority</span>
-                            <span class="hero-unbox-stat-value">@heroPriority</span>
-                        </div>
-                    </div>
-
-                    <div class="hero-unbox-route" data-hero-package-reveal>
-                        <span class="hero-unbox-city">@heroOrigin</span>
-                        <span class="material-symbols-outlined hero-unbox-route-arrow">arrow_right_alt</span>
-                        <span class="hero-unbox-city">@heroDestination</span>
-                    </div>
-                </div>
-
-                <div class="hero-unbox-prompt">
-                    <span class="material-symbols-outlined hero-unbox-prompt-icon">inventory_2</span>
-                    <span class="hero-unbox-prompt-text">@heroPrompt</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-span-12 lg:col-span-4 flex lg:justify-end flex-wrap gap-4">
+    <div class="col-span-12 lg:col-span-6 flex lg:justify-end flex-wrap gap-4">
         <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Active Parcels</span>
             <span class="font-headline font-bold text-2xl text-primary">@Model.Packages.Count</span>

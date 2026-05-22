@@ -6,6 +6,8 @@
     Layout = null;
     ViewData["Title"] = "Package Hub | Analytics";
     ViewData["SelectedType"] = "analytics";
+    ViewData["TopbarActive"] = "analytics";
+    ViewData["TopbarSearchPlaceholder"] = "Search package...";
     var currentLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
     var nowUtc = DateTime.UtcNow;
@@ -123,29 +125,7 @@
     <main class="index-canvas-bg flex-1 flex flex-col min-w-0 relative overflow-hidden">
         <div class="absolute inset-0 grain-overlay"></div>
 
-        <header class="w-full sticky top-0 z-30 analog-topbar-surface px-4 md:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex items-center gap-3 md:gap-5">
-                <span class="font-label text-[10px] uppercase tracking-[0.3em] text-primary">Control Center</span>
-                <span class="w-px h-4 bg-outline-variant/40 hidden md:block"></span>
-                <span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Node: HQ-CENTRAL-01</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="flex items-center analog-search-shell rounded-full px-3 py-2 w-full sm:w-64">
-                    <span class="material-symbols-outlined text-primary text-[20px]">search</span>
-                    <input class="bg-transparent border-none focus:ring-0 text-xs font-label uppercase tracking-wider w-full placeholder:text-on-surface-variant/60" placeholder="Search analytics..." type="text" />
-                </div>
-                <button class="p-2 text-primary hover:bg-surface-container-highest rounded-full transition-colors" type="button">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <button class="p-2 text-primary hover:bg-surface-container-highest rounded-full transition-colors" type="button">
-                    <span class="material-symbols-outlined">settings</span>
-                </button>
-                <a class="inline-flex items-center gap-2 rounded-md bg-primary text-on-primary px-3 py-2 text-[10px] font-label uppercase tracking-widest font-bold hover:brightness-110 transition-all" asp-action="Index" asp-controller="Home" asp-route-selectedType="package">
-                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
-                    Manifest
-                </a>
-            </div>
-        </header>
+        <partial name="Partials/_AnalogTopbar" />
 
         <div class="relative z-10 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-8 overflow-y-auto">
             <section class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">

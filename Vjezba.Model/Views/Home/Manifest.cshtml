@@ -1,0 +1,67 @@
+﻿@model Vjezba.Model.Models.ObjectOverviewViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Package Hub - Management Console";
+    ViewData["Overview"] = Model;
+    ViewData["TopbarActive"] = "manifest";
+    ViewData["TopbarSearchPlaceholder"] = "Search package...";
+    var currentLang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+}
+
+<!DOCTYPE html>
+<html class="light" lang="@currentLang">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <script>
+        (function () {
+            try {
+                if (window.localStorage.getItem("analogSidebarCollapsed") === "1") {
+                    document.documentElement.classList.add("analog-sidebar-collapsed");
+                }
+            } catch (e) {
+            }
+        })();
+    </script>
+    <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/hr.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+</head>
+<body class="analog-shell-bg font-body text-on-surface flex min-h-screen">
+    <partial name="Partials/_AnalogSidebar" model="Model" />
+
+    <main class="index-canvas-bg flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <div class="absolute inset-0 grain-overlay"></div>
+
+        <partial name="Partials/_AnalogTopbar" />
+
+        <div class="p-4 md:p-8 space-y-8 overflow-y-auto relative">
+            <partial name="Partials/_AnalogManifestSection" model="Model" />
+            <partial name="Partials/_AnalogInsights" model="Model" />
+        </div>
+    </main>
+
+    <partial name="Partials/_AnalogFab" />
+    <partial name="Partials/Create/_UserCreateModal" model="new Vjezba.Model.Models.UserCreateViewModel()" />
+    <partial name="Partials/Edit/_UserEditModal" model="new Vjezba.Model.Models.UserEditViewModel()" />
+    <partial name="Partials/Create/_CourierCreateModal" model="new Vjezba.Model.Models.CourierCreateViewModel()" />
+    <partial name="Partials/Edit/_CourierEditModal" model="new Vjezba.Model.Models.CourierEditViewModel()" />
+    <partial name="Partials/Create/_WarehouseCreateModal" model="new Vjezba.Model.Models.WarehouseCreateViewModel()" />
+    <partial name="Partials/Edit/_WarehouseEditModal" model="new Vjezba.Model.Models.WarehouseEditViewModel()" />
+    <partial name="Partials/Create/_DeliveryCreateModal" model="new Vjezba.Model.Models.DeliveryCreateViewModel()" />
+    <partial name="Partials/Edit/_DeliveryEditModal" model="new Vjezba.Model.Models.DeliveryEditViewModel()" />
+    <partial name="Partials/Create/_AddressCreateModal" model="new Vjezba.Model.Models.AddressCreateViewModel()" />
+    <partial name="Partials/Edit/_AddressEditModal" model="new Vjezba.Model.Models.AddressEditViewModel()" />
+    <partial name="Partials/Create/_PackageCreateModal" model="new Vjezba.Model.Models.PackageCreateViewModel()" />
+    <partial name="Partials/Edit/_PackageEditModal" model="new Vjezba.Model.Models.PackageEditViewModel()" />
+    <partial name="Partials/Create/_StatusLogCreateModal" model="new Vjezba.Model.Models.StatusLogCreateViewModel()" />
+    <partial name="Partials/Edit/_StatusLogEditModal" model="new Vjezba.Model.Models.StatusLogEditViewModel()" />
+</body>
+</html>

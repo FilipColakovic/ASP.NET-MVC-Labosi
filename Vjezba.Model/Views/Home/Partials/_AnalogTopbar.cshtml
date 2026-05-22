@@ -1,6 +1,9 @@
 @{
     var selectedType = (ViewData["SelectedType"]?.ToString() ?? "package").Trim().ToLowerInvariant();
-    var selectedTypeLabel = selectedType switch
+    var topbarActive = (ViewData["TopbarActive"]?.ToString() ?? "track").Trim().ToLowerInvariant();
+    var searchPlaceholder = ViewData["TopbarSearchPlaceholder"]?.ToString() ?? "Search package...";
+    var isManifestTopbar = topbarActive == "manifest";
+    var manifestSelectedType = selectedType switch
     {
         "package" => "package",
         "courier" => "courier",
@@ -8,184 +11,200 @@
         "user" => "user",
         "delivery" => "delivery",
         "address" => "address",
-        "statuslog" => "status log",
-        _ => "item"
+        "statuslog" => "statuslog",
+        _ => "package"
     };
 }
 
-<header class="w-full sticky top-0 analog-topbar-surface backdrop-blur z-10">
-    <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex items-center gap-6">
-            <span class="font-headline font-extrabold tracking-widest text-lg md:text-xl text-[#7a4c2b] uppercase">Package Hub</span>
-            <nav class="hidden md:flex space-x-6">
-                <a class="text-[#7a4c2b] border-b-2 border-[#7a4c2b] font-label text-xs uppercase tracking-widest py-1" href="#">Overview</a>
-                <a class="text-[#1f1d1b] hover:bg-[#e5e2df] transition-colors font-label text-xs uppercase tracking-widest py-1" href="#manifest">Manifests</a>
-                <a class="text-[#1f1d1b] hover:bg-[#e5e2df] transition-colors font-label text-xs uppercase tracking-widest py-1" asp-action="Analytics" asp-controller="Home">Analytics</a>
-            </nav>
-        </div>
+<header class="w-full sticky top-0 z-30 border-b border-[#d8d3ce] bg-[#ece9e6]/95 backdrop-blur-md">
+    <div class="px-4 md:px-6 xl:px-8 py-4 flex items-center gap-3 lg:gap-5">
+        <a asp-action="Index"
+           asp-controller="Home"
+           class="font-headline font-extrabold tracking-[0.12em] text-lg lg:text-2xl xl:text-3xl text-[#7a4c2b] uppercase whitespace-nowrap shrink-0">
+            Package Hub
+        </a>
 
-        <div class="flex items-center space-x-3">
-            <div class="hidden sm:flex items-center analog-search-shell rounded-lg px-3 py-2 w-56 md:w-64">
-                <span class="material-symbols-outlined text-stone-500 text-sm">search</span>
-                <input id="analog-manifest-search"
-                       data-role="manifest-search"
-                       class="bg-transparent border-none focus:ring-0 text-xs font-label uppercase tracking-wider w-full placeholder:text-stone-400"
-                       placeholder="Search @selectedTypeLabel..."
+        <nav class="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-7 min-w-0 flex-1 overflow-hidden">
+            <a asp-action="Index"
+               asp-controller="Home"
+               class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "track" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
+                Track
+            </a>
+            <a asp-action="Manifest"
+               asp-controller="Home"
+               asp-route-selectedType="@manifestSelectedType"
+               class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "manifest" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
+                Manifests
+            </a>
+            <a asp-action="Analytics"
+               asp-controller="Home"
+               class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "analytics" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
+                Analytics
+            </a>
+        </nav>
+
+        <div class="flex items-center gap-1 sm:gap-2 lg:gap-3 xl:gap-4 shrink-0">
+            <div class="hidden lg:flex items-center gap-2 rounded-xl border border-[#cdc7c1] bg-[#d8d3ce]/65 px-3 py-2 w-56 xl:w-72">
+                <span class="material-symbols-outlined text-[#73695f] text-[18px]">search</span>
+                <input id="@(isManifestTopbar ? "analog-manifest-search" : "analog-global-search")"
+                       class="w-full min-w-0 bg-transparent border-none p-0 focus:ring-0 font-label text-xs uppercase tracking-[0.08em] text-[#5f554b] placeholder:text-[#8f857b]"
+                       placeholder="@searchPlaceholder"
                        type="text"
                        autocomplete="off"
                        spellcheck="false"
-                       aria-label="Search @selectedTypeLabel rows" />
+                       aria-label="@searchPlaceholder" />
             </div>
-            <button class="p-2 text-stone-600 hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
+            <button class="p-2 text-[#6a5e53] hover:text-[#7a4c2b] transition-colors rounded-full" type="button" aria-label="Notifications">
                 <span class="material-symbols-outlined">notifications</span>
             </button>
-            <button class="p-2 text-stone-600 hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
+            <button class="p-2 text-[#6a5e53] hover:text-[#7a4c2b] transition-colors rounded-full" type="button" aria-label="Settings">
                 <span class="material-symbols-outlined">settings</span>
             </button>
-            <div class="w-8 h-8 rounded-full border border-outline-variant/20 bg-primary-container"></div>
+            <div class="hidden sm:block h-10 w-10 rounded-full border border-[#d3cdc6] bg-[#e7e3df]"></div>
         </div>
     </div>
 </header>
 
-<script>
-    (() => {
-        const initManifestSearch = () => {
-            const searchInput = document.getElementById("analog-manifest-search");
-            if (!searchInput) return;
+@if (isManifestTopbar)
+{
+    <script>
+        (() => {
+            const initManifestSearch = () => {
+                const searchInput = document.getElementById("analog-manifest-search");
+                if (!searchInput) return;
 
-            const manifest = document.getElementById("manifest");
-            const table = manifest ? manifest.querySelector("table[data-selected-type]") : null;
-            const tbody = table ? table.querySelector("tbody") : null;
-            const thead = table ? table.querySelector("thead tr") : null;
-            const selectedType = table ? table.getAttribute("data-selected-type") : "";
-            const typeLabels = {
-                package: "package",
-                courier: "courier",
-                warehouse: "warehouse",
-                user: "user",
-                delivery: "delivery",
-                address: "address",
-                statuslog: "status log"
+                const manifest = document.getElementById("manifest");
+                const table = manifest ? manifest.querySelector("table[data-selected-type]") : null;
+                const tbody = table ? table.querySelector("tbody") : null;
+                const thead = table ? table.querySelector("thead tr") : null;
+                const selectedType = table ? table.getAttribute("data-selected-type") : "";
+                const typeLabels = {
+                    package: "package",
+                    courier: "courier",
+                    warehouse: "warehouse",
+                    user: "user",
+                    delivery: "delivery",
+                    address: "address",
+                    statuslog: "status log"
+                };
+                const selectedTypeLabel = typeLabels[(selectedType || "").toLowerCase()] || "item";
+
+                searchInput.placeholder = `Search ${selectedTypeLabel}...`;
+                searchInput.setAttribute("aria-label", `Search ${selectedTypeLabel} rows`);
+
+                if (!tbody || !selectedType) {
+                    return;
+                }
+
+                const normalize = (value) => (value || "").toString().toUpperCase().replace(/[^A-Z0-9]/g, "");
+                const isSubsequence = (needle, haystack) => {
+                    if (!needle) return true;
+                    let index = 0;
+                    for (let i = 0; i < haystack.length && index < needle.length; i++) {
+                        if (haystack[i] === needle[index]) index++;
+                    }
+                    return index === needle.length;
+                };
+
+                const fuzzyMatch = (query, candidate) => {
+                    if (!query) return true;
+                    if (candidate.includes(query)) return true;
+                    return isSubsequence(query, candidate);
+                };
+
+                const applyClientFallback = (query) => {
+                    const rows = getRows();
+                    let visibleCount = 0;
+
+                    rows.forEach((row) => {
+                        const rowText = normalize(row.textContent || "");
+                        const matched = fuzzyMatch(query, rowText);
+                        row.style.display = matched ? "" : "none";
+                        if (matched) visibleCount++;
+                    });
+
+                    noResultsRow.style.display = visibleCount === 0 ? "" : "none";
+                };
+
+                let noResultsRow = document.getElementById("manifest-search-empty");
+                if (!noResultsRow) {
+                    noResultsRow = document.createElement("tr");
+                    noResultsRow.id = "manifest-search-empty";
+                    noResultsRow.style.display = "none";
+
+                    const cell = document.createElement("td");
+                    cell.colSpan = thead ? thead.querySelectorAll("th").length : 5;
+                    cell.className = "px-6 py-8 text-center text-on-surface-variant font-label text-xs uppercase tracking-widest";
+                    cell.textContent = "No rows match your search.";
+
+                    noResultsRow.appendChild(cell);
+                    tbody.appendChild(noResultsRow);
+                }
+
+                const getRows = () =>
+                    Array.from(tbody.querySelectorAll("tr[data-row-id]"));
+
+                const applyVisibilityFromIds = (ids) => {
+                    const rows = getRows();
+                    const visibleIdSet = new Set(ids.map((id) => id.toString()));
+                    let visibleCount = 0;
+
+                    rows.forEach((row) => {
+                        const rowId = row.getAttribute("data-row-id") || "";
+                        const matched = visibleIdSet.has(rowId);
+                        row.style.display = matched ? "" : "none";
+                        if (matched) visibleCount++;
+                    });
+
+                    noResultsRow.style.display = visibleCount === 0 ? "" : "none";
+                };
+
+                let debounceHandle = 0;
+                let latestRequestId = 0;
+
+                const applyFilter = () => {
+                    window.clearTimeout(debounceHandle);
+                    debounceHandle = window.setTimeout(async () => {
+                        const requestId = ++latestRequestId;
+                        const query = searchInput.value || "";
+                        const normalizedQuery = normalize(query);
+
+                        try {
+                            const url = `/manifest/search?selectedType=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(query)}`;
+                            const response = await fetch(url, {
+                                headers: {
+                                    "X-Requested-With": "XMLHttpRequest"
+                                }
+                            });
+
+                            if (!response.ok) {
+                                throw new Error("Manifest search failed.");
+                            }
+
+                            const payload = await response.json();
+                            if (requestId !== latestRequestId) {
+                                return;
+                            }
+
+                            const ids = payload && Array.isArray(payload.ids) ? payload.ids : [];
+                            applyVisibilityFromIds(ids);
+                        } catch (error) {
+                            // Fallback to client filtering if AJAX search is unavailable.
+                            applyClientFallback(normalizedQuery);
+                        }
+                    }, 180);
+                };
+
+                searchInput.addEventListener("input", applyFilter);
+                applyFilter();
             };
-            const selectedTypeLabel = typeLabels[(selectedType || "").toLowerCase()] || "item";
 
-            searchInput.placeholder = `Search ${selectedTypeLabel}...`;
-            searchInput.setAttribute("aria-label", `Search ${selectedTypeLabel} rows`);
-
-            if (!tbody || !selectedType) {
-                searchInput.disabled = true;
-                searchInput.placeholder = "No data to search";
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", initManifestSearch, { once: true });
                 return;
             }
 
-            const normalize = (value) => (value || "").toString().toUpperCase().replace(/[^A-Z0-9]/g, "");
-            const isSubsequence = (needle, haystack) => {
-                if (!needle) return true;
-                let index = 0;
-                for (let i = 0; i < haystack.length && index < needle.length; i++) {
-                    if (haystack[i] === needle[index]) index++;
-                }
-                return index === needle.length;
-            };
-
-            const fuzzyMatch = (query, candidate) => {
-                if (!query) return true;
-                if (candidate.includes(query)) return true;
-                return isSubsequence(query, candidate);
-            };
-
-            const applyClientFallback = (query) => {
-                const rows = getRows();
-                let visibleCount = 0;
-
-                rows.forEach((row) => {
-                    const rowText = normalize(row.textContent || "");
-                    const matched = fuzzyMatch(query, rowText);
-                    row.style.display = matched ? "" : "none";
-                    if (matched) visibleCount++;
-                });
-
-                noResultsRow.style.display = visibleCount === 0 ? "" : "none";
-            };
-
-            let noResultsRow = document.getElementById("manifest-search-empty");
-            if (!noResultsRow) {
-                noResultsRow = document.createElement("tr");
-                noResultsRow.id = "manifest-search-empty";
-                noResultsRow.style.display = "none";
-
-                const cell = document.createElement("td");
-                cell.colSpan = thead ? thead.querySelectorAll("th").length : 5;
-                cell.className = "px-6 py-8 text-center text-on-surface-variant font-label text-xs uppercase tracking-widest";
-                cell.textContent = "No rows match your search.";
-
-                noResultsRow.appendChild(cell);
-                tbody.appendChild(noResultsRow);
-            }
-
-            const getRows = () =>
-                Array.from(tbody.querySelectorAll("tr[data-row-id]"));
-
-            const applyVisibilityFromIds = (ids) => {
-                const rows = getRows();
-                const visibleIdSet = new Set(ids.map((id) => id.toString()));
-                let visibleCount = 0;
-
-                rows.forEach((row) => {
-                    const rowId = row.getAttribute("data-row-id") || "";
-                    const matched = visibleIdSet.has(rowId);
-                    row.style.display = matched ? "" : "none";
-                    if (matched) visibleCount++;
-                });
-
-                noResultsRow.style.display = visibleCount === 0 ? "" : "none";
-            };
-
-            let debounceHandle = 0;
-            let latestRequestId = 0;
-
-            const applyFilter = () => {
-                window.clearTimeout(debounceHandle);
-                debounceHandle = window.setTimeout(async () => {
-                    const requestId = ++latestRequestId;
-                    const query = searchInput.value || "";
-                    const normalizedQuery = normalize(query);
-
-                    try {
-                        const url = `/manifest/search?selectedType=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(query)}`;
-                        const response = await fetch(url, {
-                            headers: {
-                                "X-Requested-With": "XMLHttpRequest"
-                            }
-                        });
-
-                        if (!response.ok) {
-                            throw new Error("Manifest search failed.");
-                        }
-
-                        const payload = await response.json();
-                        if (requestId !== latestRequestId) {
-                            return;
-                        }
-
-                        const ids = payload && Array.isArray(payload.ids) ? payload.ids : [];
-                        applyVisibilityFromIds(ids);
-                    } catch (error) {
-                        // Fallback to client filtering if AJAX search is unavailable.
-                        applyClientFallback(normalizedQuery);
-                    }
-                }, 180);
-            };
-
-            searchInput.addEventListener("input", applyFilter);
-            applyFilter();
-        };
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", initManifestSearch, { once: true });
-            return;
-        }
-
-        initManifestSearch();
-    })();
-</script>
+            initManifestSearch();
+        })();
+    </script>
+}
