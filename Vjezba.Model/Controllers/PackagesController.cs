@@ -29,7 +29,7 @@ namespace Vjezba.Model.Controllers
             package.DeletedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Home", new { selectedType = "package" });
+            return RedirectToAction("Manifest", "Home", new { selectedType = "package" });
         }
 
         [HttpPost("create")]

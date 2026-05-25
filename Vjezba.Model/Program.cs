@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.IO;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,8 +9,14 @@ using Vjezba.Model.Data;
 using Vjezba.Model.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 var dbDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(dbDirectory);
+var dataProtectionKeyDirectory = Path.Combine(dbDirectory, "DataProtection-Keys");
+Directory.CreateDirectory(dataProtectionKeyDirectory);
 var dbPath = Path.Combine(dbDirectory, "vjezba.db");
 var configuredConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 var sqliteConnection = string.IsNullOrWhiteSpace(configuredConnection)
@@ -22,6 +30,9 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(sqliteConnection));
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyDirectory))
+    .SetApplicationName("Vjezba.Model");
 
 builder.Services
     .AddDefaultIdentity<AppUser>(options =>

@@ -40,7 +40,7 @@ namespace Vjezba.Model.Controllers
         [HttpGet("manifest/{selectedType?}")]
         [HttpGet("dashboard/{selectedType?}")]
         [HttpGet("hub/{selectedType?}")]
-        [AllowAnonymous]
+        [Authorize]
         public IActionResult Manifest(string? selectedType)
         {
             var normalized = NormalizeType(selectedType);
@@ -63,7 +63,7 @@ namespace Vjezba.Model.Controllers
 
         [HttpGet("analytics")]
         [HttpGet("reports/analytics")]
-        [AllowAnonymous]
+        [Authorize]
         public IActionResult Analytics()
         {
             ViewData["SelectedType"] = "analytics";
@@ -88,7 +88,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("manifest/search")]
-        [AllowAnonymous]
+        [Authorize]
         public IActionResult ManifestSearch(string selectedType, string? q)
         {
             var normalizedType = NormalizeType(selectedType);
@@ -110,7 +110,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("autocomplete/{source}")]
-        [AllowAnonymous]
+        [Authorize]
         public IActionResult Autocomplete(string source, string? q, int take = 20)
         {
             var normalizedSource = NormalizeType(source);

@@ -129,7 +129,7 @@ namespace Vjezba.Model.Data
 
         public static async Task SeedAsync(AppDbContext context)
         {
-            if (!await context.Couriers.AnyAsync())
+            if (!await context.Couriers.IgnoreQueryFilters().AnyAsync())
             {
                 var seedData = SeedDataFactory.Create();
 
@@ -175,7 +175,10 @@ namespace Vjezba.Model.Data
             if (totalToAdd > 0)
             {
                 var existingTrackingNumbers = new HashSet<string>(
-                    await context.Packages.Select(p => p.TrackingNumber).ToListAsync(),
+                    await context.Packages
+                        .IgnoreQueryFilters()
+                        .Select(p => p.TrackingNumber)
+                        .ToListAsync(),
                     StringComparer.OrdinalIgnoreCase);
 
                 var statuses = new[]

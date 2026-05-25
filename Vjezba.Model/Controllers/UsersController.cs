@@ -29,7 +29,7 @@ namespace Vjezba.Model.Controllers
             user.DeletedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Home", new { selectedType = "user" });
+            return RedirectToAction("Manifest", "Home", new { selectedType = "user" });
         }
 
         [HttpPost("create")]

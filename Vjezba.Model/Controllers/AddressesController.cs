@@ -28,7 +28,7 @@ namespace Vjezba.Model.Controllers
             address.DeletedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Home", new { selectedType = "address" });
+            return RedirectToAction("Manifest", "Home", new { selectedType = "address" });
         }
 
         [HttpPost("create")]

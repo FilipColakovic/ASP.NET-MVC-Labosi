@@ -32,17 +32,20 @@
                class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "track" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
                 Track
             </a>
-            <a asp-action="Manifest"
-               asp-controller="Home"
-               asp-route-selectedType="@manifestSelectedType"
-               class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "manifest" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
-                Manifests
-            </a>
-            <a asp-action="Analytics"
-               asp-controller="Home"
-               class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "analytics" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
-                Analytics
-            </a>
+            @if (isAuthenticated)
+            {
+                <a asp-action="Manifest"
+                   asp-controller="Home"
+                   asp-route-selectedType="@manifestSelectedType"
+                   class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "manifest" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
+                    Manifests
+                </a>
+                <a asp-action="Analytics"
+                   asp-controller="Home"
+                   class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "analytics" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
+                    Analytics
+                </a>
+            }
         </nav>
 
         <div class="flex items-center gap-1 sm:gap-2 lg:gap-3 xl:gap-4 shrink-0">

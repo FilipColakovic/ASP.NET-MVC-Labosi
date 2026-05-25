@@ -28,7 +28,7 @@ namespace Vjezba.Model.Controllers
             statusLog.DeletedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Home", new { selectedType = "statuslog" });
+            return RedirectToAction("Manifest", "Home", new { selectedType = "statuslog" });
         }
 
         [HttpPost("create")]
