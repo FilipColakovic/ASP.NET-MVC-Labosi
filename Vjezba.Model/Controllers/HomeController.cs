@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Data;
@@ -29,6 +30,7 @@ namespace Vjezba.Model.Controllers
 
         [HttpGet("/")]
         [HttpGet("track")]
+        [AllowAnonymous]
         public IActionResult Index(string? trackingNumber)
         {
             ViewData["SelectedType"] = "tracking";
@@ -38,6 +40,7 @@ namespace Vjezba.Model.Controllers
         [HttpGet("manifest/{selectedType?}")]
         [HttpGet("dashboard/{selectedType?}")]
         [HttpGet("hub/{selectedType?}")]
+        [AllowAnonymous]
         public IActionResult Manifest(string? selectedType)
         {
             var normalized = NormalizeType(selectedType);
@@ -51,6 +54,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("policy/privacy")]
+        [AllowAnonymous]
         public IActionResult Privacy()
         {
             ViewData["SelectedType"] = "privacy";
@@ -59,6 +63,7 @@ namespace Vjezba.Model.Controllers
 
         [HttpGet("analytics")]
         [HttpGet("reports/analytics")]
+        [AllowAnonymous]
         public IActionResult Analytics()
         {
             ViewData["SelectedType"] = "analytics";
@@ -67,6 +72,7 @@ namespace Vjezba.Model.Controllers
 
         [HttpGet("objects/{type}/{id:int}")]
         [HttpGet("details/{type}/{id:int}")]
+        [Authorize]
         public IActionResult Details(string type, int id)
         {
             var normalizedType = NormalizeType(type);
@@ -82,6 +88,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("manifest/search")]
+        [AllowAnonymous]
         public IActionResult ManifestSearch(string selectedType, string? q)
         {
             var normalizedType = NormalizeType(selectedType);
@@ -103,6 +110,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("autocomplete/{source}")]
+        [AllowAnonymous]
         public IActionResult Autocomplete(string source, string? q, int take = 20)
         {
             var normalizedSource = NormalizeType(source);
@@ -555,6 +563,7 @@ namespace Vjezba.Model.Controllers
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("errors/app")]
+        [AllowAnonymous]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

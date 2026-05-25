@@ -3,6 +3,8 @@
     var topbarActive = (ViewData["TopbarActive"]?.ToString() ?? "track").Trim().ToLowerInvariant();
     var searchPlaceholder = ViewData["TopbarSearchPlaceholder"]?.ToString() ?? "Search package...";
     var isManifestTopbar = topbarActive == "manifest";
+    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+    var userDisplayName = User?.Identity?.Name ?? "Account";
     var manifestSelectedType = selectedType switch
     {
         "package" => "package",
@@ -60,7 +62,26 @@
             <button class="p-2 text-[#6a5e53] hover:text-[#7a4c2b] transition-colors rounded-full" type="button" aria-label="Settings">
                 <span class="material-symbols-outlined">settings</span>
             </button>
-            <div class="hidden sm:block h-10 w-10 rounded-full border border-[#d3cdc6] bg-[#e7e3df]"></div>
+            @if (isAuthenticated)
+            {
+                <a asp-area="Identity"
+                   asp-page="/Account/Manage/Index"
+                   title="@userDisplayName"
+                   class="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d3cdc6] bg-[#e7e3df] text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
+                   aria-label="Account">
+                    <span class="material-symbols-outlined">person</span>
+                </a>
+            }
+            else
+            {
+                <a asp-area="Identity"
+                   asp-page="/Account/Login"
+                   class="hidden sm:inline-flex items-center gap-1 rounded-full border border-[#d3cdc6] bg-[#e7e3df] px-3 py-2 text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
+                   aria-label="Login">
+                    <span class="material-symbols-outlined text-[18px]">person</span>
+                    <span class="font-label text-[10px] uppercase tracking-[0.12em]">Login</span>
+                </a>
+            }
         </div>
     </div>
 </header>

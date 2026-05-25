@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Enums;
 using Vjezba.Model.Models;
 
 namespace Vjezba.Model.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -13,11 +14,12 @@ namespace Vjezba.Model.Data
 
         public DbSet<Address> Addresses => Set<Address>();
         public DbSet<Courier> Couriers => Set<Courier>();
-        public DbSet<User> Users => Set<User>();
+        public new DbSet<User> Users => Set<User>();
         public DbSet<Package> Packages => Set<Package>();
         public DbSet<Warehouse> Warehouses => Set<Warehouse>();
         public DbSet<Delivery> Deliveries => Set<Delivery>();
         public DbSet<StatusLog> StatusLogs => Set<StatusLog>();
+        public DbSet<Attachment> Attachments => Set<Attachment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,6 +80,10 @@ namespace Vjezba.Model.Data
                     .WithMany(x => x.StoredPackages);
                 entity.HasMany(x => x.Deliveries)
                     .WithMany(x => x.Packages);
+                entity.HasMany(x => x.Attachments)
+                    .WithOne(x => x.Package)
+                    .HasForeignKey(x => x.PackageId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Warehouse>(entity =>
@@ -107,6 +113,15 @@ namespace Vjezba.Model.Data
                 entity.HasQueryFilter(x => x.DeletedAt == null && x.Package.DeletedAt == null);
                 entity.HasOne(x => x.Package)
                     .WithMany(x => x.StatusHistory)
+                    .HasForeignKey(x => x.PackageId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Attachment>(entity =>
+            {
+                entity.HasQueryFilter(x => x.Package.DeletedAt == null);
+                entity.HasOne(x => x.Package)
+                    .WithMany(x => x.Attachments)
                     .HasForeignKey(x => x.PackageId)
                     .OnDelete(DeleteBehavior.Cascade);
             });

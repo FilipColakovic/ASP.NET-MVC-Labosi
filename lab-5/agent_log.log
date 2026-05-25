@@ -1,0 +1,11 @@
+﻿Timestamp: 2026-05-25 12:39:58
+Agent: agent
+User Input: promjeni da se chat logira u lab-5
+Agent output: Uradio sam promjenu: hook sada zapisuje logove u `lab-5`.
+
+- **Izmjena**: AÅ¾urirao sam [ .github/hooks/write-agent-log.ps1 ](.github/hooks/write-agent-log.ps1#L1-L5) tako da koristi ciljnu mapu `lab-5`.
+- **Status**: Korak 1 je dovrÅ¡en; verifikacija je u tijeku (prikazane su izmijenjene linije).
+- **SljedeÄ‡e**: PoÅ¡aljite jednu poruku u chat i javite â€” provjerit Ä‡u i potvrditi da su zapisi stvoreni u [lab-5](lab-5).
+
+Å½elite li da odmah promijenim ime log datoteke ili format (npr. `agent_log.txt` umjesto `agent_log.log`)?
+

@@ -43,6 +43,7 @@ namespace Vjezba.Model.Models
         [Required]
         public string Description { get; set; } = string.Empty;
 
+        public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
         public virtual ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
         public virtual ICollection<Delivery> Deliveries { get; set; } = new List<Delivery>();
     }

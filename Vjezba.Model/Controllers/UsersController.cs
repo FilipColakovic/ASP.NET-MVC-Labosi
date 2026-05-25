@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Data;
@@ -16,7 +17,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpPost("{id:int}/soft-delete")]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public IActionResult SoftDelete(int id)
         {
             var user = _context.Users.FirstOrDefault(x => x.Id == id);
@@ -32,7 +33,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpPost("create")]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Manager")]
         public IActionResult Create(UserCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -65,7 +66,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpPost("edit")]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Manager")]
         public IActionResult Edit(UserEditViewModel model)
         {
             if (!ModelState.IsValid)

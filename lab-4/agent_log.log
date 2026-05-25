@@ -320,3 +320,16 @@ How it works:
 
 If you want Edit from the Details page too, I can add a button there that opens the same modal.
 
+Timestamp: 2026-05-25 12:17:48
+Agent: agent
+User Input: Write an explanation for the active selection as paragraphs of text.
+
+```csharp
+IdentityDbContext
+```
+
+
+Agent output: `IdentityDbContext` is the Entity Framework Core base class that wires in ASP.NET Core Identityâ€™s built-in entity sets (users, roles, claims, logins, tokens) and configuration. When `AppDbContext` derives from it, the context automatically includes the Identity schema and mappings, so migrations will create the required tables without you manually defining them.
+
+A common gotcha is that the generic overloads matter: `IdentityDbContext<TUser, TRole, TKey>` lets you customize user/role types and key type; using the non-generic version locks you into default `IdentityUser`, `IdentityRole`, and `string` keys. If you later change these, youâ€™ll need a careful migration strategy to avoid data loss.
+

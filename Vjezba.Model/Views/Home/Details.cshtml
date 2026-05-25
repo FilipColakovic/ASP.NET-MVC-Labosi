@@ -25,6 +25,8 @@
     var backUrl = !string.IsNullOrWhiteSpace(requestedReturnUrl) && Url.IsLocalUrl(requestedReturnUrl)
         ? requestedReturnUrl
         : fallbackUrl;
+    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+    var userDisplayName = User?.Identity?.Name ?? "Account";
     var nestedReturnUrl = Context.Request.Path + Context.Request.QueryString;
     ViewData["NestedReturnUrl"] = nestedReturnUrl;
 
@@ -108,7 +110,25 @@
                 <button class="p-2 text-[#7d5231] hover:bg-[#e5e2df] rounded-full transition-colors" type="button">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
-                <div class="w-8 h-8 rounded-full border border-outline-variant/20 bg-primary-container"></div>
+                @if (isAuthenticated)
+                {
+                    <a asp-area="Identity"
+                       asp-page="/Account/Manage/Index"
+                       title="@userDisplayName"
+                       class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/20 bg-primary-container text-[#7d5231] hover:text-[#653d1e] transition-colors"
+                       aria-label="Account">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/20 bg-primary-container text-[#7d5231] hover:text-[#653d1e] transition-colors"
+                       aria-label="Login">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                    </a>
+                }
             </div>
         </header>
 
