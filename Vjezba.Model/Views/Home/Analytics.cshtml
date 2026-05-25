@@ -32,16 +32,36 @@
     var fleetEfficiency = totalCouriers == 0 ? 0d : (double)availableCouriers / totalCouriers * 100d;
     var efficiencyStars = Math.Clamp((int)Math.Round(fleetEfficiency / 20d, MidpointRounding.AwayFromZero), 0, 5);
 
+    List<(DateTime SlotStart, int Count)> BuildHourlyBuckets(DateTime firstHour)
+    {
+        return Enumerable.Range(0, 24)
+            .Select(index =>
+            {
+                var slotStart = firstHour.AddHours(index);
+                var slotEnd = slotStart.AddHours(1);
+                var count = Model.Packages.Count(p => p.CreatedAt >= slotStart && p.CreatedAt < slotEnd);
+                return (SlotStart: slotStart, Count: count);
+            })
+            .ToList();
+    }
+
     var firstHourUtc = new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, nowUtc.Hour, 0, 0, DateTimeKind.Utc).AddHours(-23);
-    var hourlyThroughput = Enumerable.Range(0, 24)
-        .Select(index =>
-        {
-            var slotStart = firstHourUtc.AddHours(index);
-            var slotEnd = slotStart.AddHours(1);
-            var count = Model.Packages.Count(p => p.CreatedAt >= slotStart && p.CreatedAt < slotEnd);
-            return new { SlotStart = slotStart, Count = count };
-        })
-        .ToList();
+    var hourlyThroughput = BuildHourlyBuckets(firstHourUtc);
+    var usesLatestDataWindow = false;
+    if (!hourlyThroughput.Any(x => x.Count > 0) && Model.Packages.Any())
+    {
+        var latestPackageTimestamp = Model.Packages.Max(p => p.CreatedAt);
+        var latestHourUtc = new DateTime(
+            latestPackageTimestamp.Year,
+            latestPackageTimestamp.Month,
+            latestPackageTimestamp.Day,
+            latestPackageTimestamp.Hour,
+            0,
+            0,
+            DateTimeKind.Utc);
+        hourlyThroughput = BuildHourlyBuckets(latestHourUtc.AddHours(-23));
+        usesLatestDataWindow = true;
+    }
     var maxHourlyValue = Math.Max(1, hourlyThroughput.Max(x => x.Count));
     var peakHourIndex = hourlyThroughput
         .Select((bucket, index) => new { bucket.Count, Index = index })
@@ -203,7 +223,11 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                         <div>
                             <h2 class="font-headline text-2xl font-bold tracking-tight">Package Volume Trend</h2>
-                            <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">Aggregate hourly throughput (last 24 hours)</p>
+                            <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+                                @(usesLatestDataWindow
+                                    ? "Aggregate hourly throughput (latest 24h in dataset)"
+                                    : "Aggregate hourly throughput (last 24 hours)")
+                            </p>
                         </div>
                         <div class="flex gap-2">
                             <button class="px-3 py-1 bg-surface-container-lowest border border-outline-variant/25 rounded-sm font-label text-[10px] uppercase tracking-widest font-bold" type="button">Day</button>
@@ -212,7 +236,7 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 relative flex items-end gap-[2px] pt-10">
+                    <div class="relative h-72 md:h-80 flex items-end gap-[2px] pt-10">
                         <div class="absolute inset-0 flex flex-col justify-between py-10 opacity-10 pointer-events-none">
                             <div class="w-full border-t border-on-surface"></div>
                             <div class="w-full border-t border-on-surface"></div>
@@ -223,12 +247,15 @@
                         @for (var index = 0; index < hourlyThroughput.Count; index++)
                         {
                             var bucket = hourlyThroughput[index];
-                            var heightPercent = Math.Max(8, (int)Math.Round((double)bucket.Count / maxHourlyValue * 100d));
+                            var maxBarHeightPx = 240;
+                            var heightPx = bucket.Count == 0
+                                ? 4
+                                : Math.Max(16, (int)Math.Round((double)bucket.Count / maxHourlyValue * maxBarHeightPx));
                             var isPeak = index == peakHourIndex;
                             var localHour = bucket.SlotStart.ToLocalTime().ToString("HH:mm", CultureInfo.InvariantCulture);
                             var barClass = isPeak ? "bg-secondary-container" : "bg-primary/30 hover:bg-primary/45";
                             <div class="flex-1 rounded-t-sm transition-colors @barClass"
-                                 style="height:@heightPercent%"
+                                 style="height:@(heightPx)px"
                                  title="@localHour - @bucket.Count packages">
                                 @if (isPeak)
                                 {

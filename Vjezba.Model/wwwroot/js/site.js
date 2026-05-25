@@ -1,7 +1,7 @@
 ﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
-// Write your JavaScript code.
+// Sidebar collapse/expand behavior with persisted state in localStorage.
 (function () {
 	var sidebar = document.querySelector("[data-analog-sidebar]");
 	if (!sidebar) {
@@ -17,6 +17,7 @@
 	var storageKey = "analogSidebarCollapsed";
 	var storageEnabled = true;
 
+	// Safely reads a value from localStorage and disables storage usage on failure.
 	function readStorageValue(key) {
 		if (!storageEnabled) {
 			return null;
@@ -30,6 +31,7 @@
 		}
 	}
 
+	// Safely writes a value to localStorage and disables storage usage on failure.
 	function writeStorageValue(key, value) {
 		if (!storageEnabled) {
 			return;
@@ -42,6 +44,7 @@
 		}
 	}
 
+	// Applies collapsed/expanded sidebar classes and related accessibility attributes.
 	function applyState(collapsed) {
 		document.documentElement.classList.toggle("analog-sidebar-collapsed", collapsed);
 		sidebar.classList.toggle("is-collapsed", collapsed);
@@ -61,81 +64,7 @@
 	});
 })();
 
-(function () {
-	var unboxContainer = document.querySelector("[data-hero-package]");
-	if (!unboxContainer) {
-		return;
-	}
-
-	var revealItems = Array.prototype.slice.call(unboxContainer.querySelectorAll("[data-hero-package-reveal]"));
-	var revealToken = 0;
-	var requestFrame = window.requestAnimationFrame || function (callback) {
-		window.setTimeout(callback, 16);
-	};
-
-	function resetRevealItems() {
-		revealItems.forEach(function (item) {
-			item.style.opacity = "0";
-			item.style.transform = "translateY(8px)";
-		});
-	}
-
-	function revealItemsStaggered() {
-		var token = ++revealToken;
-		revealItems.forEach(function (item, index) {
-			item.style.opacity = "0";
-			item.style.transform = "translateY(8px)";
-			item.style.transition = "opacity 0.45s ease, transform 0.45s ease";
-
-			window.setTimeout(function () {
-				if (token !== revealToken || !unboxContainer.classList.contains("is-open")) {
-					return;
-				}
-				item.style.opacity = "1";
-				item.style.transform = "translateY(0)";
-			}, 260 + index * 90);
-		});
-	}
-
-	function openPackage() {
-		unboxContainer.classList.remove("is-hidden", "is-returning");
-		unboxContainer.setAttribute("aria-hidden", "false");
-		resetRevealItems();
-		unboxContainer.classList.add("is-open");
-		requestFrame(revealItemsStaggered);
-	}
-
-	function closePackage() {
-		revealToken += 1;
-		unboxContainer.classList.remove("is-open", "is-hidden", "is-returning");
-		unboxContainer.setAttribute("aria-hidden", "false");
-		resetRevealItems();
-	}
-
-	function runUnboxAnimation() {
-		if (unboxContainer.getAttribute("data-hero-inert") === "true") {
-			return;
-		}
-
-		if (unboxContainer.classList.contains("is-open")) {
-			closePackage();
-			return;
-		}
-
-		openPackage();
-	}
-
-	unboxContainer.addEventListener("click", runUnboxAnimation);
-	unboxContainer.addEventListener("keydown", function (event) {
-		if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
-			event.preventDefault();
-			runUnboxAnimation();
-		}
-	});
-
-	resetRevealItems();
-})();
-
+// Replaces select inputs with searchable autocomplete controls backed by server endpoints.
 (function () {
 	var selects = document.querySelectorAll("select[data-autocomplete-source]");
 	if (!selects.length) {
@@ -172,11 +101,13 @@
 		wrapper.appendChild(searchInput);
 		wrapper.appendChild(panel);
 
+		// Closes the suggestion panel and clears existing options.
 		function closePanel() {
 			panel.classList.add("hidden");
 			panel.innerHTML = "";
 		}
 
+		// Returns the currently selected option text from the hidden native select.
 		function getSelectedText() {
 			var selectedOption = select.options[select.selectedIndex];
 			if (!selectedOption || !selectedOption.value) {
@@ -186,6 +117,7 @@
 			return selectedOption.text;
 		}
 
+		// Applies a picked autocomplete item to the underlying select and syncs UI state.
 		function setSelection(item) {
 			var value = String(item.id);
 			var option = select.querySelector('option[value="' + value + '"]');
@@ -202,6 +134,7 @@
 			closePanel();
 		}
 
+		// Renders autocomplete suggestions inside the floating panel.
 		function renderItems(items) {
 			panel.innerHTML = "";
 			if (!items.length) {
@@ -253,6 +186,7 @@
 		var debounceHandle = 0;
 		var latestRequestId = 0;
 
+		// Debounced search that fetches suggestions and ignores stale responses.
 		function executeSearch() {
 			window.clearTimeout(debounceHandle);
 			debounceHandle = window.setTimeout(function () {
@@ -304,6 +238,7 @@
 	});
 })();
 
+// Enables flatpickr date-time controls for inputs marked with data-datetime-picker.
 (function () {
 	var dateInputs = document.querySelectorAll('input[data-datetime-picker="true"]');
 	if (!dateInputs.length || typeof flatpickr !== "function") {
@@ -333,16 +268,19 @@
 	});
 })();
 
+// Handles create modal lifecycle, validation, and AJAX form submission.
 (function () {
 	var modals = document.querySelectorAll("[data-create-modal]");
 	if (!modals.length) {
 		return;
 	}
 
+	// Basic client-side email format validation.
 	function isEmail(value) {
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 	}
 
+	// Clears field-level and summary-level validation messages for a form.
 	function clearErrors(form, summary) {
 		var errorSpans = form.querySelectorAll("[data-valmsg-for]");
 		errorSpans.forEach(function (span) {
@@ -419,12 +357,15 @@
 		return ok;
 	}
 
+	// Generates a simple random tracking number for package creation defaults.
 	function generateTrackingNumber() {
 		var value = Math.floor(Math.random() * 1000000).toString().padStart(6, "0");
 		return "TN-" + value;
 	}
 
+	// Formats a Date into the server-expected local datetime input format.
 	function formatLocalDateTime(value) {
+		// Pads numeric date/time parts to two digits.
 		function pad(number) {
 			return number.toString().padStart(2, "0");
 		}
@@ -436,10 +377,12 @@
 			pad(value.getMinutes());
 	}
 
+	// Detects unset sentinel values from .NET default DateTime payloads.
 	function isEmptyDateValue(value) {
 		return !value || value.indexOf("0001-01-01") === 0;
 	}
 
+	// Sets input value and syncs flatpickr instance when present.
 	function setInputValue(input, value) {
 		if (!input) {
 			return;
@@ -468,6 +411,7 @@
 		var openButtons = document.querySelectorAll('[data-create-open="' + modalKey + '"]');
 		var closeButtons = modal.querySelectorAll("[data-create-close]");
 
+		// Opens create modal and applies per-entity default values.
 		function openModal() {
 			modal.classList.remove("is-hidden");
 			modal.setAttribute("aria-hidden", "false");
@@ -582,16 +526,19 @@
 	});
 })();
 
+// Handles edit modal lifecycle, prefill mapping, validation, and AJAX form submission.
 (function () {
 	var modals = document.querySelectorAll("[data-edit-modal]");
 	if (!modals.length) {
 		return;
 	}
 
+	// Basic client-side email format validation.
 	function isEmail(value) {
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 	}
 
+	// Converts input field names to data-edit-* attribute keys used by edit buttons.
 	function toEditDataKey(fieldName) {
 		return "data-edit-" + fieldName
 			.replace(/\[(\d+)\]/g, "-$1")
@@ -600,6 +547,7 @@
 			.toLowerCase();
 	}
 
+	// Clears field-level and summary-level validation messages for a form.
 	function clearErrors(form, summary) {
 		var errorSpans = form.querySelectorAll("[data-valmsg-for]");
 		errorSpans.forEach(function (span) {
@@ -610,6 +558,7 @@
 		}
 	}
 
+	// Sets an error message for a specific form field if its validation span exists.
 	function setFieldError(form, fieldName, message) {
 		var span = form.querySelector('[data-valmsg-for="' + fieldName + '"]');
 		if (span) {
@@ -617,6 +566,7 @@
 		}
 	}
 
+	// Validates one input using MVC unobtrusive metadata attributes.
 	function validateField(form, input) {
 		if (!input.name) {
 			return true;
@@ -665,6 +615,7 @@
 		return isValid;
 	}
 
+	// Runs client-side validation for all fields in the form.
 	function validateForm(form) {
 		var inputs = form.querySelectorAll("input, select, textarea");
 		var ok = true;
@@ -677,6 +628,7 @@
 		return ok;
 	}
 
+	// Prefills edit form fields using data-edit-* attributes from the clicked action button.
 	function applyButtonDataToForm(form, button) {
 		var fields = form.querySelectorAll("input[name], select[name], textarea[name]");
 		fields.forEach(function (field) {
@@ -722,6 +674,7 @@
 		var openButtons = document.querySelectorAll('[data-edit-open="' + modalKey + '"]');
 		var closeButtons = modal.querySelectorAll("[data-edit-close]");
 
+		// Opens edit modal, clears stale state, and applies selected row data into form fields.
 		function openModal(button) {
 			clearErrors(form, summary);
 			form.reset();
@@ -736,6 +689,7 @@
 			}
 		}
 
+		// Closes edit modal and resets validation/form state.
 		function closeModal() {
 			modal.classList.add("is-hidden");
 			modal.setAttribute("aria-hidden", "true");
@@ -817,6 +771,7 @@
 		});
 	});
 
+	// Reopens an edit modal from URL query params (editType/editId), then cleans the URL.
 	(function openEditModalFromQuery() {
 		var params = new URLSearchParams(window.location.search);
 		var editType = (params.get("editType") || "").toLowerCase();
