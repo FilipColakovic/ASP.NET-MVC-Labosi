@@ -77,17 +77,22 @@
             }
             else
             {
-                <a asp-area="Identity"
-                   asp-page="/Account/Login"
+                <button type="button"
+                   data-login-open
                    class="hidden sm:inline-flex items-center gap-1 rounded-full border border-[#d3cdc6] bg-[#e7e3df] px-3 py-2 text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
                    aria-label="Login">
                     <span class="material-symbols-outlined text-[18px]">person</span>
                     <span class="font-label text-[10px] uppercase tracking-[0.12em]">Login</span>
-                </a>
+                </button>
             }
         </div>
     </div>
 </header>
+
+@if (!isAuthenticated)
+{
+    <partial name="~/Views/Home/Partials/_AnalogLoginPopup.cshtml" />
+}
 
 @if (isManifestTopbar)
 {

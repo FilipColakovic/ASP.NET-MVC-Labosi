@@ -3,27 +3,92 @@
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
-<ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
-            Hello @User.Identity?.Name!
-        </a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+<ul class="navbar-nav flex-row align-items-center gap-2 analog-auth-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a asp-area="Identity"
+               asp-page="/Account/Manage/Index"
+               title="Manage account"
+               class="analog-auth-icon"
+               aria-label="Manage account">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="8" r="4" fill="currentColor"></circle>
+                    <path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+            </a>
+        </li>
+        <li class="nav-item">
+            <form class="m-0"
+                  asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="analog-auth-pill">
+                    Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a asp-area="Identity"
+               asp-page="/Account/Login"
+               class="analog-auth-pill"
+               aria-label="Login">
+                Login
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-area="Identity"
+               asp-page="/Account/Register"
+               class="analog-auth-pill"
+               aria-label="Register">
+                Register
+            </a>
+        </li>
+    }
 </ul>
+
+<style>
+    .analog-auth-nav {
+        margin: 0;
+        padding: 0;
+    }
+
+    .analog-auth-pill,
+    .analog-auth-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        border: 1px solid #d3cdc6;
+        background: #e7e3df;
+        color: #6a5e53;
+        text-decoration: none;
+        border-radius: 999px;
+        transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .analog-auth-pill {
+        padding: 0.55rem 0.8rem;
+    }
+
+    .analog-auth-icon {
+        width: 2.1rem;
+        height: 2.1rem;
+    }
+
+    .analog-auth-pill:hover,
+    .analog-auth-icon:hover {
+        color: #7a4c2b;
+        border-color: #c0b8b0;
+        background: #efeae5;
+        text-decoration: none;
+    }
+</style>

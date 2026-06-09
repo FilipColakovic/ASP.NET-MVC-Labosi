@@ -1,0 +1,290 @@
+@{
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<div class="analog-modal is-hidden" data-login-modal aria-hidden="true" aria-labelledby="analog-login-title" role="dialog">
+    <div class="analog-modal-backdrop" data-login-close></div>
+
+    <div class="analog-modal-panel analog-login-modal-panel analog-login-modal-shell relative overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container shadow-[0_18px_50px_rgba(70,45,28,0.16)]">
+        <button type="button"
+                class="absolute right-3 top-3 z-20 rounded-full p-2 text-on-surface-variant hover:bg-surface-container-high/70 hover:text-on-surface"
+                data-login-close
+                aria-label="Close login popup">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <div class="analog-login-ambient analog-login-ambient-a"></div>
+        <div class="analog-login-ambient analog-login-ambient-b"></div>
+        <div class="analog-login-grain absolute inset-0"></div>
+
+        <div class="relative z-10 p-6 md:p-8">
+            <div class="mb-8 flex flex-col items-start">
+                <div class="mb-2 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-4xl">package_2</span>
+                    <h2 class="font-headline text-2xl font-extrabold tracking-tight text-primary uppercase">Cardboard &amp; Circuit</h2>
+                </div>
+                <div class="analog-login-stamp inline-flex bg-tertiary/10 px-3 py-1">
+                    <span class="font-label text-xs uppercase tracking-widest text-on-tertiary-fixed-variant">Terminal Access v.04</span>
+                </div>
+            </div>
+
+            <div class="analog-login-card rounded-xl border border-outline-variant/20 bg-surface-container-high/55 p-6 md:p-8">
+                <header class="mb-6 border-b border-outline-variant/15 pb-5">
+                    <h3 id="analog-login-title" class="font-headline text-3xl font-bold text-on-surface">Login</h3>
+                    <p class="mt-2 font-label text-sm uppercase tracking-wide text-on-surface-variant">Authenticate to access logistics hub</p>
+                </header>
+
+                <form action="/auth/login-popup" method="post" data-login-form class="space-y-5">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ReturnUrl" value="@returnUrl" />
+
+                    <div class="space-y-1">
+                        <label for="analog-popup-email" class="block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Registry Email</label>
+                        <div class="group relative">
+                            <input id="analog-popup-email"
+                                   name="Email"
+                                   type="email"
+                                   required
+                                   autocomplete="email"
+                                   placeholder="operator@circuit.io"
+                                   class="w-full border-0 bg-surface-container-lowest px-4 py-3 font-body text-sm text-on-surface placeholder:text-outline/60 focus:ring-2 focus:ring-primary/20" />
+                            <div class="absolute bottom-0 left-0 h-[2px] w-full bg-outline-variant/20 transition-colors group-focus-within:bg-primary"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex items-end justify-between">
+                            <label for="analog-popup-password" class="block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Access Cipher</label>
+                            <a asp-area="Identity"
+                               asp-page="/Account/Login"
+                               class="font-label text-[10px] uppercase tracking-wider text-primary transition-colors hover:text-secondary-container">
+                                Full Login Page
+                            </a>
+                        </div>
+                        <div class="group relative">
+                            <input id="analog-popup-password"
+                                   name="Password"
+                                   type="password"
+                                   required
+                                   autocomplete="current-password"
+                                   placeholder="••••••••"
+                                   class="w-full border-0 bg-surface-container-lowest px-4 py-3 font-body text-sm text-on-surface placeholder:text-outline/60 focus:ring-2 focus:ring-primary/20" />
+                            <div class="absolute bottom-0 left-0 h-[2px] w-full bg-outline-variant/20 transition-colors group-focus-within:bg-primary"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <label class="group flex cursor-pointer items-center gap-2">
+                            <input type="checkbox"
+                                   name="RememberMe"
+                                   value="true"
+                                   class="h-4 w-4 rounded-sm border-outline-variant text-primary focus:ring-primary/20 focus:ring-offset-surface-container" />
+                            <span class="font-label text-xs uppercase tracking-wider text-on-surface-variant transition-colors group-hover:text-on-surface">Maintain Session</span>
+                        </label>
+                    </div>
+
+                    <p class="field-error !min-h-[1.1rem] !text-sm" data-login-summary></p>
+
+                    <div class="pt-2">
+                        <button type="submit"
+                                data-login-submit
+                                class="flex w-full items-center justify-center gap-3 rounded-lg bg-surface-tint py-4 font-headline text-sm font-bold uppercase tracking-widest text-on-primary transition-all hover:bg-primary active:scale-[0.98]">
+                            <span data-login-submit-text>Initiate Login</span>
+                            <span class="material-symbols-outlined text-lg">login</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-7 border-t border-outline-variant/15 pt-6 text-center">
+                    <p class="font-body text-xs text-on-surface-variant">New operator in the network?</p>
+                    <a asp-area="Identity"
+                       asp-page="/Account/Register"
+                       class="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-outline-variant/30 px-6 py-3 font-label text-xs font-bold uppercase tracking-[0.2em] text-primary transition-colors hover:bg-surface-container-high">
+                        Request Registry Access
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const modal = document.querySelector("[data-login-modal]");
+        if (!modal || modal.dataset.loginInit === "1") {
+            return;
+        }
+
+        modal.dataset.loginInit = "1";
+        const form = modal.querySelector("[data-login-form]");
+        const summary = modal.querySelector("[data-login-summary]");
+        const openButtons = document.querySelectorAll("[data-login-open]");
+        const closeButtons = modal.querySelectorAll("[data-login-close]");
+        const emailInput = modal.querySelector("#analog-popup-email");
+        const passwordInput = modal.querySelector("#analog-popup-password");
+        const submitButton = modal.querySelector("[data-login-submit]");
+        const submitText = modal.querySelector("[data-login-submit-text]");
+        const defaultSubmitText = submitText ? submitText.textContent : "Initiate Login";
+
+        if (!form || !submitButton || !submitText) {
+            return;
+        }
+
+        const setSummary = (message) => {
+            if (summary) {
+                summary.textContent = message || "";
+            }
+        };
+
+        const setLoading = (isLoading) => {
+            submitButton.disabled = isLoading;
+            submitButton.classList.toggle("opacity-70", isLoading);
+            submitButton.classList.toggle("cursor-not-allowed", isLoading);
+            submitText.textContent = isLoading ? "Verifying Credentials..." : defaultSubmitText;
+        };
+
+        const openModal = () => {
+            modal.classList.remove("is-hidden");
+            modal.setAttribute("aria-hidden", "false");
+            setSummary("");
+            if (emailInput && !emailInput.value.trim()) {
+                emailInput.focus();
+            } else if (passwordInput) {
+                passwordInput.focus();
+            }
+        };
+
+        const closeModal = () => {
+            modal.classList.add("is-hidden");
+            modal.setAttribute("aria-hidden", "true");
+            setSummary("");
+            setLoading(false);
+        };
+
+        openButtons.forEach((button) => {
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                openModal();
+            });
+        });
+
+        closeButtons.forEach((button) => {
+            button.addEventListener("click", closeModal);
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.classList.contains("is-hidden")) {
+                closeModal();
+            }
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            setSummary("");
+
+            if (!emailInput?.value.trim() || !passwordInput?.value) {
+                setSummary("Email and password are required.");
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch (jsonError) {
+                    payload = null;
+                }
+
+                if (response.ok && payload && payload.redirectUrl) {
+                    window.location.assign(payload.redirectUrl);
+                    return;
+                }
+
+                const message = payload && payload.message
+                    ? payload.message
+                    : "Unable to sign in right now.";
+                setSummary(message);
+            } catch (error) {
+                setSummary("Unable to sign in right now.");
+            } finally {
+                setLoading(false);
+            }
+        });
+    })();
+</script>
+
+<style>
+    .analog-login-modal-panel {
+        width: min(680px, 96vw);
+        padding: 0;
+    }
+
+    .analog-modal[data-login-modal] .analog-modal-backdrop {
+        background:
+            radial-gradient(circle at 18% 14%, rgba(254, 147, 44, 0.18) 0%, rgba(254, 147, 44, 0) 44%),
+            radial-gradient(circle at 84% 82%, rgba(125, 82, 49, 0.25) 0%, rgba(125, 82, 49, 0) 50%),
+            linear-gradient(145deg, rgba(24, 19, 15, 0.72), rgba(43, 32, 24, 0.78));
+        backdrop-filter: blur(8px) saturate(1.05);
+    }
+
+    .analog-login-modal-shell {
+        background:
+            radial-gradient(120% 80% at 0% 0%, rgba(255, 236, 219, 0.42) 0%, rgba(255, 236, 219, 0) 55%),
+            radial-gradient(140% 100% at 100% 100%, rgba(180, 130, 92, 0.18) 0%, rgba(180, 130, 92, 0) 62%),
+            linear-gradient(160deg, rgba(247, 242, 238, 0.96) 0%, rgba(231, 225, 219, 0.94) 100%);
+        box-shadow:
+            0 26px 72px rgba(31, 22, 16, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.62);
+    }
+
+    .analog-login-ambient {
+        position: absolute;
+        pointer-events: none;
+        border-radius: 9999px;
+        filter: blur(36px);
+        opacity: 0.55;
+    }
+
+    .analog-login-ambient-a {
+        width: 260px;
+        height: 260px;
+        left: -120px;
+        top: -90px;
+        background: rgba(254, 147, 44, 0.28);
+    }
+
+    .analog-login-ambient-b {
+        width: 220px;
+        height: 220px;
+        right: -95px;
+        bottom: -80px;
+        background: rgba(125, 82, 49, 0.24);
+    }
+
+    .analog-login-grain {
+        background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+        opacity: 0.06;
+        pointer-events: none;
+    }
+
+    .analog-login-card {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0.14) 100%),
+            linear-gradient(165deg, rgba(240, 235, 230, 0.94) 0%, rgba(231, 225, 219, 0.94) 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
+    }
+
+    .analog-login-stamp {
+        transform: rotate(-1.5deg);
+    }
+</style>

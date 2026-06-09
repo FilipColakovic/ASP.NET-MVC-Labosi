@@ -122,12 +122,12 @@
                 }
                 else
                 {
-                    <a asp-area="Identity"
-                       asp-page="/Account/Login"
+                    <button type="button"
+                       data-login-open
                        class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/20 bg-primary-container text-[#7d5231] hover:text-[#653d1e] transition-colors"
                        aria-label="Login">
                         <span class="material-symbols-outlined text-[18px]">person</span>
-                    </a>
+                    </button>
                 }
             </div>
         </header>
@@ -322,6 +322,11 @@
             </a>
         </nav>
     </main>
+
+    @if (!isAuthenticated)
+    {
+        <partial name="Partials/_AnalogLoginPopup" />
+    }
 
     <partial name="Partials/Edit/_UserEditModal" model="new Vjezba.Model.Models.UserEditViewModel()" />
     <partial name="Partials/Edit/_CourierEditModal" model="new Vjezba.Model.Models.CourierEditViewModel()" />

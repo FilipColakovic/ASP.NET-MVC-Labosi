@@ -5,6 +5,13 @@
                                             "ForEach-Object":  true,
                                             "dotnet run":  true
                                         },
+    "dotnet.defaultSolution": "Vjezba.Model/Vjezba.Model.slnx",
+    "code-runner.runInTerminal": true,
+    "code-runner.saveFileBeforeRun": true,
+    "code-runner.fileDirectoryAsCwd": false,
+    "code-runner.executorMapByFileExtension": {
+        ".cs": "dotnet run --project \"$workspaceRoot/Vjezba.Model/Vjezba.Model.csproj\" --launch-profile http"
+    },
     "files.associations":  {
                                "*.log":  "log",
                                "*.log.*":  "log"

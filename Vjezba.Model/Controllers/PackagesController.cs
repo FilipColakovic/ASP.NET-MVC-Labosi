@@ -9,11 +9,14 @@ namespace Vjezba.Model.Controllers
     [Route("packages")]
     public class PackagesController : Controller
     {
+        private const long MaxAttachmentSizeBytes = 10 * 1024 * 1024;
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public PackagesController(AppDbContext context)
+        public PackagesController(AppDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpPost("{id:int}/soft-delete")]
@@ -101,6 +104,126 @@ namespace Vjezba.Model.Controllers
             return Ok(new { id = package.Id });
         }
 
+        [HttpGet("{packageId:int}/attachments")]
+        [Authorize]
+        public async Task<IActionResult> ListAttachments(int packageId)
+        {
+            var packageExists = await _context.Packages.AnyAsync(x => x.Id == packageId);
+            if (!packageExists)
+            {
+                return NotFound();
+            }
+
+            var attachments = await _context.Attachments
+                .AsNoTracking()
+                .Where(x => x.PackageId == packageId)
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.FileName,
+                    Url = "/" + x.FilePath,
+                    x.ContentType,
+                    x.FileSize,
+                    x.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(attachments);
+        }
+
+        [HttpPost("{packageId:int}/attachments")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> UploadAttachment(int packageId, IFormFile? file)
+        {
+            var packageExists = await _context.Packages.AnyAsync(x => x.Id == packageId);
+            if (!packageExists)
+            {
+                return NotFound();
+            }
+
+            if (file is null || file.Length == 0)
+            {
+                return BadRequest(new { message = "Choose a file before uploading." });
+            }
+
+            if (file.Length > MaxAttachmentSizeBytes)
+            {
+                return BadRequest(new { message = "Maximum upload size is 10 MB." });
+            }
+
+            var originalFileName = Path.GetFileName(file.FileName);
+            if (string.IsNullOrWhiteSpace(originalFileName))
+            {
+                originalFileName = "attachment";
+            }
+
+            var extension = Path.GetExtension(originalFileName);
+            var storedFileName = $"{Guid.NewGuid():N}{extension}";
+            var uploadDirectory = GetPackageUploadDirectory(packageId);
+            Directory.CreateDirectory(uploadDirectory);
+
+            var physicalPath = Path.Combine(uploadDirectory, storedFileName);
+            await using (var stream = new FileStream(physicalPath, FileMode.CreateNew))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var attachment = new Attachment
+            {
+                PackageId = packageId,
+                FileName = originalFileName,
+                FilePath = $"uploads/packages/{packageId}/{storedFileName}",
+                ContentType = string.IsNullOrWhiteSpace(file.ContentType)
+                    ? "application/octet-stream"
+                    : file.ContentType,
+                FileSize = file.Length,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Attachments.Add(attachment);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(
+                nameof(ListAttachments),
+                new { packageId },
+                new
+                {
+                    attachment.Id,
+                    attachment.FileName,
+                    Url = "/" + attachment.FilePath,
+                    attachment.ContentType,
+                    attachment.FileSize,
+                    attachment.CreatedAt
+                });
+        }
+
+        [HttpDelete("{packageId:int}/attachments/{attachmentId:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteAttachment(int packageId, int attachmentId)
+        {
+            var attachment = await _context.Attachments
+                .FirstOrDefaultAsync(x => x.Id == attachmentId && x.PackageId == packageId);
+            if (attachment is null)
+            {
+                return NotFound();
+            }
+
+            var physicalPath = Path.Combine(
+                GetPackageUploadDirectory(packageId),
+                Path.GetFileName(attachment.FilePath));
+
+            _context.Attachments.Remove(attachment);
+            await _context.SaveChangesAsync();
+
+            if (System.IO.File.Exists(physicalPath))
+            {
+                System.IO.File.Delete(physicalPath);
+            }
+
+            return NoContent();
+        }
+
         [HttpPost("edit")]
         [Authorize(Roles = "Admin,Manager")]
         public IActionResult Edit(PackageEditViewModel model)
@@ -178,6 +301,14 @@ namespace Vjezba.Model.Controllers
                 .ToDictionary(
                     entry => entry.Key,
                     entry => entry.Value?.Errors.Select(error => error.ErrorMessage).ToArray() ?? Array.Empty<string>());
+        }
+
+        private string GetPackageUploadDirectory(int packageId)
+        {
+            var webRootPath = _environment.WebRootPath
+                ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+
+            return Path.Combine(webRootPath, "uploads", "packages", packageId.ToString());
         }
     }
 }

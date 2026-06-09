@@ -3,6 +3,8 @@
 @{
     var nestedReturnUrl = ViewData["NestedReturnUrl"]?.ToString() ?? "/";
     var package = Model.Package;
+    var canUploadAttachments = User.IsInRole("Admin") || User.IsInRole("Manager");
+    var canDeleteAttachments = User.IsInRole("Admin");
 }
 
 <table class="w-full text-left border-collapse min-w-[720px] rounded-md overflow-hidden">
@@ -95,3 +97,219 @@
         </tr>
     </tbody>
 </table>
+
+<section class="mt-5 rounded-lg border border-outline-variant/20 bg-surface-container-low/70 p-4"
+         data-package-attachments
+         data-package-id="@package.Id"
+         data-can-delete="@canDeleteAttachments.ToString().ToLowerInvariant()">
+    <div class="flex flex-col gap-3 border-b border-outline-variant/20 pb-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Package Attachments</p>
+            <h5 class="font-headline text-lg font-bold text-on-surface">Files</h5>
+        </div>
+
+        @if (canUploadAttachments)
+        {
+            <form class="flex flex-col gap-2 sm:flex-row sm:items-center"
+                  action="/packages/@package.Id/attachments"
+                  method="post"
+                  enctype="multipart/form-data"
+                  data-attachment-upload>
+                @Html.AntiForgeryToken()
+                <label class="sr-only" for="package-attachment-file-@package.Id">Upload package attachment</label>
+                <input id="package-attachment-file-@package.Id"
+                       name="file"
+                       type="file"
+                       class="max-w-full rounded border border-outline-variant/30 bg-white/80 px-3 py-2 text-xs text-on-surface file:mr-3 file:rounded file:border-0 file:bg-secondary-container file:px-3 file:py-1.5 file:font-label file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-on-secondary-container" />
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded bg-secondary-container px-4 py-2 font-label text-[10px] uppercase tracking-widest text-on-secondary-container transition-colors hover:bg-secondary-container/80">
+                    <span class="material-symbols-outlined text-[16px]">upload_file</span>
+                    Upload
+                </button>
+            </form>
+        }
+    </div>
+
+    <p class="field-error mt-3" data-attachment-summary></p>
+
+    <div class="mt-3 grid gap-2" data-attachment-list>
+        <div class="rounded border border-dashed border-outline-variant/40 bg-white/40 px-4 py-5 text-center font-label text-xs uppercase tracking-widest text-on-surface-variant">
+            Loading attachments...
+        </div>
+    </div>
+</section>
+
+<script>
+    (() => {
+        const roots = document.querySelectorAll("[data-package-attachments]");
+        if (!roots.length) {
+            return;
+        }
+
+        const formatSize = (bytes) => {
+            if (!Number.isFinite(bytes) || bytes <= 0) {
+                return "0 B";
+            }
+
+            const units = ["B", "KB", "MB", "GB"];
+            let value = bytes;
+            let unitIndex = 0;
+            while (value >= 1024 && unitIndex < units.length - 1) {
+                value /= 1024;
+                unitIndex++;
+            }
+
+            return `${value.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+        };
+
+        roots.forEach((root) => {
+            if (root.dataset.attachmentsInit === "1") {
+                return;
+            }
+
+            root.dataset.attachmentsInit = "1";
+            const packageId = root.dataset.packageId;
+            const canDelete = root.dataset.canDelete === "true";
+            const uploadForm = root.querySelector("[data-attachment-upload]");
+            const list = root.querySelector("[data-attachment-list]");
+            const summary = root.querySelector("[data-attachment-summary]");
+
+            const setSummary = (message) => {
+                if (summary) {
+                    summary.textContent = message || "";
+                }
+            };
+
+            const getToken = () =>
+                root.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
+
+            const renderEmpty = () => {
+                list.innerHTML = "";
+                const empty = document.createElement("div");
+                empty.className = "rounded border border-dashed border-outline-variant/40 bg-white/40 px-4 py-5 text-center font-label text-xs uppercase tracking-widest text-on-surface-variant";
+                empty.textContent = "No attachments yet.";
+                list.appendChild(empty);
+            };
+
+            const renderAttachments = (attachments) => {
+                list.innerHTML = "";
+                if (!attachments.length) {
+                    renderEmpty();
+                    return;
+                }
+
+                attachments.forEach((attachment) => {
+                    const row = document.createElement("div");
+                    row.className = "flex flex-col gap-3 rounded border border-outline-variant/20 bg-white/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between";
+
+                    const details = document.createElement("div");
+                    details.className = "min-w-0";
+
+                    const link = document.createElement("a");
+                    link.href = attachment.url;
+                    link.target = "_blank";
+                    link.rel = "noopener";
+                    link.className = "block truncate font-body text-sm font-semibold text-primary underline-offset-2 hover:underline";
+                    link.textContent = attachment.fileName;
+
+                    const metadata = document.createElement("p");
+                    metadata.className = "mt-1 font-label text-[10px] uppercase tracking-widest text-on-surface-variant";
+                    metadata.textContent = `${formatSize(Number(attachment.fileSize))} / ${attachment.contentType || "file"}`;
+
+                    details.appendChild(link);
+                    details.appendChild(metadata);
+                    row.appendChild(details);
+
+                    if (canDelete) {
+                        const deleteButton = document.createElement("button");
+                        deleteButton.type = "button";
+                        deleteButton.className = "inline-flex items-center justify-center gap-2 rounded px-3 py-2 font-label text-[10px] uppercase tracking-widest text-error transition-colors hover:bg-error/10";
+                        deleteButton.dataset.attachmentDelete = attachment.id;
+                        deleteButton.innerHTML = '<span class="material-symbols-outlined text-[16px]">delete</span> Delete';
+                        row.appendChild(deleteButton);
+                    }
+
+                    list.appendChild(row);
+                });
+            };
+
+            const loadAttachments = async () => {
+                try {
+                    const response = await fetch(`/packages/${packageId}/attachments`, {
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+                    if (!response.ok) {
+                        throw new Error("Unable to load attachments.");
+                    }
+
+                    renderAttachments(await response.json());
+                } catch (error) {
+                    list.innerHTML = "";
+                    const errorRow = document.createElement("div");
+                    errorRow.className = "rounded border border-error/20 bg-error/5 px-4 py-3 text-sm text-error";
+                    errorRow.textContent = "Unable to load attachments.";
+                    list.appendChild(errorRow);
+                }
+            };
+
+            if (uploadForm) {
+                uploadForm.addEventListener("submit", async (event) => {
+                    event.preventDefault();
+                    setSummary("");
+
+                    const fileInput = uploadForm.querySelector('input[type="file"]');
+                    if (!fileInput || !fileInput.files.length) {
+                        setSummary("Choose a file before uploading.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(uploadForm.action, {
+                            method: "POST",
+                            body: new FormData(uploadForm),
+                            headers: { "X-Requested-With": "XMLHttpRequest" }
+                        });
+
+                        if (!response.ok) {
+                            const payload = await response.json().catch(() => null);
+                            throw new Error(payload?.message || "Unable to upload attachment.");
+                        }
+
+                        uploadForm.reset();
+                        await loadAttachments();
+                    } catch (error) {
+                        setSummary(error.message || "Unable to upload attachment.");
+                    }
+                });
+            }
+
+            list.addEventListener("click", async (event) => {
+                const button = event.target.closest("[data-attachment-delete]");
+                if (!button) {
+                    return;
+                }
+
+                setSummary("");
+                try {
+                    const response = await fetch(`/packages/${packageId}/attachments/${button.dataset.attachmentDelete}`, {
+                        method: "DELETE",
+                        headers: {
+                            "RequestVerificationToken": getToken(),
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Unable to delete attachment.");
+                    }
+
+                    await loadAttachments();
+                } catch (error) {
+                    setSummary(error.message || "Unable to delete attachment.");
+                }
+            });
+
+            loadAttachments();
+        });
+    })();
+</script>
