@@ -46,6 +46,9 @@ var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
 {
+    // Google OAuth credentials are loaded from user secrets or configuration.
+    // dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>" --project Vjezba.Model
+    // dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret>" --project Vjezba.Model
     builder.Services
         .AddAuthentication()
         .AddGoogle(options =>

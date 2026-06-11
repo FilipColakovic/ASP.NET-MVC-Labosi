@@ -1,5 +1,9 @@
+@using Microsoft.AspNetCore.Identity
+@using Vjezba.Model.Models
+@inject SignInManager<AppUser> SignInManager
 @{
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 }
 
 <div class="analog-modal is-hidden" data-login-modal aria-hidden="true" aria-labelledby="analog-login-title" role="dialog">
@@ -67,7 +71,7 @@
                                    type="password"
                                    required
                                    autocomplete="current-password"
-                                   placeholder="••••••••"
+                                   placeholder="********"
                                    class="w-full border-0 bg-surface-container-lowest px-4 py-3 font-body text-sm text-on-surface placeholder:text-outline/60 focus:ring-2 focus:ring-primary/20" />
                             <div class="absolute bottom-0 left-0 h-[2px] w-full bg-outline-variant/20 transition-colors group-focus-within:bg-primary"></div>
                         </div>
@@ -94,6 +98,33 @@
                         </button>
                     </div>
                 </form>
+
+                @if (externalLogins.Any())
+                {
+                    <div class="my-6 flex items-center gap-3">
+                        <div class="h-px flex-1 bg-outline-variant/30"></div>
+                        <span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">or</span>
+                        <div class="h-px flex-1 bg-outline-variant/30"></div>
+                    </div>
+
+                    <form asp-area="Identity"
+                          asp-page="/Account/ExternalLogin"
+                          asp-route-returnUrl="@returnUrl"
+                          method="post"
+                          class="space-y-3">
+                        @Html.AntiForgeryToken()
+                        @foreach (var provider in externalLogins)
+                        {
+                            <button type="submit"
+                                    name="provider"
+                                    value="@provider.Name"
+                                    class="flex w-full items-center justify-center gap-3 rounded-lg border border-outline-variant/30 bg-surface-container-lowest px-6 py-3 font-label text-xs font-bold uppercase tracking-[0.2em] text-primary transition-colors hover:bg-surface-container-high">
+                                Continue with @provider.DisplayName
+                                <span class="material-symbols-outlined text-lg">open_in_new</span>
+                            </button>
+                        }
+                    </form>
+                }
 
                 <div class="mt-7 border-t border-outline-variant/15 pt-6 text-center">
                     <p class="font-body text-xs text-on-surface-variant">New operator in the network?</p>

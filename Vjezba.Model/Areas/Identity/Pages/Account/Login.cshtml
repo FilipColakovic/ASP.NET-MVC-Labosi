@@ -1,0 +1,100 @@
+@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.LoginModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | Cardboard &amp; Circuit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <partial name="_AuthPageStyles" />
+</head>
+<body>
+    <main class="auth-page">
+        <div class="auth-grid">
+            <section class="auth-shell">
+                <aside class="auth-brand">
+                    <div>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="auth-logo">
+                            <span class="auth-logo-mark material-symbols-outlined">package_2</span>
+                            <strong>Cardboard &amp; Circuit</strong>
+                        </a>
+                        <div style="margin-top: 1.25rem;">
+                            <span class="auth-stamp">Terminal Access v.04</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="auth-muted">Logistics hub</p>
+                        <h2 class="auth-title">Verify the operator.</h2>
+                    </div>
+
+                    <p class="auth-muted">System ID 4029-XX-C / Access node local</p>
+                </aside>
+
+                <section class="auth-card">
+                    <header>
+                        <h1>Login</h1>
+                        <p class="auth-muted">Authenticate to access logistics hub</p>
+                    </header>
+
+                    <form method="post" class="auth-form">
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.Email">Registry Email</label>
+                            <input asp-for="Input.Email" class="auth-input" autocomplete="email" placeholder="operator@circuit.io" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.Password">Access Cipher</label>
+                            <input asp-for="Input.Password" class="auth-input" autocomplete="current-password" placeholder="********" />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <label class="auth-check">
+                            <input asp-for="Input.RememberMe" />
+                            Maintain Session
+                        </label>
+
+                        <button type="submit" class="auth-button">
+                            Initiate Login
+                            <span class="material-symbols-outlined">login</span>
+                        </button>
+                    </form>
+
+                    @if (Model.ExternalLogins.Any())
+                    {
+                        <div style="margin: 1.4rem 0;" class="auth-divider">or</div>
+                        <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
+                            @foreach (var provider in Model.ExternalLogins)
+                            {
+                                <button type="submit" class="auth-provider" name="provider" value="@provider.Name">
+                                    Continue with @provider.DisplayName
+                                    <span class="material-symbols-outlined">open_in_new</span>
+                                </button>
+                            }
+                        </form>
+                    }
+
+                    <div style="margin-top: 1.6rem; display: grid; gap: 0.75rem; text-align: center;">
+                        <span class="auth-muted">New operator in the network?</span>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Request Registry Access</a>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="/Views/Shared/_ValidationScriptsPartial.cshtml" />
+</body>
+</html>

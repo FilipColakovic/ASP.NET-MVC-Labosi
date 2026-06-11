@@ -1,0 +1,113 @@
+@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.RegisterModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Register";
+}
+
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | Cardboard &amp; Circuit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <partial name="_AuthPageStyles" />
+</head>
+<body>
+    <main class="auth-page">
+        <div class="auth-grid">
+            <section class="auth-shell">
+                <aside class="auth-brand">
+                    <div>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="auth-logo">
+                            <span class="auth-logo-mark material-symbols-outlined">package_2</span>
+                            <strong>Cardboard &amp; Circuit</strong>
+                        </a>
+                        <div style="margin-top: 1.25rem;">
+                            <span class="auth-stamp">Registry Intake v.04</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="auth-muted">Operator registry</p>
+                        <h2 class="auth-title">Issue a new access card.</h2>
+                    </div>
+
+                    <p class="auth-muted">OIB and JMBG are required for local operator records</p>
+                </aside>
+
+                <section class="auth-card">
+                    <header>
+                        <h1>Register</h1>
+                        <p class="auth-muted">Create an operator account</p>
+                    </header>
+
+                    <form method="post" class="auth-form">
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.Email">Registry Email</label>
+                            <input asp-for="Input.Email" class="auth-input" autocomplete="email" placeholder="operator@circuit.io" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.OIB">OIB</label>
+                            <input asp-for="Input.OIB" class="auth-input" inputmode="numeric" maxlength="11" placeholder="12345678901" />
+                            <span asp-validation-for="Input.OIB" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.JMBG">JMBG</label>
+                            <input asp-for="Input.JMBG" class="auth-input" inputmode="numeric" maxlength="13" placeholder="1234567890123" />
+                            <span asp-validation-for="Input.JMBG" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.Password">Access Cipher</label>
+                            <input asp-for="Input.Password" class="auth-input" autocomplete="new-password" placeholder="********" />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.ConfirmPassword">Confirm Cipher</label>
+                            <input asp-for="Input.ConfirmPassword" class="auth-input" autocomplete="new-password" placeholder="********" />
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="auth-button">
+                            Request Registry Access
+                            <span class="material-symbols-outlined">person_add</span>
+                        </button>
+                    </form>
+
+                    @if (Model.ExternalLogins.Any())
+                    {
+                        <div style="margin: 1.4rem 0;" class="auth-divider">or</div>
+                        <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
+                            @foreach (var provider in Model.ExternalLogins)
+                            {
+                                <button type="submit" class="auth-provider" name="provider" value="@provider.Name">
+                                    Register with @provider.DisplayName
+                                    <span class="material-symbols-outlined">open_in_new</span>
+                                </button>
+                            }
+                        </form>
+                    }
+
+                    <div style="margin-top: 1.6rem; display: grid; gap: 0.75rem; text-align: center;">
+                        <span class="auth-muted">Already cleared for access?</span>
+                        <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Return to Login</a>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="/Views/Shared/_ValidationScriptsPartial.cshtml" />
+</body>
+</html>

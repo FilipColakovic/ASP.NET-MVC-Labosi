@@ -1,0 +1,85 @@
+@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.ExternalLoginModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Complete external login";
+}
+
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | Cardboard &amp; Circuit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <partial name="_AuthPageStyles" />
+</head>
+<body>
+    <main class="auth-page">
+        <div class="auth-grid">
+            <section class="auth-shell">
+                <aside class="auth-brand">
+                    <div>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="auth-logo">
+                            <span class="auth-logo-mark material-symbols-outlined">package_2</span>
+                            <strong>Cardboard &amp; Circuit</strong>
+                        </a>
+                        <div style="margin-top: 1.25rem;">
+                            <span class="auth-stamp">@Model.ProviderDisplayName Access</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="auth-muted">External identity confirmed</p>
+                        <h2 class="auth-title">Finish the local record.</h2>
+                    </div>
+
+                    <p class="auth-muted">Google verifies identity, local fields complete the operator profile</p>
+                </aside>
+
+                <section class="auth-card">
+                    <header>
+                        <h1>Complete Login</h1>
+                        <p class="auth-muted">Add required local operator data</p>
+                    </header>
+
+                    <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.Email">Registry Email</label>
+                            <input asp-for="Input.Email" class="auth-input" autocomplete="email" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.OIB">OIB</label>
+                            <input asp-for="Input.OIB" class="auth-input" inputmode="numeric" maxlength="11" placeholder="12345678901" />
+                            <span asp-validation-for="Input.OIB" class="text-danger"></span>
+                        </div>
+
+                        <div class="auth-field">
+                            <label asp-for="Input.JMBG">JMBG</label>
+                            <input asp-for="Input.JMBG" class="auth-input" inputmode="numeric" maxlength="13" placeholder="1234567890123" />
+                            <span asp-validation-for="Input.JMBG" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="auth-button">
+                            Complete Access
+                            <span class="material-symbols-outlined">verified_user</span>
+                        </button>
+                    </form>
+
+                    <div style="margin-top: 1.6rem; text-align: center;">
+                        <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Cancel and Return</a>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="/Views/Shared/_ValidationScriptsPartial.cshtml" />
+</body>
+</html>
