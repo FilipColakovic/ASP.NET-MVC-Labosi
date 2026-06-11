@@ -1,0 +1,253 @@
+@model Vjezba.Model.Models.AdminUserManagementViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Package Hub | User Control";
+    ViewData["TopbarActive"] = "admin";
+    ViewData["TopbarSearchPlaceholder"] = "Search users...";
+    var currentLang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+}
+
+<!DOCTYPE html>
+<html class="light" lang="@currentLang">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
+</head>
+<body class="analog-shell-bg min-h-screen font-body text-on-surface">
+    <div class="min-h-screen index-canvas-bg">
+        <partial name="~/Views/Home/Partials/_AnalogTopbar.cshtml" />
+
+        <main class="relative mx-auto w-full max-w-7xl px-4 py-8 md:px-8">
+            <div class="grain-overlay pointer-events-none absolute inset-0"></div>
+
+            <section class="relative mb-8 overflow-hidden rounded-3xl border border-outline-variant/40 bg-surface-container/80 p-6 shadow-[0_18px_55px_rgba(67,45,30,0.08)] md:p-8">
+                <div class="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-secondary/15 blur-3xl"></div>
+                <div class="absolute -bottom-24 left-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
+
+                <div class="relative flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <p class="font-label text-xs uppercase tracking-[0.28em] text-primary">Admin Console</p>
+                        <h1 class="mt-3 font-headline text-4xl font-extrabold tracking-tight md:text-6xl">Operator Access Board</h1>
+                        <p class="mt-4 max-w-2xl text-sm leading-6 text-on-surface-variant">
+                            Review local Identity users, assign access roles, and temporarily deactivate accounts without deleting their records.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="rounded-2xl border border-outline-variant/35 bg-surface-container-lowest/65 px-4 py-3">
+                            <div class="font-headline text-2xl font-extrabold">@Model.Users.Count</div>
+                            <div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Users</div>
+                        </div>
+                        <div class="rounded-2xl border border-outline-variant/35 bg-surface-container-lowest/65 px-4 py-3">
+                            <div class="font-headline text-2xl font-extrabold">@Model.Users.Count(x => x.IsActive)</div>
+                            <div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Active</div>
+                        </div>
+                        <div class="rounded-2xl border border-outline-variant/35 bg-surface-container-lowest/65 px-4 py-3">
+                            <div class="font-headline text-2xl font-extrabold">@Model.Users.Count(x => !x.IsActive)</div>
+                            <div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Locked</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+            {
+                <div class="relative mb-5 rounded-2xl border border-green-700/20 bg-green-100/80 px-5 py-4 font-label text-xs uppercase tracking-widest text-green-900">
+                    @Model.StatusMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="relative mb-5 rounded-2xl border border-red-700/20 bg-red-100/80 px-5 py-4 font-label text-xs uppercase tracking-widest text-red-900">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            <section class="relative mb-8 overflow-hidden rounded-3xl border border-outline-variant/35 bg-surface-container/75 p-6 shadow-[0_16px_45px_rgba(67,45,30,0.08)]">
+                <div class="absolute -right-16 top-8 h-48 w-48 rounded-full bg-tertiary/10 blur-3xl"></div>
+                <div class="relative">
+                    <div class="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                            <p class="font-label text-xs uppercase tracking-[0.28em] text-primary">New Operator</p>
+                            <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight">Register access credentials</h2>
+                        </div>
+                        <p class="max-w-lg text-sm leading-6 text-on-surface-variant">
+                            Admin-created users receive a local password immediately. Role and account status can still be changed later from the board.
+                        </p>
+                    </div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All" class="mb-5 rounded-2xl border border-red-700/20 bg-red-100/80 px-5 py-4 text-sm text-red-900"></div>
+                    }
+
+                    <form asp-action="Create" method="post" class="grid gap-4 lg:grid-cols-12">
+                        @Html.AntiForgeryToken()
+
+                        <label class="block lg:col-span-3">
+                            <span class="font-label text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">Registry Email</span>
+                            <input asp-for="CreateUser.Email"
+                                   autocomplete="off"
+                                   placeholder="operator@local.test"
+                                   class="mt-2 w-full rounded-2xl border-outline-variant/45 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:ring-primary/20" />
+                            <span asp-validation-for="CreateUser.Email" class="mt-1 block text-xs text-red-800"></span>
+                        </label>
+
+                        <label class="block lg:col-span-2">
+                            <span class="font-label text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">Password</span>
+                            <input asp-for="CreateUser.Password"
+                                   autocomplete="new-password"
+                                   placeholder="Admin123!"
+                                   class="mt-2 w-full rounded-2xl border-outline-variant/45 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:ring-primary/20" />
+                            <span asp-validation-for="CreateUser.Password" class="mt-1 block text-xs text-red-800"></span>
+                        </label>
+
+                        <label class="block lg:col-span-2">
+                            <span class="font-label text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">OIB</span>
+                            <input asp-for="CreateUser.OIB"
+                                   inputmode="numeric"
+                                   placeholder="12345678901"
+                                   class="mt-2 w-full rounded-2xl border-outline-variant/45 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:ring-primary/20" />
+                            <span asp-validation-for="CreateUser.OIB" class="mt-1 block text-xs text-red-800"></span>
+                        </label>
+
+                        <label class="block lg:col-span-2">
+                            <span class="font-label text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">JMBG</span>
+                            <input asp-for="CreateUser.JMBG"
+                                   inputmode="numeric"
+                                   placeholder="1234567890123"
+                                   class="mt-2 w-full rounded-2xl border-outline-variant/45 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:ring-primary/20" />
+                            <span asp-validation-for="CreateUser.JMBG" class="mt-1 block text-xs text-red-800"></span>
+                        </label>
+
+                        <label class="block lg:col-span-2">
+                            <span class="font-label text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">Role</span>
+                            <select asp-for="CreateUser.Role"
+                                    class="mt-2 w-full rounded-2xl border-outline-variant/45 bg-surface-container-lowest px-4 py-3 font-label text-xs uppercase tracking-widest focus:border-primary focus:ring-primary/20">
+                                @foreach (var role in Model.AvailableRoles)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CreateUser.Role" class="mt-1 block text-xs text-red-800"></span>
+                        </label>
+
+                        <div class="flex items-end lg:col-span-1">
+                            <label class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-outline-variant/45 bg-surface-container-lowest px-3 py-3">
+                                <input asp-for="CreateUser.IsActive"
+                                       class="rounded border-outline-variant text-primary focus:ring-primary/20" />
+                                <span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Active</span>
+                            </label>
+                        </div>
+
+                        <div class="lg:col-span-12">
+                            <button type="submit"
+                                    class="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-5 py-4 font-label text-xs font-bold uppercase tracking-[0.24em] text-on-primary transition-colors hover:bg-surface-tint md:w-auto">
+                                Create Operator
+                                <span class="material-symbols-outlined text-lg">person_add</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="relative overflow-hidden rounded-3xl border border-outline-variant/35 bg-surface-container/75 shadow-[0_16px_45px_rgba(67,45,30,0.08)]">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead class="border-b border-outline-variant/35 bg-surface-container-high/70">
+                            <tr class="font-label text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+                                <th class="px-5 py-4">Operator</th>
+                                <th class="px-5 py-4">Local Data</th>
+                                <th class="px-5 py-4">Role</th>
+                                <th class="px-5 py-4">Status</th>
+                                <th class="px-5 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/25">
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr class="bg-surface-container-low/45 align-top transition-colors hover:bg-surface-container-high/60">
+                                    <td class="px-5 py-5">
+                                        <div class="flex items-start gap-3">
+                                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-outline-variant/40 bg-surface-container-lowest text-primary">
+                                                <span class="material-symbols-outlined">person</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-headline text-base font-bold text-on-surface">@user.Email</div>
+                                                <div class="mt-1 font-label text-[10px] uppercase tracking-widest text-on-surface-variant">@user.UserName</div>
+                                                @if (user.IsCurrentUser)
+                                                {
+                                                    <span class="mt-2 inline-flex rounded-full bg-primary/10 px-3 py-1 font-label text-[10px] uppercase tracking-widest text-primary">Current user</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-5">
+                                        <div class="space-y-1 font-label text-[11px] uppercase tracking-widest text-on-surface-variant">
+                                            <div>OIB: <span class="text-on-surface">@user.OIB</span></div>
+                                            <div>JMBG: <span class="text-on-surface">@user.JMBG</span></div>
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-5">
+                                        <form asp-action="SetRole" method="post" class="flex min-w-[220px] items-center gap-2">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@user.Id" />
+                                            <select name="role"
+                                                    disabled="@user.IsCurrentUser"
+                                                    class="w-full rounded-xl border-outline-variant/50 bg-surface-container-lowest font-label text-xs uppercase tracking-widest text-on-surface focus:border-primary focus:ring-primary/20">
+                                                @foreach (var role in Model.AvailableRoles)
+                                                {
+                                                    <option value="@role" selected="@(role == user.PrimaryRole)">@role</option>
+                                                }
+                                            </select>
+                                            <button type="submit"
+                                                    disabled="@user.IsCurrentUser"
+                                                    class="rounded-xl bg-primary px-4 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-on-primary transition-colors hover:bg-surface-tint disabled:cursor-not-allowed disabled:opacity-40">
+                                                Save
+                                            </button>
+                                        </form>
+                                        <div class="mt-2 font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+                                            Roles: @(user.Roles.Any() ? string.Join(", ", user.Roles) : "None")
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-5">
+                                        <span class="inline-flex rounded-full px-3 py-1 font-label text-[10px] font-bold uppercase tracking-widest @(user.IsActive ? "bg-green-100 text-green-900" : "bg-red-100 text-red-900")">
+                                            @(user.IsActive ? "Active" : "Deactivated")
+                                        </span>
+                                        @if (!user.IsActive && user.LockoutEnd.HasValue)
+                                        {
+                                            <div class="mt-2 font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+                                                Locked until system reset
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="px-5 py-5 text-right">
+                                        <form asp-action="SetStatus" method="post" class="inline-flex">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@user.Id" />
+                                            <input type="hidden" name="isActive" value="@(!user.IsActive)" />
+                                            <button type="submit"
+                                                    disabled="@user.IsCurrentUser"
+                                                    class="rounded-xl border border-outline-variant/50 px-4 py-2 font-label text-[10px] font-bold uppercase tracking-widest transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-40 @(user.IsActive ? "text-red-800" : "text-green-800")">
+                                                @(user.IsActive ? "Deactivate" : "Activate")
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

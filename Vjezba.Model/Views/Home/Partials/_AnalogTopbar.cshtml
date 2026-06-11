@@ -4,6 +4,7 @@
     var searchPlaceholder = ViewData["TopbarSearchPlaceholder"]?.ToString() ?? "Search package...";
     var isManifestTopbar = topbarActive == "manifest";
     var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+    var isAdmin = User?.IsInRole("Admin") ?? false;
     var userDisplayName = User?.Identity?.Name ?? "Account";
     var manifestSelectedType = selectedType switch
     {
@@ -45,6 +46,14 @@
                    class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "analytics" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
                     Analytics
                 </a>
+                @if (isAdmin)
+                {
+                    <a asp-action="Index"
+                       asp-controller="AdminUsers"
+                       class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "admin" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
+                        Users
+                    </a>
+                }
             }
         </nav>
 

@@ -5,7 +5,11 @@ namespace Vjezba.Model.Data
 {
     public static class IdentitySeed
     {
-        private static readonly string[] Roles = ["Admin", "Manager"];
+        public const string AdminRole = "Admin";
+        public const string ManagerRole = "Manager";
+        public const string BasicRole = "Basic";
+
+        public static readonly string[] Roles = [AdminRole, ManagerRole, BasicRole];
 
         public static async Task SeedRolesAndUsersAsync(IServiceProvider services)
         {
@@ -53,6 +57,7 @@ namespace Vjezba.Model.Data
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
+                    LockoutEnabled = true,
                     OIB = oib,
                     JMBG = jmbg
                 };
@@ -76,6 +81,12 @@ namespace Vjezba.Model.Data
                 if (user.JMBG != jmbg)
                 {
                     user.JMBG = jmbg;
+                    shouldUpdate = true;
+                }
+
+                if (!user.LockoutEnabled)
+                {
+                    user.LockoutEnabled = true;
                     shouldUpdate = true;
                 }
 

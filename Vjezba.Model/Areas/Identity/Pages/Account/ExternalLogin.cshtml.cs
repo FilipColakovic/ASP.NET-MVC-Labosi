@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Vjezba.Model.Data;
 using Vjezba.Model.Models;
 
 namespace Vjezba.Model.Areas.Identity.Pages.Account
@@ -116,6 +117,7 @@ namespace Vjezba.Model.Areas.Identity.Pages.Account
             {
                 UserName = Input.Email.Trim(),
                 Email = Input.Email.Trim(),
+                LockoutEnabled = true,
                 OIB = Input.OIB.Trim(),
                 JMBG = Input.JMBG.Trim()
             };
@@ -126,6 +128,7 @@ namespace Vjezba.Model.Areas.Identity.Pages.Account
                 var addLoginResult = await _userManager.AddLoginAsync(user, info);
                 if (addLoginResult.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, IdentitySeed.BasicRole);
                     await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
                     return LocalRedirect(ReturnUrl);
                 }
