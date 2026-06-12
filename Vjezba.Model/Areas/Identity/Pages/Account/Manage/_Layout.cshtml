@@ -1,0 +1,124 @@
+﻿@{
+    var currentLang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var active = (ViewData["ManageNavActive"]?.ToString() ?? "profile").Trim().ToLowerInvariant();
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Manage Your Account";
+    var pageEyebrow = ViewData["ManageEyebrow"]?.ToString() ?? "Terminal Identity";
+    var pageDescription = ViewData["ManageDescription"]?.ToString() ?? "Update your operational parameters and secure your terminal interface credentials within the Analog Logistics network.";
+    ViewData["TopbarActive"] = "account";
+    ViewData["TopbarSearchPlaceholder"] ??= "Search terminal settings...";
+
+    string NavClass(string key) => key == active
+        ? "flex items-center gap-3 rounded-2xl bg-secondary-container px-4 py-3 text-on-secondary-container shadow-sm"
+        : "flex items-center gap-3 rounded-2xl px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary";
+
+    string NavTextClass(string key) => key == active
+        ? "font-label text-xs font-bold uppercase tracking-widest"
+        : "font-label text-xs uppercase tracking-widest";
+}
+
+<!DOCTYPE html>
+<html class="light" lang="@currentLang">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle | Cardboard &amp; Circuit</title>
+    <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
+    <style>
+        .manage-rounded-input {
+            border-radius: 0.75rem !important;
+            border: 1px solid rgba(125, 82, 49, 0.22) !important;
+            background: rgba(255, 255, 255, 0.72) !important;
+            min-height: 3rem;
+        }
+
+        .manage-rounded-input:focus {
+            border-color: rgba(125, 82, 49, 0.45) !important;
+            box-shadow: 0 0 0 3px rgba(125, 82, 49, 0.15) !important;
+            outline: none !important;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="analog-shell-bg min-h-screen font-body text-on-surface">
+    <div class="min-h-screen index-canvas-bg">
+        <partial name="~/Views/Home/Partials/_AnalogTopbar.cshtml" />
+
+        <div class="grid min-h-[calc(100vh-76px)] grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)]">
+            <aside class="analog-sidebar-surface relative border-b border-outline-variant/30 px-4 py-6 lg:sticky lg:top-[76px] lg:h-[calc(100vh-76px)] lg:border-b-0">
+                <div class="grain-overlay pointer-events-none absolute inset-0"></div>
+                <div class="relative flex h-full flex-col justify-between gap-8">
+                    <nav class="space-y-2">
+                        <div class="mb-6 px-2">
+                            <p class="font-label text-[10px] uppercase tracking-[0.28em] text-outline">Terminal Identity</p>
+                            <h2 class="mt-2 font-headline text-2xl font-extrabold tracking-tight text-primary">Account Node</h2>
+                        </div>
+
+                        <a asp-page="./Index" class="@NavClass("profile")">
+                            <span class="material-symbols-outlined text-[20px]">person</span>
+                            <span class="@NavTextClass("profile")">Profile</span>
+                        </a>
+                        <a asp-page="./Email" class="@NavClass("email")">
+                            <span class="material-symbols-outlined text-[20px]">mail</span>
+                            <span class="@NavTextClass("email")">Email</span>
+                        </a>
+                        <a asp-page="./ChangePassword" class="@NavClass("password")">
+                            <span class="material-symbols-outlined text-[20px]">key</span>
+                            <span class="@NavTextClass("password")">Password</span>
+                        </a>
+                        <a asp-page="./ExternalLogins" class="@NavClass("external")">
+                            <span class="material-symbols-outlined text-[20px]">link</span>
+                            <span class="@NavTextClass("external")">External Logins</span>
+                        </a>
+                        <a asp-page="./TwoFactorAuthentication" class="@NavClass("2fa")">
+                            <span class="material-symbols-outlined text-[20px]">shield</span>
+                            <span class="@NavTextClass("2fa")">2FA Secure</span>
+                        </a>
+                        <a asp-page="./PersonalData" class="@NavClass("data")">
+                            <span class="material-symbols-outlined text-[20px]">database</span>
+                            <span class="@NavTextClass("data")">Personal Data</span>
+                        </a>
+                    </nav>
+
+                    <div class="rounded-3xl border border-outline-variant/35 bg-surface-container-low/75 p-4 paper-grain">
+                        <p class="font-label text-[10px] uppercase tracking-[0.2em] text-outline">System Status</p>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-tertiary shadow-[0_0_0_4px_rgba(113,92,0,0.12)]"></span>
+                            <span class="font-label text-xs font-bold uppercase tracking-widest text-on-surface">Terminal Online</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="relative overflow-hidden px-4 py-8 md:px-8 lg:px-12">
+                <div class="grain-overlay pointer-events-none absolute inset-0"></div>
+                <div class="relative mx-auto max-w-6xl">
+                    <section class="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                        <div>
+                            <p class="font-label text-xs uppercase tracking-[0.28em] text-primary">@pageEyebrow</p>
+                            <div class="mt-3 flex flex-wrap items-center gap-3">
+                                <h1 class="font-headline text-4xl font-extrabold tracking-tight text-on-surface md:text-6xl">@pageTitle</h1>
+                                <span class="stamp-effect rounded-sm bg-tertiary/10 px-3 py-1 font-label text-[10px] font-bold uppercase tracking-[0.22em] text-tertiary">Verified Node</span>
+                            </div>
+                            <p class="mt-4 max-w-2xl text-sm leading-6 text-on-surface-variant">@pageDescription</p>
+                        </div>
+                        <div class="rounded-3xl border border-outline-variant/35 bg-surface-container-low/80 px-5 py-4 text-right shadow-[0_12px_30px_rgba(67,45,30,0.07)]">
+                            <p class="font-label text-[10px] uppercase tracking-[0.22em] text-outline">Registry</p>
+                            <p class="mt-1 font-headline text-lg font-bold text-primary">@(User?.Identity?.Name ?? "Account")</p>
+                        </div>
+                    </section>
+
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="/Views/Shared/_ValidationScriptsPartial.cshtml" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

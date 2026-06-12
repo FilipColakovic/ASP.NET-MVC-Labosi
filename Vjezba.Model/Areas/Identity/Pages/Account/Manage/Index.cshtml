@@ -1,0 +1,113 @@
+﻿@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.Manage.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Manage Your Account";
+    ViewData["ManageNavActive"] = "profile";
+    ViewData["ManageEyebrow"] = "Terminal Profile";
+    ViewData["ManageDescription"] = "Update your operational parameters and local profile metadata inside the Analog Logistics network.";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="mb-6 rounded-2xl border border-green-700/20 bg-green-100/80 px-5 py-4 font-label text-xs uppercase tracking-widest text-green-900">
+        @Model.StatusMessage
+    </div>
+}
+
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <section class="details-content-shell relative overflow-hidden rounded-3xl p-6 shadow-[0_18px_55px_rgba(67,45,30,0.08)] md:p-8 xl:col-span-2">
+        <div class="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-secondary/15 blur-3xl"></div>
+        <div class="relative mb-8 flex items-start justify-between gap-4">
+            <div>
+                <h2 class="font-headline text-2xl font-extrabold tracking-tight">User Profile</h2>
+                <p class="mt-1 font-label text-[10px] uppercase tracking-[0.22em] text-outline">Section ID: AUTH-P-892</p>
+            </div>
+            <span class="material-symbols-outlined text-5xl text-primary/25">contact_page</span>
+        </div>
+
+        <form method="post" class="relative space-y-7">
+            <div asp-validation-summary="ModelOnly" class="rounded-2xl border border-red-700/20 bg-red-100/80 px-4 py-3 text-sm text-red-900"></div>
+
+            <div>
+                <label class="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.22em] text-outline">Unique Username</label>
+                <div class="flex items-center justify-between rounded-2xl border border-outline-variant/35 bg-surface-container-highest px-4 py-3">
+                    <span class="font-label text-sm font-medium text-primary">@Model.Username</span>
+                    <span class="material-symbols-outlined text-base text-outline">lock</span>
+                </div>
+                <p class="mt-2 font-label text-[10px] uppercase tracking-widest text-outline">This identifier is immutable for system integrity.</p>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.22em] text-outline">Registry Email</label>
+                    <div class="rounded-2xl border border-outline-variant/35 bg-surface-container-highest px-4 py-3 font-label text-sm text-on-surface-variant">
+                        @Model.Email
+                    </div>
+                </div>
+                <div>
+                    <label asp-for="Input.PhoneNumber" class="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.22em] text-primary">Mobile Communication Port</label>
+                    <div class="relative">
+                        <input asp-for="Input.PhoneNumber" class="analog-input manage-rounded-input pr-10" placeholder="Enter your phone number" />
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-lg text-outline/70">edit</span>
+                    </div>
+                    <span asp-validation-for="Input.PhoneNumber" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low/70 px-4 py-3">
+                    <p class="font-label text-[10px] uppercase tracking-[0.22em] text-outline">OIB</p>
+                    <p class="mt-1 font-label text-sm font-bold text-on-surface">@Model.OIB</p>
+                </div>
+                <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low/70 px-4 py-3">
+                    <p class="font-label text-[10px] uppercase tracking-[0.22em] text-outline">JMBG</p>
+                    <p class="mt-1 font-label text-sm font-bold text-on-surface">@Model.JMBG</p>
+                </div>
+            </div>
+
+            <button type="submit" class="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 font-label text-xs font-bold uppercase tracking-[0.24em] text-on-primary transition-colors hover:bg-surface-tint md:w-auto">
+                Save Parameters
+                <span class="material-symbols-outlined text-lg">save</span>
+            </button>
+        </form>
+    </section>
+
+    <aside class="flex flex-col gap-6">
+        <section class="rounded-3xl border border-outline-variant/35 bg-surface-container/80 p-6 paper-grain shadow-[0_12px_30px_rgba(67,45,30,0.06)]">
+            <h3 class="mb-5 font-label text-[10px] uppercase tracking-[0.22em] text-outline">Last Sync Data</h3>
+            <dl class="space-y-4">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+                    <dt class="font-label text-[11px] text-on-surface-variant">Timestamp</dt>
+                    <dd class="font-label text-[11px] font-bold">@DateTime.UtcNow.ToString("HH:mm:ss") UTC</dd>
+                </div>
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+                    <dt class="font-label text-[11px] text-on-surface-variant">Protocol</dt>
+                    <dd class="font-label text-[11px] font-bold">TLS 1.3</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                    <dt class="font-label text-[11px] text-on-surface-variant">Client</dt>
+                    <dd class="font-label text-[11px] font-bold">Terminal_v2.4</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="rounded-3xl border border-secondary-container/25 bg-secondary-container/10 p-6 paper-grain shadow-[0_12px_30px_rgba(67,45,30,0.05)]">
+            <div class="mb-4 flex items-center gap-3">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                <h3 class="font-headline text-base font-bold text-secondary">Account Security</h3>
+            </div>
+            <div class="mb-3 h-2 overflow-hidden rounded-full bg-primary-fixed/25">
+                <div class="h-full w-[85%] rounded-full bg-primary"></div>
+            </div>
+            <p class="font-label text-[10px] uppercase leading-5 tracking-widest text-on-surface-variant">
+                Your security status is <span class="font-bold text-primary">85% optimized</span>. Update your password to reach 100%.
+            </p>
+        </section>
+
+        <section class="flex min-h-48 flex-col items-center justify-center rounded-3xl border border-outline-variant/30 bg-surface-container-highest/65 p-6 text-center opacity-70 paper-grain">
+            <span class="material-symbols-outlined mb-3 text-6xl text-outline-variant">grid_view</span>
+            <p class="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Circuit Blueprint Layer_07</p>
+        </section>
+    </aside>
+</div>

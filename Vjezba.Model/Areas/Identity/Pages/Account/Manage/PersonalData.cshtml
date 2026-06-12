@@ -1,0 +1,81 @@
+﻿@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.Manage.PersonalDataModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Personal Data";
+    ViewData["ManageNavActive"] = "data";
+    ViewData["ManageEyebrow"] = "Data Ledger";
+    ViewData["ManageDescription"] = "Review the local Identity data stored for this operator account and export it as JSON.";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="mb-6 rounded-2xl border border-green-700/20 bg-green-100/80 px-5 py-4 font-label text-xs uppercase tracking-widest text-green-900">@Model.StatusMessage</div>
+}
+
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <section class="details-content-shell relative overflow-hidden rounded-3xl p-6 shadow-[0_18px_55px_rgba(67,45,30,0.08)] md:p-8 xl:col-span-2">
+        <div class="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-secondary/15 blur-3xl"></div>
+        <div class="relative mb-8 flex items-start justify-between gap-4">
+            <div>
+                <h2 class="font-headline text-2xl font-extrabold tracking-tight">Local Identity Record</h2>
+                <p class="mt-1 font-label text-[10px] uppercase tracking-[0.22em] text-outline">Section ID: AUTH-D-617</p>
+            </div>
+            <span class="material-symbols-outlined text-5xl text-primary/25">database</span>
+        </div>
+
+        <div class="relative overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest/65">
+            <table class="min-w-full text-left">
+                <thead class="border-b border-outline-variant/30 bg-surface-container-high/70">
+                    <tr class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+                        <th class="px-5 py-4">Field</th>
+                        <th class="px-5 py-4">Stored Value</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/20">
+                    @foreach (var item in Model.PersonalData)
+                    {
+                        <tr class="hover:bg-surface-container-high/50">
+                            <td class="px-5 py-4 font-label text-[11px] font-bold uppercase tracking-widest text-primary">@item.Key</td>
+                            <td class="px-5 py-4 font-label text-sm text-on-surface">@(string.IsNullOrWhiteSpace(item.Value) ? "-" : item.Value)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <form method="post" asp-page-handler="Download" class="relative mt-8">
+            <button type="submit" class="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 font-label text-xs font-bold uppercase tracking-[0.24em] text-on-primary transition-colors hover:bg-surface-tint md:w-auto">
+                Download JSON
+                <span class="material-symbols-outlined text-lg">download</span>
+            </button>
+        </form>
+    </section>
+
+    <aside class="flex flex-col gap-6">
+        <section class="rounded-3xl border border-outline-variant/35 bg-surface-container/80 p-6 paper-grain shadow-[0_12px_30px_rgba(67,45,30,0.06)]">
+            <h3 class="font-headline text-lg font-bold">Assigned Roles</h3>
+            <div class="mt-4 flex flex-wrap gap-2">
+                @if (!Model.Roles.Any())
+                {
+                    <span class="rounded-full bg-surface-container-high px-3 py-1 font-label text-[10px] uppercase tracking-widest text-on-surface-variant">None</span>
+                }
+                else
+                {
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span class="rounded-full bg-primary/10 px-3 py-1 font-label text-[10px] font-bold uppercase tracking-widest text-primary">@role</span>
+                    }
+                }
+            </div>
+        </section>
+
+        <section class="rounded-3xl border border-red-900/15 bg-red-100/55 p-6 paper-grain shadow-[0_12px_30px_rgba(67,45,30,0.05)]">
+            <span class="material-symbols-outlined mb-4 text-5xl text-red-900/60">warning</span>
+            <h3 class="font-headline text-lg font-bold text-red-950">Delete Flow</h3>
+            <p class="mt-3 font-label text-[10px] uppercase leading-5 tracking-widest text-red-950/75">
+                Account deletion is intentionally not exposed here yet. Admin deactivation is handled from the users board.
+            </p>
+        </section>
+    </aside>
+</div>

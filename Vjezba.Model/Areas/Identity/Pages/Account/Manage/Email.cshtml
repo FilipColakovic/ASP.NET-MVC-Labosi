@@ -1,0 +1,51 @@
+﻿@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.Manage.EmailModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Email Settings";
+    ViewData["ManageNavActive"] = "email";
+    ViewData["ManageEyebrow"] = "Registry Channel";
+    ViewData["ManageDescription"] = "Control the registry email used for sign-in, alerts, and local operator identification.";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="mb-6 rounded-2xl border border-green-700/20 bg-green-100/80 px-5 py-4 font-label text-xs uppercase tracking-widest text-green-900">@Model.StatusMessage</div>
+}
+
+<section class="details-content-shell relative overflow-hidden rounded-3xl p-6 shadow-[0_18px_55px_rgba(67,45,30,0.08)] md:p-8">
+    <div class="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-secondary/15 blur-3xl"></div>
+    <div class="relative mb-8 flex items-start justify-between gap-4">
+        <div>
+            <h2 class="font-headline text-2xl font-extrabold tracking-tight">Email Transmission</h2>
+            <p class="mt-1 font-label text-[10px] uppercase tracking-[0.22em] text-outline">Section ID: AUTH-E-104</p>
+        </div>
+        <span class="material-symbols-outlined text-5xl text-primary/25">mark_email_read</span>
+    </div>
+
+    <form method="post" asp-page-handler="ChangeEmail" class="relative grid gap-6 lg:grid-cols-2">
+        <div asp-validation-summary="ModelOnly" class="rounded-2xl border border-red-700/20 bg-red-100/80 px-4 py-3 text-sm text-red-900 lg:col-span-2"></div>
+
+        <div>
+            <label class="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.22em] text-outline">Current Registry Email</label>
+            <div class="flex items-center justify-between rounded-2xl border border-outline-variant/35 bg-surface-container-highest px-4 py-3">
+                <span class="font-label text-sm font-medium text-primary">@Model.Email</span>
+                <span class="material-symbols-outlined text-base @(Model.IsEmailConfirmed ? "text-green-700" : "text-outline")">@(Model.IsEmailConfirmed ? "verified" : "hourglass_empty")</span>
+            </div>
+            <p class="mt-2 font-label text-[10px] uppercase tracking-widest text-outline">Status: @(Model.IsEmailConfirmed ? "Verified" : "Pending verification")</p>
+        </div>
+
+        <div>
+            <label asp-for="Input.NewEmail" class="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.22em] text-primary">New Registry Email</label>
+            <input asp-for="Input.NewEmail" class="analog-input manage-rounded-input" autocomplete="email" placeholder="operator@local.test" />
+            <span asp-validation-for="Input.NewEmail" class="field-error"></span>
+        </div>
+
+        <div class="lg:col-span-2">
+            <button type="submit" class="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 font-label text-xs font-bold uppercase tracking-[0.24em] text-on-primary transition-colors hover:bg-surface-tint md:w-auto">
+                Update Email
+                <span class="material-symbols-outlined text-lg">sync_alt</span>
+            </button>
+        </div>
+    </form>
+</section>

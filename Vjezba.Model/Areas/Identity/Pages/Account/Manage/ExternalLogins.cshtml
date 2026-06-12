@@ -1,0 +1,91 @@
+﻿@page
+@model Vjezba.Model.Areas.Identity.Pages.Account.Manage.ExternalLoginsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "External Logins";
+    ViewData["ManageNavActive"] = "external";
+    ViewData["ManageEyebrow"] = "Provider Links";
+    ViewData["ManageDescription"] = "Connect or remove third-party identity providers used to enter the logistics terminal.";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="mb-6 rounded-2xl border border-green-700/20 bg-green-100/80 px-5 py-4 font-label text-xs uppercase tracking-widest text-green-900">@Model.StatusMessage</div>
+}
+
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <section class="details-content-shell relative overflow-hidden rounded-3xl p-6 shadow-[0_18px_55px_rgba(67,45,30,0.08)] md:p-8">
+        <div class="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-secondary/15 blur-3xl"></div>
+        <div class="relative mb-8 flex items-start justify-between gap-4">
+            <div>
+                <h2 class="font-headline text-2xl font-extrabold tracking-tight">Linked Providers</h2>
+                <p class="mt-1 font-label text-[10px] uppercase tracking-[0.22em] text-outline">Section ID: AUTH-X-730</p>
+            </div>
+            <span class="material-symbols-outlined text-5xl text-primary/25">link</span>
+        </div>
+
+        <div class="relative space-y-4">
+            @if (!Model.CurrentLogins.Any())
+            {
+                <div class="rounded-2xl border border-outline-variant/35 bg-surface-container-low/75 p-5 font-label text-xs uppercase tracking-widest text-on-surface-variant">
+                    No external providers are linked to this account.
+                </div>
+            }
+            else
+            {
+                @foreach (var login in Model.CurrentLogins)
+                {
+                    <div class="flex flex-col gap-4 rounded-2xl border border-outline-variant/35 bg-surface-container-lowest/70 p-4 md:flex-row md:items-center md:justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary material-symbols-outlined">verified_user</span>
+                            <div>
+                                <p class="font-headline text-lg font-bold">@login.ProviderDisplayName</p>
+                                <p class="font-label text-[10px] uppercase tracking-widest text-outline">Provider key attached</p>
+                            </div>
+                        </div>
+                        <form method="post" asp-page-handler="RemoveLogin">
+                            <input type="hidden" name="loginProvider" value="@login.LoginProvider" />
+                            <input type="hidden" name="providerKey" value="@login.ProviderKey" />
+                            <button type="submit" disabled="@(!Model.ShowRemoveButton)" class="rounded-2xl border border-red-800/20 px-4 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-red-900 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+
+    <section class="rounded-3xl border border-outline-variant/35 bg-surface-container/80 p-6 paper-grain shadow-[0_12px_30px_rgba(67,45,30,0.06)] md:p-8">
+        <div class="mb-8 flex items-start justify-between gap-4">
+            <div>
+                <h2 class="font-headline text-2xl font-extrabold tracking-tight">Available Providers</h2>
+                <p class="mt-1 font-label text-[10px] uppercase tracking-[0.22em] text-outline">Attach a new login route</p>
+            </div>
+            <span class="material-symbols-outlined text-5xl text-primary/25">add_link</span>
+        </div>
+
+        <div class="space-y-4">
+            @if (!Model.OtherLogins.Any())
+            {
+                <div class="rounded-2xl border border-outline-variant/35 bg-surface-container-low/75 p-5 font-label text-xs uppercase tracking-widest text-on-surface-variant">
+                    No additional providers are configured or all providers are already linked.
+                </div>
+            }
+            else
+            {
+                @foreach (var provider in Model.OtherLogins)
+                {
+                    <form method="post" asp-page-handler="LinkLogin">
+                        <input type="hidden" name="provider" value="@provider.Name" />
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 font-label text-xs font-bold uppercase tracking-[0.24em] text-on-primary transition-colors hover:bg-surface-tint">
+                            Link @((provider.DisplayName ?? provider.Name))
+                            <span class="material-symbols-outlined text-lg">open_in_new</span>
+                        </button>
+                    </form>
+                }
+            }
+        </div>
+    </section>
+</div>
+
