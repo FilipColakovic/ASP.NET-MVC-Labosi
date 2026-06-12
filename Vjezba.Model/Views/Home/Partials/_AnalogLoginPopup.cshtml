@@ -9,7 +9,7 @@
 <div class="analog-modal is-hidden" data-login-modal aria-hidden="true" aria-labelledby="analog-login-title" role="dialog">
     <div class="analog-modal-backdrop" data-login-close></div>
 
-    <div class="analog-modal-panel analog-login-modal-panel analog-login-modal-shell relative overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container shadow-[0_18px_50px_rgba(70,45,28,0.16)]">
+    <div class="analog-modal-panel analog-login-modal-panel analog-login-modal-shell relative rounded-xl border border-outline-variant/20 bg-surface-container shadow-[0_18px_50px_rgba(70,45,28,0.16)]">
         <button type="button"
                 class="absolute right-3 top-3 z-20 rounded-full p-2 text-on-surface-variant hover:bg-surface-container-high/70 hover:text-on-surface"
                 data-login-close
@@ -257,6 +257,8 @@
 <style>
     .analog-login-modal-panel {
         width: min(680px, 96vw);
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 0;
     }
 

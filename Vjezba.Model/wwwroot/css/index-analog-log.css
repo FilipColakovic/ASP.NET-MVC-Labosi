@@ -102,13 +102,17 @@
 .analog-modal-panel {
     position: relative;
     width: min(460px, 92vw);
+    max-height: calc(100vh - 3rem);
+    max-height: calc(100dvh - 3rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     padding: 1.5rem;
     z-index: 1;
 }
 
 .analog-modal-panel-scroll {
-    max-height: 80vh;
-    overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 .analog-input {
