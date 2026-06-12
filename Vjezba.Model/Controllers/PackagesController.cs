@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Data;
@@ -105,7 +105,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("{packageId:int}/attachments")]
-        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> ListAttachments(int packageId)
         {
             var packageExists = await _context.Packages.AnyAsync(x => x.Id == packageId);
@@ -312,3 +312,4 @@ namespace Vjezba.Model.Controllers
         }
     }
 }
+

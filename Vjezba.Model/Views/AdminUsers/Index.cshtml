@@ -106,6 +106,7 @@
                             <input asp-for="CreateUser.Password"
                                    autocomplete="new-password"
                                    placeholder="Admin123!"
+                                   value="@Model.CreateUser.Password"
                                    class="mt-2 w-full rounded-2xl border-outline-variant/45 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:ring-primary/20" />
                             <span asp-validation-for="CreateUser.Password" class="mt-1 block text-xs text-red-800"></span>
                         </label>

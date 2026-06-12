@@ -67,19 +67,19 @@
                         </div>
 
                         <div class="auth-field">
-                            <label asp-for="Input.Password">Access Cipher</label>
+                            <label asp-for="Input.Password">Password</label>
                             <input asp-for="Input.Password" class="auth-input" autocomplete="new-password" placeholder="********" />
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
 
                         <div class="auth-field">
-                            <label asp-for="Input.ConfirmPassword">Confirm Cipher</label>
+                            <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                             <input asp-for="Input.ConfirmPassword" class="auth-input" autocomplete="new-password" placeholder="********" />
                             <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                         </div>
 
                         <button type="submit" class="auth-button">
-                            Request Registry Access
+                            Create Account
                             <span class="material-symbols-outlined">person_add</span>
                         </button>
                     </form>

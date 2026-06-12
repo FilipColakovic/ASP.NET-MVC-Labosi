@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vjezba.Model.Data;
@@ -54,7 +54,7 @@ namespace Vjezba.Model.Controllers.Api
         }
 
         [HttpGet("{id:int}")]
-        [Authorize]
+        [Authorize(Roles = "Admin,Manager")]
         public ActionResult<AddressResponseDto> GetById(int id)
         {
             var model = _context.Addresses
@@ -152,4 +152,5 @@ namespace Vjezba.Model.Controllers.Api
         }
     }
 }
+
 

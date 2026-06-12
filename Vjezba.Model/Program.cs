@@ -72,6 +72,7 @@ using (var scope = app.Services.CreateScope())
     // Seed login primjeri:
     // admin@local.test / Admin123!
     // manager@local.test / Manager123!
+    // user2@local.test / User123!
     await IdentitySeed.SeedRolesAndUsersAsync(scope.ServiceProvider);
 }
 

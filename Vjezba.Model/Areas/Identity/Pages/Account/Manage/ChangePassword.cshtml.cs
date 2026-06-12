@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Vjezba.Model.Models;
+using Vjezba.Model.Data;
 
 namespace Vjezba.Model.Areas.Identity.Pages.Account.Manage
 {
-    [Authorize]
+    [Authorize(Roles = IdentitySeed.AdminRole + "," + IdentitySeed.ManagerRole)]
     public class ChangePasswordModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
@@ -95,3 +96,4 @@ namespace Vjezba.Model.Areas.Identity.Pages.Account.Manage
         }
     }
 }
+

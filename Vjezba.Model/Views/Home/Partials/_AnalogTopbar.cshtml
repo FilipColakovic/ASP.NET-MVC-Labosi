@@ -5,7 +5,10 @@
     var isManifestTopbar = topbarActive == "manifest";
     var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
     var isAdmin = User?.IsInRole("Admin") ?? false;
+    var isManager = User?.IsInRole("Manager") ?? false;
+    var canAccessStaffPages = isAdmin || isManager;
     var userDisplayName = User?.Identity?.Name ?? "Account";
+    var logoutReturnUrl = Url.Content("~/");
     var manifestSelectedType = selectedType switch
     {
         "package" => "package",
@@ -33,7 +36,7 @@
                class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "track" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
                 Track
             </a>
-            @if (isAuthenticated)
+            @if (canAccessStaffPages)
             {
                 <a asp-action="Manifest"
                    asp-controller="Home"
@@ -76,13 +79,28 @@
             </button>
             @if (isAuthenticated)
             {
-                <a asp-area="Identity"
-                   asp-page="/Account/Manage/Index"
-                   title="@userDisplayName"
-                   class="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d3cdc6] bg-[#e7e3df] text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
-                   aria-label="Account">
-                    <span class="material-symbols-outlined">person</span>
-                </a>
+                @if (canAccessStaffPages)
+                {
+                    <a asp-area="Identity"
+                       asp-page="/Account/Manage/Index"
+                       title="@userDisplayName"
+                       class="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d3cdc6] bg-[#e7e3df] text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
+                       aria-label="Account">
+                        <span class="material-symbols-outlined">person</span>
+                    </a>
+                }
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="@logoutReturnUrl"
+                      method="post"
+                      class="hidden sm:inline-flex">
+                    <button type="submit"
+                            title="Log out"
+                            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d3cdc6] bg-[#e7e3df] text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
+                            aria-label="Log out">
+                        <span class="material-symbols-outlined">logout</span>
+                    </button>
+                </form>
             }
             else
             {

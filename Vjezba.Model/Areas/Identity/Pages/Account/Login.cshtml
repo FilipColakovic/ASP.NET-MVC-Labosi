@@ -55,14 +55,14 @@
                         </div>
 
                         <div class="auth-field">
-                            <label asp-for="Input.Password">Access Cipher</label>
+                            <label asp-for="Input.Password">Password</label>
                             <input asp-for="Input.Password" class="auth-input" autocomplete="current-password" placeholder="********" />
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
 
                         <label class="auth-check">
                             <input asp-for="Input.RememberMe" />
-                            Maintain Session
+                            Remember Me
                         </label>
 
                         <button type="submit" class="auth-button">
@@ -87,7 +87,7 @@
 
                     <div style="margin-top: 1.6rem; display: grid; gap: 0.75rem; text-align: center;">
                         <span class="auth-muted">New operator in the network?</span>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Request Registry Access</a>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Create Account</a>
                     </div>
                 </section>
             </section>

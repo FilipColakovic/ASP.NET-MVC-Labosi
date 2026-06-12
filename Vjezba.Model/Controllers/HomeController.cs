@@ -11,6 +11,7 @@ namespace Vjezba.Model.Controllers
     {
         private readonly AppDbContext _context;
         private const string DefaultSelectedType = "package";
+        private const string StaffRoles = IdentitySeed.AdminRole + "," + IdentitySeed.ManagerRole;
 
         private static readonly HashSet<string> OverviewTypes = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -40,7 +41,7 @@ namespace Vjezba.Model.Controllers
         [HttpGet("manifest/{selectedType?}")]
         [HttpGet("dashboard/{selectedType?}")]
         [HttpGet("hub/{selectedType?}")]
-        [Authorize]
+        [Authorize(Roles = StaffRoles)]
         public IActionResult Manifest(string? selectedType)
         {
             var normalized = NormalizeType(selectedType);
@@ -63,7 +64,7 @@ namespace Vjezba.Model.Controllers
 
         [HttpGet("analytics")]
         [HttpGet("reports/analytics")]
-        [Authorize]
+        [Authorize(Roles = StaffRoles)]
         public IActionResult Analytics()
         {
             ViewData["SelectedType"] = "analytics";
@@ -72,7 +73,7 @@ namespace Vjezba.Model.Controllers
 
         [HttpGet("objects/{type}/{id:int}")]
         [HttpGet("details/{type}/{id:int}")]
-        [Authorize]
+        [Authorize(Roles = StaffRoles)]
         public IActionResult Details(string type, int id)
         {
             var normalizedType = NormalizeType(type);
@@ -88,7 +89,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("manifest/search")]
-        [Authorize]
+        [Authorize(Roles = StaffRoles)]
         public IActionResult ManifestSearch(string selectedType, string? q)
         {
             var normalizedType = NormalizeType(selectedType);
@@ -110,7 +111,7 @@ namespace Vjezba.Model.Controllers
         }
 
         [HttpGet("autocomplete/{source}")]
-        [Authorize]
+        [Authorize(Roles = StaffRoles)]
         public IActionResult Autocomplete(string source, string? q, int take = 20)
         {
             var normalizedSource = NormalizeType(source);
