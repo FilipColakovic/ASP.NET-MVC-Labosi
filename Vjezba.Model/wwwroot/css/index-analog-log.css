@@ -721,9 +721,11 @@ html.analog-sidebar-collapsed .analog-sidebar .analog-sidebar-text {
     white-space: nowrap;
 }
 
-.analog-sidebar.is-collapsed .analog-global-search,
-html.analog-sidebar-collapsed .analog-sidebar .analog-global-search {
-    display: none;
+@media (min-width: 1024px) {
+    .analog-sidebar.is-collapsed .analog-global-search,
+    html.analog-sidebar-collapsed .analog-sidebar .analog-global-search {
+        display: none;
+    }
 }
 
 .analog-sidebar.is-collapsed .analog-sidebar-link {
