@@ -13,6 +13,12 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+var cloudRunPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(cloudRunPort))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{cloudRunPort}");
+}
+
 var dbDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(dbDirectory);
 var dataProtectionKeyDirectory = Path.Combine(dbDirectory, "DataProtection-Keys");
