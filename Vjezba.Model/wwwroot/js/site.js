@@ -116,7 +116,7 @@
 		return;
 	}
 
-	var mobileQuery = window.matchMedia("(max-width: 640px)");
+	var mobileQuery = window.matchMedia("(max-width: 768px)");
 
 	function collapseRowsWhenDesktop() {
 		if (mobileQuery.matches) {

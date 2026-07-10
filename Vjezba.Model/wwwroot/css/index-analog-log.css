@@ -320,7 +320,7 @@ html.analog-sidebar-open .analog-sidebar {
     border: 1px solid rgba(125, 82, 49, 0.08);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .grain-overlay {
         opacity: 0.2;
     }
@@ -363,12 +363,12 @@ html.analog-sidebar-open .analog-sidebar {
     #manifest .analog-manifest-table tr {
         position: relative;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 0.5rem 0.75rem;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.55rem;
         border: 1px solid rgba(125, 82, 49, 0.1);
         border-radius: 0.9rem;
         background: rgba(253, 249, 246, 0.78);
-        padding: 0.78rem 2.1rem 0.78rem 0.75rem;
+        padding: 0.72rem 2.25rem 0.72rem 0.75rem;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
     }
 
@@ -394,14 +394,12 @@ html.analog-sidebar-open .analog-sidebar {
         border: 0;
     }
 
-    #manifest .analog-manifest-table td:nth-child(1),
-    #manifest .analog-manifest-table td:nth-child(2) {
+    #manifest .analog-manifest-table td:nth-child(1) {
         display: block;
         min-width: 0;
     }
 
-    #manifest .analog-manifest-table td:nth-child(1) a,
-    #manifest .analog-manifest-table td:nth-child(2) > div {
+    #manifest .analog-manifest-table td:nth-child(1) a {
         min-width: 0;
     }
 
@@ -416,21 +414,11 @@ html.analog-sidebar-open .analog-sidebar {
         font-size: 1.25rem;
     }
 
-    #manifest .analog-manifest-table td:nth-child(1) .font-label,
-    #manifest .analog-manifest-table td:nth-child(2) .font-semibold {
+    #manifest .analog-manifest-table td:nth-child(1) .font-label {
         display: block;
         overflow-wrap: anywhere;
-        font-size: 0.82rem;
+        font-size: 0.9rem;
         line-height: 1.2;
-    }
-
-    #manifest .analog-manifest-table td:nth-child(2) .text-xs {
-        display: block;
-        margin-top: 0.18rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 0.66rem;
     }
 
     #manifest .analog-manifest-table tr.is-expanded td {
@@ -438,17 +426,12 @@ html.analog-sidebar-open .analog-sidebar {
         grid-column: 1 / -1;
     }
 
-    #manifest .analog-manifest-table tr.is-expanded td:nth-child(1),
-    #manifest .analog-manifest-table tr.is-expanded td:nth-child(2) {
-        grid-column: auto;
-    }
-
-    #manifest .analog-manifest-table tr.is-expanded td:nth-child(n + 3) {
+    #manifest .analog-manifest-table tr.is-expanded td:nth-child(n + 2) {
         border-top: 1px solid rgba(125, 82, 49, 0.08);
         padding-top: 0.58rem !important;
     }
 
-    #manifest .analog-manifest-table tr.is-expanded td:nth-child(n + 3)::before {
+    #manifest .analog-manifest-table tr.is-expanded td:nth-child(n + 2)::before {
         display: block;
         margin-bottom: 0.28rem;
         color: #62574d;
@@ -457,6 +440,25 @@ html.analog-sidebar-open .analog-sidebar {
         font-weight: 700;
         letter-spacing: 0.18em;
         text-transform: uppercase;
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="package"] td:nth-child(2)::before {
+        content: "Destination";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="courier"] td:nth-child(2)::before,
+    #manifest .analog-manifest-table[data-selected-type="warehouse"] td:nth-child(2)::before,
+    #manifest .analog-manifest-table[data-selected-type="user"] td:nth-child(2)::before,
+    #manifest .analog-manifest-table[data-selected-type="address"] td:nth-child(2)::before {
+        content: "Name";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="delivery"] td:nth-child(2)::before {
+        content: "Courier";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="statuslog"] td:nth-child(2)::before {
+        content: "Package";
     }
 
     #manifest .analog-manifest-table[data-selected-type="package"] td:nth-child(3)::before,
