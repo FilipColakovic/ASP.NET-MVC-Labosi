@@ -4,3 +4,4 @@
 *.user
 *.suo
 *.vsidx
+client_secret_*.json
