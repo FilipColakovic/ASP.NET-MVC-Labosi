@@ -109,6 +109,36 @@
 	});
 })();
 
+// Delegated login popup opener for side menu buttons rendered across custom shells.
+(function () {
+	document.addEventListener("click", function (event) {
+		var opener = event.target.closest("[data-login-open]");
+		if (!opener) {
+			return;
+		}
+
+		var modal = document.querySelector("[data-login-modal]");
+		if (!modal) {
+			return;
+		}
+
+		event.preventDefault();
+		document.documentElement.classList.remove("analog-sidebar-open");
+		modal.classList.remove("is-hidden");
+		modal.setAttribute("aria-hidden", "false");
+
+		window.setTimeout(function () {
+			var emailInput = modal.querySelector("#analog-popup-email");
+			var passwordInput = modal.querySelector("#analog-popup-password");
+			if (emailInput && !emailInput.value.trim()) {
+				emailInput.focus();
+			} else if (passwordInput) {
+				passwordInput.focus();
+			}
+		}, 30);
+	});
+})();
+
 // Global search over navigation pages and application data.
 (function () {
 	var root = document.querySelector("[data-global-search]");
