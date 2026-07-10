@@ -72,10 +72,6 @@
                 <span class="material-symbols-outlined">inventory_2</span>
                 <span class="analog-sidebar-text">Manifests</span>
             </a>
-            <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "analytics" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Analytics" asp-controller="Home" title="Analytics">
-                <span class="material-symbols-outlined">analytics</span>
-                <span class="analog-sidebar-text">Analytics</span>
-            </a>
             @if (isAdmin)
             {
                 <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "admin" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="AdminUsers" title="Users">
@@ -137,10 +133,14 @@
         }
         else
         {
-            <button type="button" class="analog-sidebar-link flex w-full items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" data-login-open>
+            <a class="analog-sidebar-link flex w-full items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider"
+               asp-area="Identity"
+               asp-page="/Account/Login"
+               asp-route-returnUrl="@logoutReturnUrl"
+               data-login-open>
                 <span class="material-symbols-outlined">person</span>
                 <span class="analog-sidebar-text">Login</span>
-            </button>
+            </a>
         }
     </div>
 </aside>

@@ -136,7 +136,7 @@
 				passwordInput.focus();
 			}
 		}, 30);
-	});
+	}, true);
 })();
 
 // Global search over navigation pages and application data.
