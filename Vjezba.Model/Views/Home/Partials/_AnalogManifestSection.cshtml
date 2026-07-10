@@ -8,21 +8,21 @@
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
-<div class="grid grid-cols-12 gap-6 items-center rise-in">
+<div class="grid grid-cols-12 gap-4 md:gap-6 items-center rise-in">
     <div class="col-span-12 lg:col-span-6">
         <h2 class="font-headline font-extrabold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Live Manifest Index</h2>
         <p class="font-label text-sm text-on-surface-variant uppercase tracking-widest opacity-70">Region: Croatia</p>
     </div>
-    <div class="col-span-12 lg:col-span-6 flex lg:justify-end flex-wrap gap-4">
-        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+    <div class="col-span-12 lg:col-span-6 grid grid-cols-3 gap-3 lg:flex lg:justify-end lg:flex-wrap lg:gap-4">
+        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-3 md:p-4 rounded-xl flex flex-col items-end min-w-0 lg:min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Active Parcels</span>
             <span class="font-headline font-bold text-2xl text-primary">@Model.Packages.Count</span>
         </div>
-        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-3 md:p-4 rounded-xl flex flex-col items-end min-w-0 lg:min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">In Transit</span>
             <span class="font-headline font-bold text-2xl text-secondary">@inTransitCount</span>
         </div>
-        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-4 rounded-xl flex flex-col items-end min-w-[140px]">
+        <div class="bg-surface-container-high index-stat-card-bg analog-panel-surface p-3 md:p-4 rounded-xl flex flex-col items-end min-w-0 lg:min-w-[140px]">
             <span class="font-label text-[10px] uppercase tracking-tighter text-on-surface-variant">Delivered Today</span>
             <span class="font-headline font-bold text-2xl text-tertiary">@deliveredTodayCount</span>
         </div>
@@ -31,7 +31,7 @@
 
 <div id="manifest" class="bg-surface-container manifest-shell-bg analog-panel-surface p-1 rounded-xl rise-in" style="animation-delay: 180ms;">
     <div class="bg-surface-container-lowest manifest-table-bg analog-table-surface rounded-lg overflow-x-auto">
-        <table class="w-full text-left border-collapse min-w-[780px]" data-user-table="@(selectedType == "user" ? "true" : "false")" data-user-return-url="@returnUrl" data-selected-type="@selectedType">
+        <table class="analog-manifest-table w-full text-left border-collapse min-w-[780px]" data-user-table="@(selectedType == "user" ? "true" : "false")" data-user-return-url="@returnUrl" data-selected-type="@selectedType">
             <thead>
                 @if (selectedType == "package")
                 {

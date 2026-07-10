@@ -64,6 +64,120 @@
 	});
 })();
 
+// Mobile/tablet side menu behavior.
+(function () {
+	var sidebar = document.querySelector("[data-analog-sidebar]");
+	var openButton = document.querySelector("[data-analog-sidebar-mobile-toggle]");
+	var closeButton = document.querySelector("[data-analog-sidebar-mobile-close]");
+	var backdrop = document.querySelector("[data-analog-sidebar-backdrop]");
+	if (!sidebar || !openButton) {
+		return;
+	}
+
+	function setOpen(isOpen) {
+		document.documentElement.classList.toggle("analog-sidebar-open", isOpen);
+		openButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+		sidebar.setAttribute("aria-hidden", isOpen ? "false" : "true");
+	}
+
+	openButton.addEventListener("click", function () {
+		setOpen(true);
+	});
+
+	if (closeButton) {
+		closeButton.addEventListener("click", function () {
+			setOpen(false);
+		});
+	}
+
+	if (backdrop) {
+		backdrop.addEventListener("click", function () {
+			setOpen(false);
+		});
+	}
+
+	sidebar.querySelectorAll("a").forEach(function (link) {
+		link.addEventListener("click", function () {
+			setOpen(false);
+		});
+	});
+
+	document.addEventListener("keydown", function (event) {
+		if (event.key === "Escape") {
+			setOpen(false);
+		}
+	});
+})();
+
+// Turns manifest rows into compact accordions on mobile screens.
+(function () {
+	var table = document.querySelector("#manifest .analog-manifest-table");
+	if (!table) {
+		return;
+	}
+
+	var mobileQuery = window.matchMedia("(max-width: 640px)");
+
+	function collapseRowsWhenDesktop() {
+		if (mobileQuery.matches) {
+			return;
+		}
+
+		table.querySelectorAll("tr.is-expanded").forEach(function (row) {
+			row.classList.remove("is-expanded");
+			row.setAttribute("aria-expanded", "false");
+		});
+	}
+
+	table.querySelectorAll("tbody tr[data-row-id]").forEach(function (row) {
+		row.setAttribute("tabindex", "0");
+		row.setAttribute("aria-expanded", "false");
+	});
+
+	table.addEventListener("click", function (event) {
+		if (!mobileQuery.matches) {
+			return;
+		}
+
+		var row = event.target.closest("tr[data-row-id]");
+		if (!row || !table.contains(row)) {
+			return;
+		}
+
+		if (event.target.closest("button, form, input, select, textarea, [data-edit-open], [data-create-open]")) {
+			return;
+		}
+
+		if (event.target.closest("a")) {
+			event.preventDefault();
+		}
+
+		var isExpanded = row.classList.toggle("is-expanded");
+		row.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+	});
+
+	table.addEventListener("keydown", function (event) {
+		if (!mobileQuery.matches || (event.key !== "Enter" && event.key !== " ")) {
+			return;
+		}
+
+		var row = event.target.closest("tr[data-row-id]");
+		if (!row || !table.contains(row)) {
+			return;
+		}
+
+		event.preventDefault();
+		var isExpanded = row.classList.toggle("is-expanded");
+		row.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+	});
+
+	if (typeof mobileQuery.addEventListener === "function") {
+		mobileQuery.addEventListener("change", collapseRowsWhenDesktop);
+	} else if (typeof mobileQuery.addListener === "function") {
+		mobileQuery.addListener(collapseRowsWhenDesktop);
+	}
+})();
+
 // Replaces select inputs with searchable autocomplete controls backed by server endpoints.
 (function () {
 	var selects = document.querySelectorAll("select[data-autocomplete-source]");

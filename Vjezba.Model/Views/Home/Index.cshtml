@@ -31,10 +31,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <script src="~/js/index-analog-log-tailwind-config.js" asp-append-version="true"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/index-analog-log.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
     <style>
         :root {
             --surface: #fdf9f6;
@@ -122,10 +124,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <partial name="Partials/_AnalogTopbar" />
+<body class="analog-shell-bg font-body text-on-surface flex min-h-screen">
+    <partial name="Partials/_AnalogSidebar" model="@(null as Vjezba.Model.Models.ObjectOverviewViewModel)" />
 
-    <main class="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-12 md:py-20">
+    <main class="index-canvas-bg relative flex min-w-0 flex-1 flex-col gap-8 px-4 pb-12 pt-16 sm:px-6 md:pt-20 lg:pt-16">
         <div class="paper-overlay absolute inset-0 -z-10 rounded-3xl"></div>
 
         <section class="mx-auto w-full max-w-3xl text-center">

@@ -66,8 +66,64 @@
     border-bottom: 1px solid rgba(125, 82, 49, 0.18);
 }
 
-html.analog-menu-open {
+html.analog-menu-open,
+html.analog-sidebar-open {
     overflow: hidden;
+}
+
+.analog-sidebar-mobile-button {
+    position: fixed;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 45;
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid #d3cdc6;
+    background: rgba(231, 227, 223, 0.94);
+    color: #6a5e53;
+    box-shadow: 0 12px 28px rgba(50, 34, 23, 0.14);
+    backdrop-filter: blur(8px);
+    transition: color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.analog-sidebar-mobile-button:hover,
+.analog-sidebar-mobile-button:focus-visible {
+    color: #7a4c2b;
+    border-color: #c0b8b0;
+    outline: none;
+}
+
+.analog-sidebar-mobile-button:active {
+    transform: scale(0.96);
+}
+
+.analog-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    display: none;
+    border: 0;
+    background: rgba(31, 25, 19, 0.42);
+    backdrop-filter: blur(5px);
+}
+
+html.analog-sidebar-open .analog-sidebar-backdrop {
+    display: block;
+}
+
+html.analog-sidebar-open .analog-sidebar {
+    transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+    .analog-sidebar-mobile-button,
+    .analog-sidebar-backdrop {
+        display: none !important;
+    }
 }
 
 .analog-mobile-menu {
@@ -255,6 +311,10 @@ html.analog-menu-open {
     background: #e6e0db;
 }
 
+.analog-manifest-table {
+    table-layout: auto;
+}
+
 .analog-search-shell {
     background: linear-gradient(180deg, #ece7e2 0%, #e7e2dd 100%);
     border: 1px solid rgba(125, 82, 49, 0.08);
@@ -273,6 +333,216 @@ html.analog-menu-open {
         width: min(100%, 28rem);
         max-height: calc(100dvh - 1.5rem);
         padding: 1rem;
+    }
+
+    #manifest {
+        padding: 0.25rem;
+    }
+
+    #manifest .manifest-table-bg {
+        overflow-x: visible;
+    }
+
+    #manifest .analog-manifest-table {
+        display: block;
+        min-width: 0 !important;
+        width: 100%;
+        border-collapse: separate;
+    }
+
+    #manifest .analog-manifest-table thead {
+        display: none;
+    }
+
+    #manifest .analog-manifest-table tbody {
+        display: grid;
+        gap: 0.55rem;
+        padding: 0.35rem;
+    }
+
+    #manifest .analog-manifest-table tr {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.5rem 0.75rem;
+        border: 1px solid rgba(125, 82, 49, 0.1);
+        border-radius: 0.9rem;
+        background: rgba(253, 249, 246, 0.78);
+        padding: 0.78rem 2.1rem 0.78rem 0.75rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
+    }
+
+    #manifest .analog-manifest-table tr::after {
+        content: "expand_more";
+        position: absolute;
+        top: 0.82rem;
+        right: 0.65rem;
+        color: #7d5231;
+        font-family: "Material Symbols Outlined";
+        font-size: 1.2rem;
+        line-height: 1;
+        transition: transform 0.18s ease;
+    }
+
+    #manifest .analog-manifest-table tr.is-expanded::after {
+        transform: rotate(180deg);
+    }
+
+    #manifest .analog-manifest-table td {
+        display: none;
+        padding: 0 !important;
+        border: 0;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(1),
+    #manifest .analog-manifest-table td:nth-child(2) {
+        display: block;
+        min-width: 0;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(1) a,
+    #manifest .analog-manifest-table td:nth-child(2) > div {
+        min-width: 0;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(1) a {
+        align-items: flex-start;
+        gap: 0.55rem;
+        pointer-events: none;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(1) .material-symbols-outlined {
+        margin-top: 0.12rem;
+        font-size: 1.25rem;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(1) .font-label,
+    #manifest .analog-manifest-table td:nth-child(2) .font-semibold {
+        display: block;
+        overflow-wrap: anywhere;
+        font-size: 0.82rem;
+        line-height: 1.2;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(2) .text-xs {
+        display: block;
+        margin-top: 0.18rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.66rem;
+    }
+
+    #manifest .analog-manifest-table tr.is-expanded td {
+        display: block;
+        grid-column: 1 / -1;
+    }
+
+    #manifest .analog-manifest-table tr.is-expanded td:nth-child(1),
+    #manifest .analog-manifest-table tr.is-expanded td:nth-child(2) {
+        grid-column: auto;
+    }
+
+    #manifest .analog-manifest-table tr.is-expanded td:nth-child(n + 3) {
+        border-top: 1px solid rgba(125, 82, 49, 0.08);
+        padding-top: 0.58rem !important;
+    }
+
+    #manifest .analog-manifest-table tr.is-expanded td:nth-child(n + 3)::before {
+        display: block;
+        margin-bottom: 0.28rem;
+        color: #62574d;
+        font-family: "Space Grotesk", "Work Sans", sans-serif;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="package"] td:nth-child(3)::before,
+    #manifest .analog-manifest-table[data-selected-type="statuslog"] td:nth-child(5)::before {
+        content: "Status";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="package"] td:nth-child(4)::before {
+        content: "Timestamp";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="package"] td:nth-child(5)::before {
+        content: "Priority";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="courier"] td:nth-child(3)::before,
+    #manifest .analog-manifest-table[data-selected-type="user"] td:nth-child(3)::before {
+        content: "Email";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="courier"] td:nth-child(4)::before,
+    #manifest .analog-manifest-table[data-selected-type="user"] td:nth-child(4)::before {
+        content: "Phone";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="courier"] td:nth-child(5)::before {
+        content: "Vehicle";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="warehouse"] td:nth-child(3)::before,
+    #manifest .analog-manifest-table[data-selected-type="address"] td:nth-child(3)::before {
+        content: "City";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="warehouse"] td:nth-child(4)::before {
+        content: "Capacity";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="warehouse"] td:nth-child(5)::before {
+        content: "Stored";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="user"] td:nth-child(5)::before {
+        content: "Registered";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="delivery"] td:nth-child(3)::before {
+        content: "Location";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="delivery"] td:nth-child(4)::before {
+        content: "Departure";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="delivery"] td:nth-child(5)::before {
+        content: "Delayed";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="address"] td:nth-child(4)::before {
+        content: "Postal";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="address"] td:nth-child(5)::before {
+        content: "Country";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="statuslog"] td:nth-child(3)::before {
+        content: "Location";
+    }
+
+    #manifest .analog-manifest-table[data-selected-type="statuslog"] td:nth-child(4)::before {
+        content: "Changed";
+    }
+
+    #manifest .analog-manifest-table td:nth-child(6)::before {
+        content: "Actions";
+    }
+
+    #manifest .analog-manifest-table td:nth-child(5),
+    #manifest .analog-manifest-table td:nth-child(6) {
+        text-align: left !important;
+    }
+
+    #manifest .analog-manifest-table td:nth-child(6) > div {
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
 }
 

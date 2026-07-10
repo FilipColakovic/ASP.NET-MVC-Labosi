@@ -1,10 +1,33 @@
 @model Vjezba.Model.Models.ObjectOverviewViewModel?
 
 @{
-    var selectedType = (ViewData["SelectedType"]?.ToString() ?? "package").ToLowerInvariant();
+    var topbarActive = (ViewData["TopbarActive"]?.ToString() ?? "track").Trim().ToLowerInvariant();
+    var selectedTypeValue = ViewData["SelectedType"]?.ToString();
+    var selectedType = string.IsNullOrWhiteSpace(selectedTypeValue)
+        ? (topbarActive == "manifest" ? "package" : string.Empty)
+        : selectedTypeValue.ToLowerInvariant();
+    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+    var isAdmin = User?.IsInRole("Admin") ?? false;
+    var isManager = User?.IsInRole("Manager") ?? false;
+    var canAccessStaffPages = isAdmin || isManager;
+    var userDisplayName = User?.Identity?.Name ?? "Account";
+    var logoutReturnUrl = Url.Content("~/");
 }
 
-<aside class="analog-sidebar analog-sidebar-surface hidden lg:flex sticky top-0 h-screen w-64 flex-col p-4 space-y-2 shrink-0" data-analog-sidebar>
+<button type="button"
+        class="analog-sidebar-mobile-button"
+        data-analog-sidebar-mobile-toggle
+        aria-label="Open side menu"
+        aria-controls="analog-sidebar"
+        aria-expanded="false">
+    <span class="material-symbols-outlined">menu</span>
+</button>
+<button type="button"
+        class="analog-sidebar-backdrop"
+        data-analog-sidebar-backdrop
+        aria-label="Close side menu"></button>
+
+<aside id="analog-sidebar" class="analog-sidebar analog-sidebar-surface fixed inset-y-0 left-0 z-50 flex h-dvh w-72 -translate-x-full flex-col p-4 space-y-2 shrink-0 transition-transform lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-64 lg:translate-x-0" data-analog-sidebar>
     <div class="mb-8 px-2 pt-4">
         <div class="analog-sidebar-brand-row flex items-center gap-3">
             <div class="analog-sidebar-brand-icon w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container">
@@ -14,13 +37,41 @@
                 <h1 class="text-lg font-bold font-headline text-[#7d5231]">Package Hub</h1>
                 <p class="font-label text-[10px] uppercase tracking-wider text-[#62574d]">Technical Operations</p>
             </div>
-            <button type="button" class="analog-sidebar-toggle ml-auto h-9 w-9 rounded-md text-stone-600 hover:bg-[#e5e2df] transition-colors" data-analog-sidebar-toggle aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">
+            <button type="button" class="analog-sidebar-toggle ml-auto hidden h-9 w-9 rounded-md text-stone-600 hover:bg-[#e5e2df] transition-colors lg:inline-flex lg:items-center lg:justify-center" data-analog-sidebar-toggle aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">
                 <span class="material-symbols-outlined" data-analog-sidebar-toggle-icon>chevron_left</span>
+            </button>
+            <button type="button" class="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md text-stone-600 hover:bg-[#e5e2df] transition-colors lg:hidden" data-analog-sidebar-mobile-close aria-label="Close side menu">
+                <span class="material-symbols-outlined">close</span>
             </button>
         </div>
     </div>
 
-    <nav class="flex-1 space-y-1">
+    <nav class="space-y-1 border-b border-[#d8d3ce] pb-4">
+        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "track" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" title="Track">
+            <span class="material-symbols-outlined">search</span>
+            <span class="analog-sidebar-text">Track</span>
+        </a>
+        @if (canAccessStaffPages)
+        {
+            <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "manifest" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Manifest" asp-controller="Home" asp-route-selectedType="package" title="Manifests">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span class="analog-sidebar-text">Manifests</span>
+            </a>
+            <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "analytics" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Analytics" asp-controller="Home" title="Analytics">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="analog-sidebar-text">Analytics</span>
+            </a>
+            @if (isAdmin)
+            {
+                <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "admin" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="AdminUsers" title="Users">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    <span class="analog-sidebar-text">Users</span>
+                </a>
+            }
+        }
+    </nav>
+
+    <nav class="flex-1 space-y-1 overflow-y-auto pt-4">
         <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(selectedType == "package" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Manifest" asp-controller="Home" asp-route-selectedType="package" title="Packages">
             <span class="material-symbols-outlined">package_2</span>
             <span class="analog-sidebar-text">Packages</span>
@@ -52,17 +103,29 @@
     </nav>
 
     <div class="mt-auto space-y-1">
-        <a class="analog-sidebar-link w-full bg-secondary-container text-on-secondary-container py-3 rounded-md font-label text-xs font-bold uppercase tracking-widest transition-transform hover:scale-[1.01] active:scale-95 mb-4 flex items-center justify-center gap-2" asp-action="Index" asp-controller="Home" title="Track Package">
-            <span class="material-symbols-outlined text-[18px]">search</span>
-            <span class="analog-sidebar-text">Track Package</span>
-        </a>
-        <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" href="#" title="Support">
-            <span class="material-symbols-outlined">help</span>
-            <span class="analog-sidebar-text">Support</span>
-        </a>
         <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md font-label text-sm uppercase tracking-wider @(selectedType == "privacy" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Privacy" asp-controller="Home" title="Privacy">
             <span class="material-symbols-outlined">privacy_tip</span>
             <span class="analog-sidebar-text">Privacy</span>
         </a>
+        @if (isAuthenticated)
+        {
+            <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" asp-area="Identity" asp-page="/Account/Manage/Index" title="@userDisplayName">
+                <span class="material-symbols-outlined">person</span>
+                <span class="analog-sidebar-text">Account</span>
+            </a>
+            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@logoutReturnUrl" method="post">
+                <button type="submit" class="analog-sidebar-link flex w-full items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="analog-sidebar-text">Log out</span>
+                </button>
+            </form>
+        }
+        else
+        {
+            <button type="button" class="analog-sidebar-link flex w-full items-center gap-3 px-4 py-3 text-[#62574d] hover:bg-[#e5e2df]/50 rounded-md font-label text-sm uppercase tracking-wider" data-login-open>
+                <span class="material-symbols-outlined">person</span>
+                <span class="analog-sidebar-text">Login</span>
+            </button>
+        }
     </div>
 </aside>
