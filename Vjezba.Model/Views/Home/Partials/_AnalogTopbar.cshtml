@@ -23,14 +23,23 @@
 }
 
 <header class="w-full sticky top-0 z-30 border-b border-[#d8d3ce] bg-[#ece9e6]/95 backdrop-blur-md">
-    <div class="px-4 md:px-6 xl:px-8 py-4 flex items-center gap-3 lg:gap-5">
+    <div class="px-4 md:px-6 xl:px-8 py-3 sm:py-4 flex items-center gap-3 lg:gap-5">
+        <button type="button"
+                class="inline-flex lg:hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d3cdc6] bg-[#e7e3df] text-[#6a5e53] hover:text-[#7a4c2b] hover:border-[#c0b8b0] transition-colors"
+                data-analog-menu-open
+                aria-controls="analog-mobile-menu"
+                aria-expanded="false"
+                aria-label="Open menu">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+
         <a asp-action="Index"
            asp-controller="Home"
-           class="font-headline font-extrabold tracking-[0.12em] text-lg lg:text-2xl xl:text-3xl text-[#7a4c2b] uppercase whitespace-nowrap shrink-0">
+           class="font-headline font-extrabold tracking-[0.12em] text-base sm:text-lg lg:text-2xl xl:text-3xl text-[#7a4c2b] uppercase whitespace-nowrap shrink-0">
             Package Hub
         </a>
 
-        <nav class="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-7 min-w-0 flex-1 overflow-hidden">
+        <nav class="hidden lg:flex items-center gap-4 lg:gap-6 xl:gap-7 min-w-0 flex-1 overflow-hidden">
             <a asp-action="Index"
                asp-controller="Home"
                class="font-label text-[12px] lg:text-[13px] uppercase tracking-[0.14em] pb-1 whitespace-nowrap transition-colors @(topbarActive == "track" ? "text-[#7a4c2b] border-b-2 border-[#7a4c2b]" : "text-[#1f1d1b] hover:text-[#7a4c2b]")">
@@ -60,7 +69,7 @@
             }
         </nav>
 
-        <div class="flex items-center gap-1 sm:gap-2 lg:gap-3 xl:gap-4 shrink-0">
+        <div class="ml-auto flex items-center gap-1 sm:gap-2 lg:gap-3 xl:gap-4 shrink-0">
             <div class="hidden lg:flex items-center gap-2 rounded-xl border border-[#cdc7c1] bg-[#d8d3ce]/65 px-3 py-2 w-56 xl:w-72">
                 <span class="material-symbols-outlined text-[#73695f] text-[18px]">search</span>
                 <input id="@(isManifestTopbar ? "analog-manifest-search" : "analog-global-search")"
@@ -115,6 +124,144 @@
         </div>
     </div>
 </header>
+
+<div id="analog-mobile-menu"
+     class="analog-mobile-menu"
+     data-analog-mobile-menu
+     aria-hidden="true">
+    <button type="button"
+            class="analog-mobile-menu-backdrop"
+            data-analog-menu-close
+            aria-label="Close menu"></button>
+    <aside class="analog-mobile-menu-panel"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="analog-mobile-menu-title">
+        <div class="mb-6 flex items-start justify-between gap-4">
+            <div>
+                <p class="font-label text-[10px] uppercase tracking-[0.28em] text-[#7a4c2b]">Navigation</p>
+                <h2 id="analog-mobile-menu-title" class="mt-1 font-headline text-2xl font-extrabold text-[#3d2b1b]">Package Hub</h2>
+            </div>
+            <button type="button"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d3cdc6] bg-[#e7e3df] text-[#6a5e53]"
+                    data-analog-menu-close
+                    aria-label="Close menu">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <nav class="space-y-2">
+            <a asp-action="Index"
+               asp-controller="Home"
+               class="analog-mobile-menu-link @(topbarActive == "track" ? "is-active" : "")">
+                <span class="material-symbols-outlined">search</span>
+                <span>Track</span>
+            </a>
+            @if (canAccessStaffPages)
+            {
+                <a asp-action="Manifest"
+                   asp-controller="Home"
+                   asp-route-selectedType="@manifestSelectedType"
+                   class="analog-mobile-menu-link @(topbarActive == "manifest" ? "is-active" : "")">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    <span>Manifests</span>
+                </a>
+                <a asp-action="Analytics"
+                   asp-controller="Home"
+                   class="analog-mobile-menu-link @(topbarActive == "analytics" ? "is-active" : "")">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>Analytics</span>
+                </a>
+                @if (isAdmin)
+                {
+                    <a asp-action="Index"
+                       asp-controller="AdminUsers"
+                       class="analog-mobile-menu-link @(topbarActive == "admin" ? "is-active" : "")">
+                        <span class="material-symbols-outlined">admin_panel_settings</span>
+                        <span>Users</span>
+                    </a>
+                }
+            }
+            <a asp-action="Privacy"
+               asp-controller="Home"
+               class="analog-mobile-menu-link @(topbarActive == "privacy" ? "is-active" : "")">
+                <span class="material-symbols-outlined">privacy_tip</span>
+                <span>Privacy</span>
+            </a>
+        </nav>
+
+        <div class="mt-6 border-t border-[#d8d3ce] pt-5">
+            @if (isAuthenticated)
+            {
+                <a asp-area="Identity"
+                   asp-page="/Account/Manage/Index"
+                   class="analog-mobile-menu-link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Account</span>
+                </a>
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="@logoutReturnUrl"
+                      method="post"
+                      class="mt-2">
+                    <button type="submit" class="analog-mobile-menu-link w-full">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Log out</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <button type="button"
+                        data-login-open
+                        data-analog-menu-close
+                        class="analog-mobile-menu-link w-full">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Login</span>
+                </button>
+            }
+        </div>
+    </aside>
+</div>
+
+<script>
+    (() => {
+        const menu = document.querySelector("[data-analog-mobile-menu]");
+        const openButton = document.querySelector("[data-analog-menu-open]");
+        if (!menu || !openButton || menu.dataset.initialized === "true") return;
+
+        menu.dataset.initialized = "true";
+        const closeButtons = menu.querySelectorAll("[data-analog-menu-close]");
+        const focusableSelector = "a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex='-1'])";
+        let previousFocus = null;
+
+        const setOpen = (isOpen) => {
+            menu.classList.toggle("is-open", isOpen);
+            menu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+            openButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            document.documentElement.classList.toggle("analog-menu-open", isOpen);
+
+            if (isOpen) {
+                previousFocus = document.activeElement;
+                window.setTimeout(() => {
+                    const firstFocusable = menu.querySelector(focusableSelector);
+                    firstFocusable?.focus();
+                }, 40);
+            } else if (previousFocus && typeof previousFocus.focus === "function") {
+                previousFocus.focus();
+            }
+        };
+
+        openButton.addEventListener("click", () => setOpen(true));
+        closeButtons.forEach((button) => button.addEventListener("click", () => setOpen(false)));
+        menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setOpen(false)));
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && menu.classList.contains("is-open")) {
+                setOpen(false);
+            }
+        });
+    })();
+</script>
 
 @if (!isAuthenticated)
 {
