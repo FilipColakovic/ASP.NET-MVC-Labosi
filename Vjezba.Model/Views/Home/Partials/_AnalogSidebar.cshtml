@@ -144,3 +144,8 @@
         }
     </div>
 </aside>
+
+@if (!isAuthenticated)
+{
+    <partial name="~/Views/Home/Partials/_AnalogLoginPopup.cshtml" />
+}
