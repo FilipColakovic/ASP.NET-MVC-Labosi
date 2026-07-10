@@ -46,6 +46,21 @@
         </div>
     </div>
 
+    <div class="analog-global-search" data-global-search>
+        <label class="sr-only" for="analog-global-search-input">Global search</label>
+        <div class="analog-global-search-input-shell">
+            <span class="material-symbols-outlined">search</span>
+            <input id="analog-global-search-input"
+                   type="search"
+                   autocomplete="off"
+                   spellcheck="false"
+                   data-global-search-input
+                   placeholder="Search pages, menu, data..."
+                   aria-label="Search pages, menu, and data" />
+        </div>
+        <div class="analog-global-search-results" data-global-search-results aria-live="polite"></div>
+    </div>
+
     <nav class="space-y-1 border-b border-[#d8d3ce] pb-4">
         <a class="analog-sidebar-link flex items-center gap-3 px-4 py-3 rounded-md transition-transform hover:scale-[1.01] active:scale-95 font-label text-sm uppercase tracking-wider @(topbarActive == "track" ? "text-[#7a4c2b] font-bold bg-[#e5e2df]" : "text-[#62574d] hover:text-[#7a4c2b] hover:bg-[#e5e2df]/50")" asp-action="Index" asp-controller="Home" title="Track">
             <span class="material-symbols-outlined">search</span>

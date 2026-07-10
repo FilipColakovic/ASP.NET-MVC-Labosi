@@ -130,6 +130,38 @@ namespace Vjezba.Model.Controllers
             return Json(items);
         }
 
+        [HttpGet("search/global")]
+        [AllowAnonymous]
+        public IActionResult GlobalSearch(string? q, int take = 8)
+        {
+            var term = (q ?? string.Empty).Trim();
+            var cappedTake = Math.Clamp(take, 1, 20);
+            var canAccessStaffPages = User.IsInRole(IdentitySeed.AdminRole) || User.IsInRole(IdentitySeed.ManagerRole);
+
+            var results = SearchGlobalPages(term, canAccessStaffPages).ToList();
+            if (canAccessStaffPages && !string.IsNullOrWhiteSpace(term))
+            {
+                results.AddRange(SearchGlobalPackages(term, cappedTake));
+                results.AddRange(SearchGlobalCouriers(term, cappedTake));
+                results.AddRange(SearchGlobalWarehouses(term, cappedTake));
+                results.AddRange(SearchGlobalUsers(term, cappedTake));
+                results.AddRange(SearchGlobalDeliveries(term, cappedTake));
+                results.AddRange(SearchGlobalAddresses(term, cappedTake));
+                results.AddRange(SearchGlobalStatusLogs(term, cappedTake));
+            }
+
+            return Json(results
+                .Take(cappedTake * 3)
+                .Select(x => new
+                {
+                    x.Title,
+                    x.Subtitle,
+                    x.Category,
+                    x.Icon,
+                    x.Url
+                }));
+        }
+
         private ObjectOverviewViewModel BuildOverviewModel()
         {
             return new ObjectOverviewViewModel
@@ -545,6 +577,193 @@ namespace Vjezba.Model.Controllers
                 .ToList();
         }
 
+        private IEnumerable<GlobalSearchResult> SearchGlobalPages(string term, bool canAccessStaffPages)
+        {
+            var pages = new List<GlobalSearchResult>
+            {
+                new("Track package", "Public shipment lookup", "Page", "search", Url.Action("Index", "Home") ?? "/"),
+                new("Privacy policy", "Application data handling", "Page", "privacy_tip", Url.Action("Privacy", "Home") ?? "/policy/privacy")
+            };
+
+            if (canAccessStaffPages)
+            {
+                pages.AddRange(new[]
+                {
+                    new GlobalSearchResult("Live manifest", "Packages, couriers, users, deliveries", "Page", "inventory_2", Url.Action("Manifest", "Home", new { selectedType = "package" }) ?? "/manifest/package"),
+                    new GlobalSearchResult("Analytics", "Performance reporting", "Page", "analytics", Url.Action("Analytics", "Home") ?? "/analytics"),
+                    new GlobalSearchResult("User administration", "Roles and account status", "Page", "admin_panel_settings", Url.Action("Index", "AdminUsers") ?? "/AdminUsers")
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return pages;
+            }
+
+            return pages.Where(x => ContainsSearchText(term, x.Title, x.Subtitle, x.Category));
+        }
+
+        private List<GlobalSearchResult> SearchGlobalPackages(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return LoadPackageGraph(_context.Packages.AsNoTracking())
+                .Where(x =>
+                    EF.Functions.Like(x.TrackingNumber, pattern) ||
+                    EF.Functions.Like(x.Description, pattern) ||
+                    EF.Functions.Like(x.RecipientAddress.City, pattern) ||
+                    EF.Functions.Like(x.RecipientAddress.Country, pattern) ||
+                    EF.Functions.Like(x.SenderUser.Email, pattern) ||
+                    EF.Functions.Like(x.RecipientUser.Email, pattern))
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    x.TrackingNumber,
+                    x.RecipientAddress.City + ", " + x.RecipientAddress.Country + " · " + x.Status,
+                    "Package",
+                    "package_2",
+                    Url.Action("Details", "Home", new { type = "package", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "package" }) }) ?? $"/objects/package/{x.Id}"))
+                .ToList();
+        }
+
+        private List<GlobalSearchResult> SearchGlobalCouriers(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return _context.Couriers.AsNoTracking()
+                .Where(x =>
+                    EF.Functions.Like(x.FirstName, pattern) ||
+                    EF.Functions.Like(x.LastName, pattern) ||
+                    EF.Functions.Like(x.Email, pattern) ||
+                    EF.Functions.Like(x.PhoneNumber, pattern) ||
+                    EF.Functions.Like(x.VehicleType, pattern) ||
+                    EF.Functions.Like(x.LicensePlate, pattern))
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    x.FirstName + " " + x.LastName,
+                    x.VehicleType + " · " + x.LicensePlate,
+                    "Courier",
+                    "local_shipping",
+                    Url.Action("Details", "Home", new { type = "courier", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "courier" }) }) ?? $"/objects/courier/{x.Id}"))
+                .ToList();
+        }
+
+        private List<GlobalSearchResult> SearchGlobalWarehouses(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return _context.Warehouses.AsNoTracking()
+                .Include(x => x.Address)
+                .Where(x =>
+                    EF.Functions.Like(x.Name, pattern) ||
+                    EF.Functions.Like(x.Address.City, pattern) ||
+                    EF.Functions.Like(x.Address.Street, pattern))
+                .OrderBy(x => x.Name)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    x.Name,
+                    x.Address.City + " · capacity " + x.Capacity,
+                    "Warehouse",
+                    "warehouse",
+                    Url.Action("Details", "Home", new { type = "warehouse", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "warehouse" }) }) ?? $"/objects/warehouse/{x.Id}"))
+                .ToList();
+        }
+
+        private List<GlobalSearchResult> SearchGlobalUsers(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return _context.Users.AsNoTracking()
+                .Where(x =>
+                    EF.Functions.Like(x.FirstName, pattern) ||
+                    EF.Functions.Like(x.LastName, pattern) ||
+                    EF.Functions.Like(x.Email, pattern) ||
+                    EF.Functions.Like(x.PhoneNumber, pattern))
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    x.FirstName + " " + x.LastName,
+                    x.Email,
+                    "User",
+                    "group",
+                    Url.Action("Details", "Home", new { type = "user", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "user" }) }) ?? $"/objects/user/{x.Id}"))
+                .ToList();
+        }
+
+        private List<GlobalSearchResult> SearchGlobalDeliveries(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return _context.Deliveries.AsNoTracking()
+                .Include(x => x.Courier)
+                .Where(x =>
+                    EF.Functions.Like(x.CurrentLocation, pattern) ||
+                    EF.Functions.Like(x.Courier.FirstName, pattern) ||
+                    EF.Functions.Like(x.Courier.LastName, pattern))
+                .OrderByDescending(x => x.DepartureDate)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    "Delivery #" + x.Id,
+                    x.CurrentLocation + " · " + x.Courier.FirstName + " " + x.Courier.LastName,
+                    "Delivery",
+                    "receipt_long",
+                    Url.Action("Details", "Home", new { type = "delivery", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "delivery" }) }) ?? $"/objects/delivery/{x.Id}"))
+                .ToList();
+        }
+
+        private List<GlobalSearchResult> SearchGlobalAddresses(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return _context.Addresses.AsNoTracking()
+                .Where(x =>
+                    EF.Functions.Like(x.Street, pattern) ||
+                    EF.Functions.Like(x.City, pattern) ||
+                    EF.Functions.Like(x.PostalCode, pattern) ||
+                    EF.Functions.Like(x.Country, pattern))
+                .OrderBy(x => x.City)
+                .ThenBy(x => x.Street)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    x.Street,
+                    x.PostalCode + " " + x.City + ", " + x.Country,
+                    "Address",
+                    "home_pin",
+                    Url.Action("Details", "Home", new { type = "address", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "address" }) }) ?? $"/objects/address/{x.Id}"))
+                .ToList();
+        }
+
+        private List<GlobalSearchResult> SearchGlobalStatusLogs(string term, int take)
+        {
+            var pattern = $"%{term}%";
+            return _context.StatusLogs.AsNoTracking()
+                .Include(x => x.Package)
+                .Where(x =>
+                    EF.Functions.Like(x.Package.TrackingNumber, pattern) ||
+                    EF.Functions.Like(x.Location, pattern) ||
+                    EF.Functions.Like(x.Description, pattern))
+                .OrderByDescending(x => x.TimeChanged)
+                .Take(take)
+                .AsEnumerable()
+                .Select(x => new GlobalSearchResult(
+                    x.Package.TrackingNumber + " status",
+                    x.Location + " · " + x.NewStatus,
+                    "Status log",
+                    "history",
+                    Url.Action("Details", "Home", new { type = "statuslog", id = x.Id, returnUrl = Url.Action("Manifest", "Home", new { selectedType = "statuslog" }) }) ?? $"/objects/statuslog/{x.Id}"))
+                .ToList();
+        }
+
+        private static bool ContainsSearchText(string term, params string?[] values)
+        {
+            return values.Any(value =>
+                !string.IsNullOrWhiteSpace(value) &&
+                value.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
         private static string NormalizeType(string? value)
         {
             return string.IsNullOrWhiteSpace(value)
@@ -562,6 +781,13 @@ namespace Vjezba.Model.Controllers
             return DefaultSelectedType;
         }
 
+        private sealed record GlobalSearchResult(
+            string Title,
+            string Subtitle,
+            string Category,
+            string Icon,
+            string Url);
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("errors/app")]
         [AllowAnonymous]
@@ -571,3 +797,4 @@ namespace Vjezba.Model.Controllers
         }
     }
 }
+
