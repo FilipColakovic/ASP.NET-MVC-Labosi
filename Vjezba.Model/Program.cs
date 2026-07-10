@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IO;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,16 @@ var cloudRunPort = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrWhiteSpace(cloudRunPort))
 {
     builder.WebHost.UseUrls($"http://0.0.0.0:{cloudRunPort}");
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders =
+            ForwardedHeaders.XForwardedFor |
+            ForwardedHeaders.XForwardedProto |
+            ForwardedHeaders.XForwardedHost;
+
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
 }
 
 var appDataRoot = string.IsNullOrWhiteSpace(cloudRunPort)
@@ -88,6 +99,11 @@ using (var scope = app.Services.CreateScope())
     // manager@local.test / Manager123!
     // user2@local.test / User123!
     await IdentitySeed.SeedRolesAndUsersAsync(scope.ServiceProvider);
+}
+
+if (!string.IsNullOrWhiteSpace(cloudRunPort))
+{
+    app.UseForwardedHeaders();
 }
 
 if (!app.Environment.IsDevelopment())
