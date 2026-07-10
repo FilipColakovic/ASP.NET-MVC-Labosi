@@ -19,13 +19,21 @@ if (!string.IsNullOrWhiteSpace(cloudRunPort))
     builder.WebHost.UseUrls($"http://0.0.0.0:{cloudRunPort}");
 }
 
-var dbDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
+var appDataRoot = string.IsNullOrWhiteSpace(cloudRunPort)
+    ? builder.Environment.ContentRootPath
+    : Path.Combine(Path.GetTempPath(), "vjezba-model");
+var dbDirectory = Path.Combine(appDataRoot, "App_Data");
 Directory.CreateDirectory(dbDirectory);
 var dataProtectionKeyDirectory = Path.Combine(dbDirectory, "DataProtection-Keys");
 Directory.CreateDirectory(dataProtectionKeyDirectory);
 var dbPath = Path.Combine(dbDirectory, "vjezba.db");
 var configuredConnection = builder.Configuration.GetConnectionString("DefaultConnection");
-var sqliteConnection = string.IsNullOrWhiteSpace(configuredConnection)
+var useAppDataSqlite = string.IsNullOrWhiteSpace(configuredConnection)
+    || string.Equals(
+        configuredConnection.Trim(),
+        "Data Source=App_Data/vjezba.db",
+        StringComparison.OrdinalIgnoreCase);
+var sqliteConnection = useAppDataSqlite
     ? $"Data Source={dbPath}"
     : configuredConnection;
 
